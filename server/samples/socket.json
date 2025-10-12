@@ -1,0 +1,425 @@
+[
+  {
+    "youtube": {
+      "isLive": false,
+      "upcoming": false,
+      "videoId": null
+    },
+    "twitch": {
+      "isLive": false,
+      "isWAN": false
+    },
+    "specialStream": false,
+    "floatplane": {
+      "isLive": false,
+      "isThumbnailNew": false,
+      "thumbnail": "https://pbs.floatplane.com/stream_thumbnails/5c13f3c006f1be15e08e05c0/733054221374526_1760139634263.jpeg",
+      "title": "Piracy Is Dangerous And Harmful - WAN Show October 10, 2025"
+    },
+    "notablePeople": {
+      "bocabola": {
+        "isLive": true,
+        "started": "2025-10-11T16:27:15Z",
+        "title": "LIVE CRASH OUT RIGHT NOW - !discord âï¸âð¥ CANT TAKE IT ANYMORE ð±ï¸ !YT !Socials !Plus !Tip ð",
+        "name": "Elijah",
+        "channel": "bocabola",
+        "game": "Just Chatting"
+      },
+      "buhdan": {
+        "isLive": false,
+        "name": "Dan",
+        "channel": "buhdan"
+      },
+      "luke_lafr": {
+        "isLive": false,
+        "name": "Luke",
+        "channel": "luke_lafr"
+      },
+      "iitskasino": {
+        "isLive": false,
+        "name": "Sammy",
+        "channel": "iitskasino"
+      }
+    },
+    "hasDone": true,
+    "isThereWan": {
+      "text": null,
+      "image": null
+    },
+    "votes": [
+      {
+        "name": "Early",
+        "comment": "funny joke",
+        "votes": 4,
+        "time": 0
+      },
+      {
+        "name": "On time",
+        "comment": "if only, right?",
+        "votes": 3,
+        "time": 300000
+      },
+      {
+        "name": "~30 minutes late",
+        "votes": 28,
+        "time": 3000000
+      },
+      {
+        "name": "1 hour late",
+        "votes": 20,
+        "time": 6300000
+      },
+      {
+        "name": "2-3 hours late",
+        "votes": 5,
+        "time": 13500000
+      },
+      {
+        "name": "4+ hours late",
+        "comment": "new record?",
+        "votes": 3,
+        "time": 86400000
+      }
+    ],
+    "reloadNumber": 58
+  },
+  {
+    "youtube": {
+      "isLive": false,
+      "upcoming": false,
+      "videoId": null
+    },
+    "twitch": {
+      "isLive": false,
+      "isWAN": false
+    },
+    "specialStream": false,
+    "floatplane": {
+      "isLive": false,
+      "isWAN": true,
+      "isThumbnailNew": false,
+      "thumbnail": "https://pbs.floatplane.com/stream_thumbnails/5c13f3c006f1be15e08e05c0/733054221374526_1760139634263.jpeg",
+      "title": "Piracy Is Dangerous And Harmful - WAN Show October 10, 2025"
+    },
+    "notablePeople": {
+      "bocabola": {
+        "isLive": true,
+        "started": "2025-10-11T16:27:15Z",
+        "title": "LIVE CRASH OUT RIGHT NOW - !discord âï¸âð¥ CANT TAKE IT ANYMORE ð±ï¸ !YT !Socials !Plus !Tip ð",
+        "name": "Elijah",
+        "channel": "bocabola",
+        "game": "Just Chatting"
+      },
+      "buhdan": {
+        "isLive": false,
+        "name": "Dan",
+        "channel": "buhdan"
+      },
+      "luke_lafr": {
+        "isLive": false,
+        "name": "Luke",
+        "channel": "luke_lafr"
+      },
+      "iitskasino": {
+        "isLive": false,
+        "name": "Sammy",
+        "channel": "iitskasino"
+      }
+    },
+    "hasDone": true,
+    "isThereWan": {
+      "text": null,
+      "image": null
+    },
+    "votes": [
+      {
+        "name": "Early",
+        "comment": "funny joke",
+        "votes": 4,
+        "time": 0
+      },
+      {
+        "name": "On time",
+        "comment": "if only, right?",
+        "votes": 3,
+        "time": 300000
+      },
+      {
+        "name": "~30 minutes late",
+        "votes": 28,
+        "time": 3000000
+      },
+      {
+        "name": "1 hour late",
+        "votes": 20,
+        "time": 6300000
+      },
+      {
+        "name": "2-3 hours late",
+        "votes": 5,
+        "time": 13500000
+      },
+      {
+        "name": "4+ hours late",
+        "comment": "new record?",
+        "votes": 3,
+        "time": 86400000
+      }
+    ],
+    "reloadNumber": 58
+  },
+  {
+    "youtube": {
+      "isLive": false,
+      "upcoming": false,
+      "videoId": null
+    },
+    "twitch": {
+      "isLive": false,
+      "isWAN": false
+    },
+    "specialStream": false,
+    "floatplane": {
+      "isLive": false,
+      "isWAN": true,
+      "isThumbnailNew": false,
+      "thumbnail": "https://pbs.floatplane.com/stream_thumbnails/5c13f3c006f1be15e08e05c0/733054221374526_1760139634263.jpeg",
+      "title": "Piracy Is Dangerous And Harmful - WAN Show October 10, 2025"
+    },
+    "notablePeople": {
+      "bocabola": {
+        "isLive": true,
+        "started": "2025-10-11T16:27:15Z",
+        "title": "LIVE CRASH OUT RIGHT NOW - !discord âï¸âð¥ CANT TAKE IT ANYMORE ð±ï¸ !YT !Socials !Plus !Tip ð",
+        "name": "Elijah",
+        "channel": "bocabola",
+        "game": "BATTLEFIELD 6"
+      },
+      "buhdan": {
+        "isLive": false,
+        "name": "Dan",
+        "channel": "buhdan"
+      },
+      "luke_lafr": {
+        "isLive": false,
+        "name": "Luke",
+        "channel": "luke_lafr"
+      },
+      "iitskasino": {
+        "isLive": false,
+        "name": "Sammy",
+        "channel": "iitskasino"
+      }
+    },
+    "hasDone": true,
+    "isThereWan": {
+      "text": null,
+      "image": null
+    },
+    "votes": [
+      {
+        "name": "Early",
+        "comment": "funny joke",
+        "votes": 4,
+        "time": 0
+      },
+      {
+        "name": "On time",
+        "comment": "if only, right?",
+        "votes": 3,
+        "time": 300000
+      },
+      {
+        "name": "~30 minutes late",
+        "votes": 28,
+        "time": 3000000
+      },
+      {
+        "name": "1 hour late",
+        "votes": 20,
+        "time": 6300000
+      },
+      {
+        "name": "2-3 hours late",
+        "votes": 5,
+        "time": 13500000
+      },
+      {
+        "name": "4+ hours late",
+        "comment": "new record?",
+        "votes": 3,
+        "time": 86400000
+      }
+    ],
+    "reloadNumber": 58
+  },
+  {
+    "youtube": {
+      "isLive": false,
+      "upcoming": false,
+      "videoId": null
+    },
+    "twitch": {
+      "isLive": false,
+      "isWAN": false
+    },
+    "specialStream": false,
+    "floatplane": {
+      "isLive": false,
+      "isThumbnailNew": false,
+      "thumbnail": "https://pbs.floatplane.com/stream_thumbnails/5c13f3c006f1be15e08e05c0/733054221374526_1760139634263.jpeg",
+      "title": "Piracy Is Dangerous And Harmful - WAN Show October 10, 2025"
+    },
+    "notablePeople": {
+      "bocabola": {
+        "isLive": true,
+        "started": "2025-10-11T16:27:15Z",
+        "title": "LIVE CRASH OUT RIGHT NOW - !discord âï¸âð¥ CANT TAKE IT ANYMORE ð±ï¸ !YT !Socials !Plus !Tip ð",
+        "name": "Elijah",
+        "channel": "bocabola",
+        "game": "BATTLEFIELD 6"
+      },
+      "buhdan": {
+        "isLive": false,
+        "name": "Dan",
+        "channel": "buhdan"
+      },
+      "luke_lafr": {
+        "isLive": false,
+        "name": "Luke",
+        "channel": "luke_lafr"
+      },
+      "iitskasino": {
+        "isLive": false,
+        "name": "Sammy",
+        "channel": "iitskasino"
+      }
+    },
+    "hasDone": true,
+    "isThereWan": {
+      "text": null,
+      "image": null
+    },
+    "votes": [
+      {
+        "name": "Early",
+        "comment": "funny joke",
+        "votes": 4,
+        "time": 0
+      },
+      {
+        "name": "On time",
+        "comment": "if only, right?",
+        "votes": 3,
+        "time": 300000
+      },
+      {
+        "name": "~30 minutes late",
+        "votes": 28,
+        "time": 3000000
+      },
+      {
+        "name": "1 hour late",
+        "votes": 20,
+        "time": 6300000
+      },
+      {
+        "name": "2-3 hours late",
+        "votes": 5,
+        "time": 13500000
+      },
+      {
+        "name": "4+ hours late",
+        "comment": "new record?",
+        "votes": 3,
+        "time": 86400000
+      }
+    ],
+    "reloadNumber": 58
+  },
+  {
+    "youtube": {
+      "isLive": false,
+      "upcoming": false,
+      "videoId": null
+    },
+    "twitch": {
+      "isLive": false,
+      "isWAN": false
+    },
+    "specialStream": false,
+    "floatplane": {
+      "isLive": false,
+      "isWAN": true,
+      "isThumbnailNew": false,
+      "thumbnail": "https://pbs.floatplane.com/stream_thumbnails/5c13f3c006f1be15e08e05c0/733054221374526_1760139634263.jpeg",
+      "title": "Piracy Is Dangerous And Harmful - WAN Show October 10, 2025"
+    },
+    "notablePeople": {
+      "bocabola": {
+        "isLive": true,
+        "started": "2025-10-11T16:27:15Z",
+        "title": "LIVE CRASH OUT RIGHT NOW - !discord âï¸âð¥ CANT TAKE IT ANYMORE ð±ï¸ !YT !Socials !Plus !Tip ð",
+        "name": "Elijah",
+        "channel": "bocabola",
+        "game": "BATTLEFIELD 6"
+      },
+      "buhdan": {
+        "isLive": false,
+        "name": "Dan",
+        "channel": "buhdan"
+      },
+      "luke_lafr": {
+        "isLive": false,
+        "name": "Luke",
+        "channel": "luke_lafr"
+      },
+      "iitskasino": {
+        "isLive": false,
+        "name": "Sammy",
+        "channel": "iitskasino"
+      }
+    },
+    "hasDone": true,
+    "isThereWan": {
+      "text": null,
+      "image": null
+    },
+    "votes": [
+      {
+        "name": "Early",
+        "comment": "funny joke",
+        "votes": 4,
+        "time": 0
+      },
+      {
+        "name": "On time",
+        "comment": "if only, right?",
+        "votes": 3,
+        "time": 300000
+      },
+      {
+        "name": "~30 minutes late",
+        "votes": 28,
+        "time": 3000000
+      },
+      {
+        "name": "1 hour late",
+        "votes": 20,
+        "time": 6300000
+      },
+      {
+        "name": "2-3 hours late",
+        "votes": 5,
+        "time": 13500000
+      },
+      {
+        "name": "4+ hours late",
+        "comment": "new record?",
+        "votes": 3,
+        "time": 86400000
+      }
+    ],
+    "reloadNumber": 58
+  }
+]
