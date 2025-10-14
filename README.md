@@ -199,14 +199,14 @@ WHENPLANE_API_URL=https://whenplane.com/api/current
 
 ## ✅ MVP Acceptance Criteria
 
-* [ ] Public bingo board with interactive tiles and “New Board” button
-* [ ] SSE-powered chat panel (read-only)
+* [x] Public bingo board with interactive tiles and “New Board” button
+* [x] SSE-powered chat panel (read-only)
 * [ ] Host dashboard for confirming tiles with context overlay
 * [ ] Lock system to prevent duplicate confirmations
 * [ ] “Send Test Message” button for broadcast testing
-* [ ] Basic `whenplane.com` API integration
-* [ ] Lightweight auth for hosts (env variable password)
-* [ ] Simple, dark-themed responsive UI
+* [x] Basic `whenplane.com` API integration
+* [x] Lightweight auth for hosts (env variable password)
+* [x] Simple, dark-themed responsive UI
 
 ---
 
