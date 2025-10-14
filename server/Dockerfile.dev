@@ -1,0 +1,18 @@
+# ────────────────────────────────
+#   Development image (hot reload)
+# ────────────────────────────────
+FROM golang:1.25-alpine AS dev
+WORKDIR /go/src/app
+
+# Install air once – it’s a tiny binary (~5 MB)
+RUN go install github.com/air-verse/air@latest
+
+# Copy deps so `air` can run `go build` without re‑downloading every time
+COPY go.mod go.sum ./
+RUN go mod download
+
+# Copy source (everything else) – this will be overridden by a bind mount in Compose
+COPY . .
+
+# air watches the current directory for changes and restarts your app automatically
+CMD ["air"]

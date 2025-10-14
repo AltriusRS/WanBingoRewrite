@@ -1,0 +1,48 @@
+# ────────────────────────────────────────
+# Global options – optional
+{
+    # Uncomment to allow Caddy to trust Cloudflare X-Forwarded-For, etc.
+    # trusted_proxies 127.0.0.1/32
+
+    log {
+        output stdout
+        level INFO
+    }
+}
+
+# ────────────────────────────────────────
+# Front‑end domain – serves the SPA (app:7999)
+app.bingo.local {
+    # TLS – either auto or use your own certs
+    # tls internal          # for a self‑signed cert (dev only)
+    # tls /etc/certs/fullchain.pem /etc/certs/privkey.pem  # for real certs
+
+    reverse_proxy app:7999 {
+        header_up X-Real-IP {remote}
+        header_up X-Forwarded-For {remote}
+        header_up X-Forwarded-Proto {scheme}
+    }
+
+    # If the SPA is a single‑page app that uses client‑side routing,
+    # let Caddy fall back to index.html for unknown paths.
+    route / {
+        try_files {path} {path}/index.html
+    }
+}
+
+# ────────────────────────────────────────
+# API domain – includes SSE endpoint (api:8000)
+api.bingo.local {
+    # TLS – same options as above
+    # tls internal
+
+    reverse_proxy api:8000 {
+        header_up X-Real-IP {remote}
+        header_up X-Forwarded-For {remote}
+        header_up X-Forwarded-Proto {scheme}
+    }
+
+    # If your SSE endpoint is not under `/events` but directly on the root
+    # (e.g., `api.devel.wanshow.bingo/events`), you can simply drop the
+    # @sse block and let all traffic go through the generic reverse_proxy.
+}

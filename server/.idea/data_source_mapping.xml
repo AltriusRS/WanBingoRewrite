@@ -1,0 +1,7 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project version="4">
+  <component name="DataSourcePerFileMappings">
+    <file url="file://$PROJECT_DIR$/db/schema.sql" value="2a173a55-1748-4c2f-b507-85020a29c291" />
+    <file url="file://$PROJECT_DIR$/handlers/tile_router/get.go" value="2a173a55-1748-4c2f-b507-85020a29c291" />
+  </component>
+</project>

@@ -1,497 +1,695 @@
 [
   {
-    "id": 2,
+    "id": "pYhro7iTSQlbbMxdsg9J7",
     "text": "Linus or Luke or Dan sighs",
-    "marked": false
+    "category": "Events",
+    "weight": 1,
+    "last_drawn_show": 0
   },
   {
-    "id": 3,
+    "id": "3AXPH39mmUszzD_9Ttmfq",
     "text": "Linus ignores Luke to change the topic",
-    "marked": false
+    "category": "Linus",
+    "weight": 1,
+    "last_drawn_show": 0
   },
   {
-    "id": 4,
+    "id": "kJdmP6gDSijdSCqA-ptk6",
     "text": "Linus hates on Twitch Chat",
-    "marked": false
+    "category": "Linus",
+    "weight": 1,
+    "last_drawn_show": 0
   },
   {
-    "id": 5,
+    "id": "ji3eCBLPrxSrB9BOKG-bH",
     "text": "Linus Facepalms",
-    "marked": false
+    "category": "Linus",
+    "weight": 1,
+    "last_drawn_show": 0
   },
   {
-    "id": 6,
+    "id": "AQrAcWkqsg6ij4BwIBLRm",
     "text": "Intro/Outro run accidentally",
-    "marked": false
+    "category": "Set/Production",
+    "weight": 1,
+    "last_drawn_show": 0
   },
   {
-    "id": 7,
+    "id": "W9No_ylM54QsNxquFZbjd",
     "text": "The microphone gets hit",
-    "marked": false
+    "category": "Set/Production",
+    "weight": 1,
+    "last_drawn_show": 0
   },
   {
-    "id": 8,
+    "id": "OPdeRADtmKh1RHsmH22o9",
     "text": "*Wow, I feel old...*",
-    "marked": false
+    "category": "Events",
+    "weight": 1,
+    "last_drawn_show": 0
   },
   {
-    "id": 9,
+    "id": "jXurzTPKY_2_BLYddQARX",
     "text": "Camera Not Focused",
-    "marked": false
+    "category": "Set/Production",
+    "weight": 1,
+    "last_drawn_show": 0
   },
   {
-    "id": 10,
+    "id": "GdOM4Jx7ZIeBsqlFEGzpf",
     "text": "Luke was Wrong",
-    "marked": false
+    "category": "Luke",
+    "weight": 1,
+    "last_drawn_show": 0
   },
   {
-    "id": 11,
+    "id": "WH6tzRJ5PGOAfupefdeXZ",
     "text": "Linus Was Wrong",
-    "marked": false
+    "category": "Linus",
+    "weight": 1,
+    "last_drawn_show": 0
   },
   {
-    "id": 12,
+    "id": "U3SEvAZT4EHVm1qbl1U8r",
     "text": "Colton Quit / Fired joke",
-    "marked": false
+    "category": "Events",
+    "weight": 1,
+    "last_drawn_show": 0
   },
   {
-    "id": 13,
+    "id": "kxR5uknbsW_ScyHM-oNVX",
     "text": "Linus Drops Something",
-    "marked": false
+    "category": "Linus",
+    "weight": 1,
+    "last_drawn_show": 0
   },
   {
-    "id": 14,
+    "id": "LdaAhl25W4KpvQEc_1Kzv",
     "text": "Nvidia News!",
-    "marked": false
+    "category": "Topics",
+    "weight": 1,
+    "last_drawn_show": 0
   },
   {
-    "id": 15,
+    "id": "BaD8f-Qmpgyx7_xH5vUir",
     "text": "AMD News!",
-    "marked": false
+    "category": "Topics",
+    "weight": 1,
+    "last_drawn_show": 0
   },
   {
-    "id": 16,
+    "id": "RubFqyA_Zs0XpwhZ0q_a5",
     "text": "Intel News!",
-    "marked": false
+    "category": "Topics",
+    "weight": 1,
+    "last_drawn_show": 0
   },
   {
-    "id": 17,
+    "id": "lovN9OEyXuC9PJQHnvnGb",
     "text": "Apple News!",
-    "marked": false
+    "category": "Topics",
+    "weight": 1,
+    "last_drawn_show": 0
   },
   {
-    "id": 18,
+    "id": "1zVBE4wLA9oQIWOvdjZIK",
     "text": "New Sponsor!",
-    "marked": false
+    "category": "Sponsors",
+    "weight": 1,
+    "last_drawn_show": 0
   },
   {
-    "id": 19,
+    "id": "3LHG-WTzBzDZbYu-HXoNh",
     "text": "Screenshare has No Audio",
-    "marked": false
+    "category": "Set/Production",
+    "weight": 1,
+    "last_drawn_show": 0
   },
   {
-    "id": 20,
+    "id": "fY2u7DoLZ7k5omiGY7eRZ",
     "text": "Audio Clipping",
-    "marked": false
+    "category": "Set/Production",
+    "weight": 1,
+    "last_drawn_show": 0
   },
   {
-    "id": 21,
+    "id": "sBbnG8b1O_4jy0WU0JYec",
     "text": "Literally one super topic until sponsor spot",
-    "marked": false
+    "category": "Sponsors",
+    "weight": 1,
+    "last_drawn_show": 0
   },
   {
-    "id": 22,
+    "id": "nc9JZl99MEJIDs1Cr1y_D",
     "text": "Linus leaves the other host alone",
-    "marked": false
+    "category": "Linus",
+    "weight": 1,
+    "last_drawn_show": 0
   },
   {
-    "id": 23,
+    "id": "JAgGIaNECUw8ivraJ0EXW",
     "text": "Video output not connected to laptop",
-    "marked": false
+    "category": "Set/Production",
+    "weight": 1,
+    "last_drawn_show": 0
   },
   {
-    "id": 24,
+    "id": "lND6zOabtjUV7fV-B3DiR",
     "text": "Console Topic for the peasantry",
-    "marked": false
+    "category": "Topics",
+    "weight": 1,
+    "last_drawn_show": 0
   },
   {
-    "id": 25,
+    "id": "eb8uFT5T_K0-befw40IBM",
     "text": "Luke says *That's Hilarious!*",
-    "marked": false
+    "category": "Luke",
+    "weight": 1,
+    "last_drawn_show": 0
   },
   {
-    "id": 27,
+    "id": "17U6OdT6QW4WqrED_Ds0a",
     "text": "Someone messes with the set",
-    "marked": false
+    "category": "Set/Production",
+    "weight": 1,
+    "last_drawn_show": 0
   },
   {
-    "id": 28,
+    "id": "7zeqP0zUVdMnE7lCbElU7",
     "text": "Linus: 'We've got a great show for you today!'",
-    "marked": false
+    "category": "Linus",
+    "weight": 1,
+    "last_drawn_show": 0
   },
   {
-    "id": 30,
+    "id": "NZUFuGT4dgw3nbDoVBtUs",
     "text": "No actual news before sponsor spot",
-    "marked": false
+    "category": "Sponsors",
+    "weight": 1,
+    "last_drawn_show": 0
   },
   {
-    "id": 31,
+    "id": "uRE41fjRbKbHYD7Bal877",
     "text": "Linus doesn't censor while swearing",
-    "marked": false
+    "category": "Linus",
+    "weight": 1,
+    "last_drawn_show": 0
   },
   {
-    "id": 32,
+    "id": "cjAULhjZBLZq0xzt-V_gV",
     "text": "Motion-Sickness Camera",
-    "marked": false
+    "category": "Set/Production",
+    "weight": 1,
+    "last_drawn_show": 0
   },
   {
-    "id": 33,
+    "id": "69LrHZvYtEuL8P4OdQhFs",
     "text": "Super-Zoomed Camera",
-    "marked": false
+    "category": "Set/Production",
+    "weight": 1,
+    "last_drawn_show": 0
   },
   {
-    "id": 34,
+    "id": "MdM9kwiAnaAQY2E_SVOae",
     "text": "Hello Dan",
-    "marked": false
+    "category": "Dan",
+    "weight": 1,
+    "last_drawn_show": 0
   },
   {
-    "id": 35,
+    "id": "i27fmnr_tu4nF4za9rWUr",
     "text": "LTT Store Plug",
-    "marked": false
+    "category": "Events",
+    "weight": 1,
+    "last_drawn_show": 0
   },
   {
-    "id": 36,
+    "id": "u5jjt2ruMPZEiIFrHDY9q",
     "text": "LTT Water Bottle drank from",
-    "marked": false
+    "category": "Events",
+    "weight": 1,
+    "last_drawn_show": 0
   },
   {
-    "id": 37,
+    "id": "JDJuwnV-OIV86l1Sm4mzK",
     "text": "Banana For Scale",
-    "marked": false
+    "category": "Events",
+    "weight": 1,
+    "last_drawn_show": 0
   },
   {
-    "id": 38,
+    "id": "ftsUAzY_Db6F5L76o8NXo",
     "text": "Linus Hot Take",
-    "marked": false
+    "category": "Linus",
+    "weight": 1,
+    "last_drawn_show": 0
   },
   {
-    "id": 39,
+    "id": "A6NucRK2Gj0xPFKLYfDxL",
     "text": "Linus Roasts a Company",
-    "marked": false
+    "category": "Linus",
+    "weight": 1,
+    "last_drawn_show": 0
   },
   {
-    "id": 40,
+    "id": "kJvJpGqFBVpGUgXwtmHIM",
     "text": "Linus' parenting stories",
-    "marked": false
+    "category": "Linus",
+    "weight": 1,
+    "last_drawn_show": 0
   },
   {
-    "id": 41,
+    "id": "KsG42jyeJuixw0GM-O6ue",
     "text": "Mispronunciation of a word/phrase",
-    "marked": false
+    "category": "Events",
+    "weight": 1,
+    "last_drawn_show": 0
   },
   {
-    "id": 43,
+    "id": "I3GA3iJPjtzEP1_6kBnd_",
     "text": "Stream Dies",
-    "marked": false
+    "category": "Events",
+    "weight": 1,
+    "last_drawn_show": 0
   },
   {
-    "id": 44,
+    "id": "tj69a_JZfeIweQQrXbskV",
     "text": "Costumes!",
-    "marked": false
+    "category": "Events",
+    "weight": 1,
+    "last_drawn_show": 0
   },
   {
-    "id": 45,
+    "id": "BfaqFYztlR5Ix_l_hqCnB",
     "text": "4+ Hour WAN Show (What a Champ!)",
-    "marked": false
+    "category": "Events",
+    "weight": 1,
+    "last_drawn_show": 0
   },
   {
-    "id": 46,
+    "id": "ASPY0Qy1tZDGmyNMTjnJc",
     "text": "Luke laughs uncomfortably loud",
-    "marked": false
+    "category": "Luke",
+    "weight": 1,
+    "last_drawn_show": 0
   },
   {
-    "id": 48,
+    "id": "2wN544Mxvc2TorepxLBTg",
     "text": "Luke talks about AI",
-    "marked": false
+    "category": "Luke",
+    "weight": 1,
+    "last_drawn_show": 0
   },
   {
-    "id": 50,
+    "id": "KKbzU2rbiJJkSBCn9duYF",
     "text": "Accidentally shared confidential info",
-    "marked": false
+    "category": "Events",
+    "weight": 1,
+    "last_drawn_show": 0
   },
   {
-    "id": 51,
+    "id": "W-motMP4ZsdIv3rkAKzok",
     "text": "Dan ignores Linus",
-    "marked": false
+    "category": "Dan",
+    "weight": 1,
+    "last_drawn_show": 0
   },
   {
-    "id": 52,
+    "id": "lqnGNVc9nttIrVhpiDdqc",
     "text": "Hit me Dan",
-    "marked": false
+    "category": "Dan",
+    "weight": 1,
+    "last_drawn_show": 0
   },
   {
-    "id": 53,
+    "id": "c7BjRI697FtIH2UJf4Idu",
     "text": "WANShow.bingo is mentioned",
-    "marked": false
+    "category": "Events",
+    "weight": 1,
+    "last_drawn_show": 0
   },
   {
-    "id": 54,
+    "id": "TBmEkuWwpRyCVLwpvaZ_l",
     "text": "Not my problem anymore, talk to the new ceo.",
-    "marked": false
+    "category": "Events",
+    "weight": 1,
+    "last_drawn_show": 0
   },
   {
-    "id": 55,
+    "id": "r9Mnf_ME0OHShfpeUVy-o",
     "text": "Linus: it's not my fault",
-    "marked": false
+    "category": "Linus",
+    "weight": 1,
+    "last_drawn_show": 0
   },
   {
-    "id": 56,
+    "id": "8pce6MxeUuq31sjmZb_GI",
     "text": "Sponsored by dbrand!",
-    "marked": false
+    "category": "Sponsors",
+    "weight": 1,
+    "last_drawn_show": 0
   },
   {
-    "id": 57,
+    "id": "BlxEmS0DoW_U0m-iz7mdN",
     "text": "Sponsored by SquareSpace!",
-    "marked": false
+    "category": "Sponsors",
+    "weight": 1,
+    "last_drawn_show": 0
   },
   {
-    "id": 58,
+    "id": "73KLQbGb8qdAIV92l1hFA",
     "text": "Linus eats/drinks something",
-    "marked": false
+    "category": "Linus",
+    "weight": 1,
+    "last_drawn_show": 0
   },
   {
-    "id": 59,
+    "id": "sljhxujZPi9ltJOqFAp63",
     "text": "Linus complains about YouTube",
-    "marked": false
+    "category": "Linus",
+    "weight": 1,
+    "last_drawn_show": 0
   },
   {
-    "id": 60,
+    "id": "trAzkzKWLx6ZU42Mfor5g",
     "text": "Live Tech Product Unboxing",
-    "marked": false
+    "category": "Events",
+    "weight": 1,
+    "last_drawn_show": 0
   },
   {
-    "id": 61,
+    "id": "mfTNmsg6UIIzv5A4LvAyr",
     "text": "Talking over Audio",
-    "marked": false
+    "category": "Set/Production",
+    "weight": 1,
+    "last_drawn_show": 0
   },
   {
-    "id": 64,
+    "id": "WeV8Fp5qTkikUQUse1YmH",
     "text": "Trust me Bro",
-    "marked": false
+    "category": "Events",
+    "weight": 1,
+    "last_drawn_show": 0
   },
   {
-    "id": 65,
+    "id": "Qp6vz_-EADENmkwsyte6J",
     "text": "Linus is out of touch",
-    "marked": false
+    "category": "Linus",
+    "weight": 1,
+    "last_drawn_show": 0
   },
   {
-    "id": 66,
+    "id": "-Q5HcciRTECVS7cbAAT47",
     "text": "Too long (15 min+) on a topic",
-    "marked": false
+    "category": "Events",
+    "weight": 1,
+    "last_drawn_show": 0
   },
   {
-    "id": 67,
+    "id": "jjhqqMEYt7BKr85nCUO4P",
     "text": "Too long (5 mins+) on a merch message",
-    "marked": false
+    "category": "Events",
+    "weight": 1,
+    "last_drawn_show": 0
   },
   {
-    "id": 68,
+    "id": "kBkO1ou5Mgm-aDH2JPz_s",
     "text": "Innuendo",
-    "marked": false
+    "category": "Events",
+    "weight": 1,
+    "last_drawn_show": 0
   },
   {
-    "id": 69,
+    "id": "jEU-ZVrpBRU87a3R2ElrC",
     "text": "*oh yeah I guess we should do sponsor spots*",
-    "marked": false
+    "category": "Events",
+    "weight": 1,
+    "last_drawn_show": 0
   },
   {
-    "id": 70,
+    "id": "BV1VTXBrjrBDVaXEsRPg4",
     "text": "Linus rants while Luke interacts with chat bored",
-    "marked": false
+    "category": "Linus",
+    "weight": 1,
+    "last_drawn_show": 0
   },
   {
-    "id": 71,
+    "id": "DEVW39oIdqYETocl_KIyI",
     "text": "Linus changes camera angle for dan 'I've got it'",
-    "marked": false
+    "category": "Linus",
+    "weight": 1,
+    "last_drawn_show": 0
   },
   {
-    "id": 72,
+    "id": "SSd2LAc9FQB6RS1V_Kwkz",
     "text": "Linus: 'Since you put me on the spot'",
-    "marked": false
+    "category": "Linus",
+    "weight": 1,
+    "last_drawn_show": 0
   },
   {
-    "id": 73,
+    "id": "qMU9ISD_9QxefzCdomAPq",
     "text": "New merch launch",
-    "marked": false
+    "category": "Events",
+    "weight": 1,
+    "last_drawn_show": 0
   },
   {
-    "id": 74,
+    "id": "HhLMpqN2FAkUIH4CmjTUV",
     "text": "Putting off Merch Messages 'We'll get them in a sec'",
-    "marked": false
+    "category": "Events",
+    "weight": 1,
+    "last_drawn_show": 0
   },
   {
-    "id": 75,
+    "id": "bEFxAZvdfTaAR-UkD-BdQ",
     "text": "DAN tries to talk but is muted",
-    "marked": false
+    "category": "Dan",
+    "weight": 1,
+    "last_drawn_show": 0
   },
   {
-    "id": 76,
+    "id": "4ArJxjLxtvv0aLBF9pPAw",
     "text": "DING",
-    "marked": false
+    "category": "Events",
+    "weight": 1,
+    "last_drawn_show": 0
   },
   {
-    "id": 77,
+    "id": "Yyb48SI0jUfBUOD03LAn8",
     "text": "Dennis overboard sponsorspot",
-    "marked": false
+    "category": "Sponsors",
+    "weight": 1,
+    "last_drawn_show": 0
   },
   {
-    "id": 79,
+    "id": "ukjQJ5_-CKegKV6a_Og1q",
     "text": "Going back to previous topic/merch message",
-    "marked": false
+    "category": "Events",
+    "weight": 1,
+    "last_drawn_show": 0
   },
   {
-    "id": 80,
+    "id": "hQ3vMD9xNlj4sp2qEuRG2",
     "text": "*The Hackening*",
-    "marked": false
+    "category": "Events",
+    "weight": 1,
+    "last_drawn_show": 0
   },
   {
-    "id": 81,
+    "id": "KeThW3a1tmwMrpefvVj60",
     "text": "Luke struggles to pick a topic",
-    "marked": false
+    "category": "Luke",
+    "weight": 1,
+    "last_drawn_show": 0
   },
   {
-    "id": 83,
+    "id": "23Cv4gW6DYocuVL_AgmUY",
     "text": "*Spicy Take*",
-    "marked": false
+    "category": "Events",
+    "weight": 1,
+    "last_drawn_show": 0
   },
   {
-    "id": 84,
+    "id": "X_335PYYBnNUH80oHNDZ0",
     "text": "Dan cam with no Dan",
-    "marked": false
+    "category": "Dan",
+    "weight": 1,
+    "last_drawn_show": 0
   },
   {
-    "id": 85,
+    "id": "KVeHSSKAWkh9n5hOSvtkq",
     "text": "Dan goes and gets snacks for Linus",
-    "marked": false
+    "category": "Dan",
+    "weight": 1,
+    "last_drawn_show": 0
   },
   {
-    "id": 87,
+    "id": "Avkh2dEj_Roel6G2y55XO",
     "text": "Linus 'turns off' Dan",
-    "marked": false
+    "category": "Dan",
+    "weight": 1,
+    "last_drawn_show": 0
   },
   {
-    "id": 90,
+    "id": "VKWvCKvn0srzyYYV9y_u4",
     "text": "*Where was I going with this?*",
-    "marked": false
+    "category": "Linus",
+    "weight": 1,
+    "last_drawn_show": 0
   },
   {
-    "id": 91,
+    "id": "A4EhjSc-FeJm1kM8ujbiW",
     "text": "Luke doing a concern",
-    "marked": false
+    "category": "Luke",
+    "weight": 1,
+    "last_drawn_show": 0
   },
   {
-    "id": 92,
+    "id": "qvQmuF6SnJlZWHj5FdKBB",
     "text": "Linus rants for over 2 mins without input from Luke",
-    "marked": false
+    "category": "Linus",
+    "weight": 1,
+    "last_drawn_show": 0
   },
   {
-    "id": 93,
+    "id": "J6KHwBchwSD96UcFZ2D5_",
     "text": "Dan goes AFK",
-    "marked": false
+    "category": "Dan",
+    "weight": 1,
+    "last_drawn_show": 0
   },
   {
-    "id": 95,
+    "id": "W97lSUnnJbilKhUlqXSs0",
     "text": "Mentions another creator",
-    "marked": false
+    "category": "Events",
+    "weight": 1,
+    "last_drawn_show": 0
   },
   {
-    "id": 96,
+    "id": "jI3iC_XkFzfwFEPTP8U8u",
     "text": "Linus says: 'Look, the thing is'",
-    "marked": false
+    "category": "Linus",
+    "weight": 1,
+    "last_drawn_show": 0
   },
   {
-    "id": 98,
+    "id": "NW4TF_QlJS48JR5aKOiWL",
     "text": "Google News",
-    "marked": false
+    "category": "Topics",
+    "weight": 1,
+    "last_drawn_show": 0
   },
   {
-    "id": 99,
+    "id": "CEk26e6DFOQUXOaZVaOH0",
     "text": "Videogame Topic",
-    "marked": false
+    "category": "Topics",
+    "weight": 1,
+    "last_drawn_show": 0
   },
   {
-    "id": 100,
+    "id": "kU6Q-jECe2jPGeA97mb96",
     "text": "We're Hiring",
-    "marked": false
+    "category": "Events",
+    "weight": 1,
+    "last_drawn_show": 0
   },
   {
-    "id": 107,
+    "id": "ALK9YM8Hm2xmya4QWbX4s",
     "text": "Linus calls someone live on show",
-    "marked": false
+    "category": "Linus",
+    "weight": 1,
+    "last_drawn_show": 0
   },
   {
-    "id": 108,
+    "id": "wcdAehN0u-u8Cnle19JeD",
     "text": "Linus explains how to human",
-    "marked": false
+    "category": "Linus",
+    "weight": 1,
+    "last_drawn_show": 0
   },
   {
-    "id": 109,
+    "id": "oZuNEsBKSVbIEmoMa_Auw",
     "text": "Linus gets signed out of something",
-    "marked": false
+    "category": "Linus",
+    "weight": 1,
+    "last_drawn_show": 0
   },
   {
-    "id": 110,
+    "id": "wYu9kCUSEGeC9VZfA8U71",
     "text": "Linus mocks French people",
-    "marked": false
+    "category": "Linus",
+    "weight": 1,
+    "last_drawn_show": 0
   },
   {
-    "id": 112,
+    "id": "sxxPZxny2wb8MgqdXmONG",
     "text": "Luke talks about movies",
-    "marked": false
+    "category": "Luke",
+    "weight": 1,
+    "last_drawn_show": 0
   },
   {
-    "id": 113,
+    "id": "VX3l5edoJaTw-Waobpwbk",
     "text": "Dan mocks a file extension",
-    "marked": false
+    "category": "Dan",
+    "weight": 1,
+    "last_drawn_show": 0
   },
   {
-    "id": 119,
+    "id": "cDJ-tz58hcuJJzndh9xQd",
     "text": "Linus, Luke, or Dan make a terrible joke/pun",
-    "marked": false
+    "category": "Events",
+    "weight": 1,
+    "last_drawn_show": 0
   },
   {
-    "id": 121,
+    "id": "0_R_ptyCeCXJ0EQfAoWCO",
     "text": "Not Financial Advice",
-    "marked": false
+    "category": "Events",
+    "weight": 1,
+    "last_drawn_show": 0
   },
   {
-    "id": 123,
+    "id": "HbDcO3mpTNj93tE_XP-2P",
     "text": "Floatplane / Labs Preview",
-    "marked": false
+    "category": "Topics",
+    "weight": 1,
+    "last_drawn_show": 0
   },
   {
-    "id": 124,
+    "id": "etmSz-0MgRaBrU85nI6io",
     "text": "Rapid-fire merch messages",
-    "marked": false
+    "category": "Events",
+    "weight": 1,
+    "last_drawn_show": 0
   },
   {
-    "id": 125,
+    "id": "AL0_lZxh-QmfXZ4mdhwEr",
     "text": "Someone in the audience buys a domain",
-    "marked": false
+    "category": "Events",
+    "weight": 1,
+    "last_drawn_show": 0
   },
   {
-    "id": 126,
+    "id": "Xkq3e-6EfnBD95J1EAilM",
     "text": "Linus Theft/Legal Tips",
-    "marked": false
+    "category": "Events",
+    "weight": 1,
+    "last_drawn_show": 0
   },
   {
-    "id": 127,
+    "id": "juZ0aAds-9L2NmO2_7Fbu",
     "text": "Linus talks about an upcoming product/video",
-    "marked": false
+    "category": "Linus",
+    "weight": 1,
+    "last_drawn_show": 0
   },
   {
-    "id": 128,
+    "id": "Ws6Y4nd9KBhr2PXaQspBJ",
     "text": "Special Guest on Stream (Anyone but DLL)",
-    "marked": false
+    "category": "Set/Production",
+    "weight": 1,
+    "last_drawn_show": 0
   }
 ]

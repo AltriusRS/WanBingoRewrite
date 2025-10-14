@@ -1,45 +1,20 @@
-package handlers
+package socket
 
 import (
-	"encoding/json"
 	"io"
 	"log"
 	"net/http"
 	"os"
 	"strconv"
-	"sync/atomic"
 	"time"
-
 	"wanshow-bingo/sse"
+	"wanshow-bingo/utils"
+	"wanshow-bingo/whenplane"
 
-	"github.com/gofiber/fiber/v2"
 	"github.com/gorilla/websocket"
 )
 
-// aggregateCache stores the latest aggregate JSON payload as raw bytes.
-var aggregateCache atomic.Value // holds []byte
-
-// aggHub is the SSE hub used to broadcast aggregate updates to clients.
-var aggHub *sse.Hub
-
 func init() {
-	aggregateCache.Store([]byte("null"))
-}
-
-// GetAggregate serves the latest cached aggregate JSON.
-func GetAggregate(c *fiber.Ctx) error {
-	b, _ := aggregateCache.Load().([]byte)
-	if len(b) == 0 || string(b) == "null" {
-		return c.Status(fiber.StatusServiceUnavailable).JSON(fiber.Map{"error": "aggregate not ready"})
-	}
-	c.Type("json")
-	return c.Send(b)
-}
-
-// StartAggregateFetcher now performs a single initial HTTP fetch and then
-// maintains a 24/7 websocket connection that updates the aggregate cache.
-func StartAggregateFetcher(h *sse.Hub) {
-	aggHub = h
 	go func() {
 		// Initial one-time fetch to warm the cache
 		fetchAggregateOnce()
@@ -72,7 +47,20 @@ func fetchAggregateOnce() {
 		log.Printf("aggregate read error: %v", err)
 		return
 	}
-	aggregateCache.Store(b)
+
+	utils.Debugln("aggregate fetched")
+
+	aggregate, err := whenplane.AggregateFromJSON(string(b))
+
+	if err != nil {
+		log.Println("error parsing aggregate response:", err)
+		log.Println("body:", string(b))
+		return
+	}
+
+	whenplane.UpdateAggregateCache(aggregate)
+
+	PingPong()
 }
 
 // connectLiveWebsocketForever maintains a perpetual connection to the WhenPlane
@@ -124,31 +112,65 @@ func handleWebsocketMessage(c *websocket.Conn) {
 
 		// Ignore ping/pong textual keepalives
 		if string(message) == "pong" || string(message) == "ping" {
-			// Broadcast to hub with opcode whenplane.aggregate if hub is available
-			if aggHub != nil {
-				evt := sse.SocketEvent{Opcode: "whenplane.aggregate", Data: aggregateCache.Load()}
-				if b, err := json.Marshal(evt); err == nil {
-					aggHub.Broadcast(string(b))
-				}
-			}
+
+			PingPong()
+
 		}
 
 		// If it looks like JSON, store it directly and broadcast to SSE hub
 		if len(message) > 0 && (message[0] == '{' || message[0] == '[') {
-			aggregateCache.Store(message)
-
-			log.Println("message received:", string(message))
-
-			// Broadcast to hub with opcode whenplane.aggregate if hub is available
-			if aggHub != nil {
-				var payload any
-				if err := json.Unmarshal(message, &payload); err == nil {
-					evt := sse.SocketEvent{Opcode: "whenplane.aggregate", Data: payload}
-					if b, err := json.Marshal(evt); err == nil {
-						aggHub.Broadcast(string(b))
-					}
-				}
-			}
+			AggregateMessage(string(message))
 		}
 	}
+}
+
+func AggregateMessage(message string) {
+	aggregate, err := whenplane.AggregateFromJSON(message)
+
+	if err != nil {
+		log.Println("error parsing aggregate event:", err)
+		log.Println("message received:", message)
+		return
+	}
+
+	whenplane.UpdateAggregateCache(aggregate)
+
+	err = BroadcastToHubs()
+
+	if err != nil {
+		log.Println("error broadcasting aggregate event:", err)
+		log.Println("message received:", message)
+	}
+}
+
+func PingPong() {
+	err := BroadcastToHubs()
+
+	if err != nil {
+		log.Println("error broadcasting ping pong aggregate:", err)
+	}
+}
+
+func BroadcastToHubs() error {
+	utils.Debugln("[AGGREGATE] Broadcasting aggregate state to hubs")
+	payload := whenplane.GetAggregateCache()
+
+	//if err != nil {
+	//	log.Println("[AGGREGATE] error unmarshalling aggregate: ", err)
+	//	return
+	//}
+
+	chatHub := sse.GetChatHub()
+	if chatHub != nil {
+		utils.Debugln("[AGGREGATE] Broadcasting aggregate state to chat hub")
+		chatHub.BroadcastEvent("whenplane.aggregate", payload)
+	}
+
+	hostHub := sse.GetHostHub()
+	if hostHub != nil {
+		utils.Debugln("[AGGREGATE] Broadcasting aggregate state to host hub")
+		hostHub.BroadcastEvent("whenplane.aggregate", payload)
+	}
+
+	return nil
 }
