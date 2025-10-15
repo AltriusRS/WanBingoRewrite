@@ -1,529 +1,82 @@
-import {ChatContextValue, useChat} from "@/components/chat/chat-context";
-
-export const PODCAST_TILES: BingoTile[] = [
-    {
-        "id": 2,
-        "text": "Linus or Luke or Dan sighs",
-        "marked": false
-    },
-    {
-        "id": 3,
-        "text": "Linus ignores Luke to change the topic",
-        "marked": false
-    },
-    {
-        "id": 4,
-        "text": "Linus hates on Twitch Chat",
-        "marked": false
-    },
-    {
-        "id": 5,
-        "text": "Linus Facepalms",
-        "marked": false
-    },
-    {
-        "id": 6,
-        "text": "Intro/Outro run accidentally",
-        "marked": false
-    },
-    {
-        "id": 7,
-        "text": "The microphone gets hit",
-        "marked": false
-    },
-    {
-        "id": 8,
-        "text": "*Wow, I feel old...*",
-        "marked": false
-    },
-    {
-        "id": 9,
-        "text": "Camera Not Focused",
-        "marked": false
-    },
-    {
-        "id": 10,
-        "text": "Luke was Wrong",
-        "marked": false
-    },
-    {
-        "id": 11,
-        "text": "Linus Was Wrong",
-        "marked": false
-    },
-    {
-        "id": 12,
-        "text": "Colton Quit / Fired joke",
-        "marked": false
-    },
-    {
-        "id": 13,
-        "text": "Linus Drops Something",
-        "marked": false
-    },
-    {
-        "id": 14,
-        "text": "Nvidia News!",
-        "marked": false
-    },
-    {
-        "id": 15,
-        "text": "AMD News!",
-        "marked": false
-    },
-    {
-        "id": 16,
-        "text": "Intel News!",
-        "marked": false
-    },
-    {
-        "id": 17,
-        "text": "Apple News!",
-        "marked": false
-    },
-    {
-        "id": 18,
-        "text": "New Sponsor!",
-        "marked": false
-    },
-    {
-        "id": 19,
-        "text": "Screenshare has No Audio",
-        "marked": false
-    },
-    {
-        "id": 20,
-        "text": "Audio Clipping",
-        "marked": false
-    },
-    {
-        "id": 21,
-        "text": "Literally one super topic until sponsor spot",
-        "marked": false
-    },
-    {
-        "id": 22,
-        "text": "Linus leaves the other host alone",
-        "marked": false
-    },
-    {
-        "id": 23,
-        "text": "Video output not connected to laptop",
-        "marked": false
-    },
-    {
-        "id": 24,
-        "text": "Console Topic for the peasantry",
-        "marked": false
-    },
-    {
-        "id": 25,
-        "text": "Luke says *That's Hilarious!*",
-        "marked": false
-    },
-    {
-        "id": 27,
-        "text": "Someone messes with the set",
-        "marked": false
-    },
-    {
-        "id": 28,
-        "text": "Linus: 'We've got a great show for you today!'",
-        "marked": false
-    },
-    {
-        "id": 30,
-        "text": "No actual news before sponsor spot",
-        "marked": false
-    },
-    {
-        "id": 31,
-        "text": "Linus doesn't censor while swearing",
-        "marked": false
-    },
-    {
-        "id": 32,
-        "text": "Motion-Sickness Camera",
-        "marked": false
-    },
-    {
-        "id": 33,
-        "text": "Super-Zoomed Camera",
-        "marked": false
-    },
-    {
-        "id": 34,
-        "text": "Hello Dan",
-        "marked": false
-    },
-    {
-        "id": 35,
-        "text": "LTT Store Plug",
-        "marked": false
-    },
-    {
-        "id": 36,
-        "text": "LTT Water Bottle drank from",
-        "marked": false
-    },
-    {
-        "id": 37,
-        "text": "Banana For Scale",
-        "marked": false
-    },
-    {
-        "id": 38,
-        "text": "Linus Hot Take",
-        "marked": false
-    },
-    {
-        "id": 39,
-        "text": "Linus Roasts a Company",
-        "marked": false
-    },
-    {
-        "id": 40,
-        "text": "Linus' parenting stories",
-        "marked": false
-    },
-    {
-        "id": 41,
-        "text": "Mispronunciation of a word/phrase",
-        "marked": false
-    },
-    {
-        "id": 43,
-        "text": "Stream Dies",
-        "marked": false
-    },
-    {
-        "id": 44,
-        "text": "Costumes!",
-        "marked": false
-    },
-    {
-        "id": 45,
-        "text": "4+ Hour WAN Show (What a Champ!)",
-        "marked": false
-    },
-    {
-        "id": 46,
-        "text": "Luke laughs uncomfortably loud",
-        "marked": false
-    },
-    {
-        "id": 48,
-        "text": "Luke talks about AI",
-        "marked": false
-    },
-    {
-        "id": 50,
-        "text": "Accidentally shared confidential info",
-        "marked": false
-    },
-    {
-        "id": 51,
-        "text": "Dan ignores Linus",
-        "marked": false
-    },
-    {
-        "id": 52,
-        "text": "Hit me Dan",
-        "marked": false
-    },
-    {
-        "id": 53,
-        "text": "WANShow.bingo is mentioned",
-        "marked": false
-    },
-    {
-        "id": 54,
-        "text": "Not my problem anymore, talk to the new ceo.",
-        "marked": false
-    },
-    {
-        "id": 55,
-        "text": "Linus: it's not my fault",
-        "marked": false
-    },
-    {
-        "id": 56,
-        "text": "Sponsored by dbrand!",
-        "marked": false
-    },
-    {
-        "id": 57,
-        "text": "Sponsored by SquareSpace!",
-        "marked": false
-    },
-    {
-        "id": 58,
-        "text": "Linus eats/drinks something",
-        "marked": false
-    },
-    {
-        "id": 59,
-        "text": "Linus complains about YouTube",
-        "marked": false
-    },
-    {
-        "id": 60,
-        "text": "Live Tech Product Unboxing",
-        "marked": false
-    },
-    {
-        "id": 61,
-        "text": "Talking over Audio",
-        "marked": false
-    },
-    {
-        "id": 64,
-        "text": "Trust me Bro",
-        "marked": false
-    },
-    {
-        "id": 65,
-        "text": "Linus is out of touch",
-        "marked": false
-    },
-    {
-        "id": 66,
-        "text": "Too long (15 min+) on a topic",
-        "marked": false
-    },
-    {
-        "id": 67,
-        "text": "Too long (5 mins+) on a merch message",
-        "marked": false
-    },
-    {
-        "id": 68,
-        "text": "Innuendo",
-        "marked": false
-    },
-    {
-        "id": 69,
-        "text": "*oh yeah I guess we should do sponsor spots*",
-        "marked": false
-    },
-    {
-        "id": 70,
-        "text": "Linus rants while Luke interacts with chat bored",
-        "marked": false
-    },
-    {
-        "id": 71,
-        "text": "Linus changes camera angle for dan 'I've got it'",
-        "marked": false
-    },
-    {
-        "id": 72,
-        "text": "Linus: 'Since you put me on the spot'",
-        "marked": false
-    },
-    {
-        "id": 73,
-        "text": "New merch launch",
-        "marked": false
-    },
-    {
-        "id": 74,
-        "text": "Putting off Merch Messages 'We'll get them in a sec'",
-        "marked": false
-    },
-    {
-        "id": 75,
-        "text": "DAN tries to talk but is muted",
-        "marked": false
-    },
-    {
-        "id": 76,
-        "text": "DING",
-        "marked": false
-    },
-    {
-        "id": 77,
-        "text": "Dennis overboard sponsorspot",
-        "marked": false
-    },
-    {
-        "id": 79,
-        "text": "Going back to previous topic/merch message",
-        "marked": false
-    },
-    {
-        "id": 80,
-        "text": "*The Hackening*",
-        "marked": false
-    },
-    {
-        "id": 81,
-        "text": "Luke struggles to pick a topic",
-        "marked": false
-    },
-    {
-        "id": 83,
-        "text": "*Spicy Take*",
-        "marked": false
-    },
-    {
-        "id": 84,
-        "text": "Dan cam with no Dan",
-        "marked": false
-    },
-    {
-        "id": 85,
-        "text": "Dan goes and gets snacks for Linus",
-        "marked": false
-    },
-    {
-        "id": 87,
-        "text": "Linus 'turns off' Dan",
-        "marked": false
-    },
-    {
-        "id": 90,
-        "text": "*Where was I going with this?*",
-        "marked": false
-    },
-    {
-        "id": 91,
-        "text": "Luke doing a concern",
-        "marked": false
-    },
-    {
-        "id": 92,
-        "text": "Linus rants for over 2 mins without input from Luke",
-        "marked": false
-    },
-    {
-        "id": 93,
-        "text": "Dan goes AFK",
-        "marked": false
-    },
-    {
-        "id": 95,
-        "text": "Mentions another creator",
-        "marked": false
-    },
-    {
-        "id": 96,
-        "text": "Linus says: 'Look, the thing is'",
-        "marked": false
-    },
-    {
-        "id": 98,
-        "text": "Google News",
-        "marked": false
-    },
-    {
-        "id": 99,
-        "text": "Videogame Topic",
-        "marked": false
-    },
-    {
-        "id": 100,
-        "text": "We're Hiring",
-        "marked": false
-    },
-    {
-        "id": 107,
-        "text": "Linus calls someone live on show",
-        "marked": false
-    },
-    {
-        "id": 108,
-        "text": "Linus explains how to human",
-        "marked": false
-    },
-    {
-        "id": 109,
-        "text": "Linus gets signed out of something",
-        "marked": false
-    },
-    {
-        "id": 110,
-        "text": "Linus mocks French people",
-        "marked": false
-    },
-    {
-        "id": 112,
-        "text": "Luke talks about movies",
-        "marked": false
-    },
-    {
-        "id": 113,
-        "text": "Dan mocks a file extension",
-        "marked": false
-    },
-    {
-        "id": 119,
-        "text": "Linus, Luke, or Dan make a terrible joke/pun",
-        "marked": false
-    },
-    {
-        "id": 121,
-        "text": "Not Financial Advice",
-        "marked": false
-    },
-    {
-        "id": 123,
-        "text": "Floatplane / Labs Preview",
-        "marked": false
-    },
-    {
-        "id": 124,
-        "text": "Rapid-fire merch messages",
-        "marked": false
-    },
-    {
-        "id": 125,
-        "text": "Someone in the audience buys a domain",
-        "marked": false
-    },
-    {
-        "id": 126,
-        "text": "Linus Theft/Legal Tips",
-        "marked": false
-    },
-    {
-        "id": 127,
-        "text": "Linus talks about an upcoming product/video",
-        "marked": false
-    },
-    {
-        "id": 128,
-        "text": "Special Guest on Stream (Anyone but DLL)",
-        "marked": false
-    }
-]
-
+import type { ChatContextValue } from "@/components/chat/chat-context"
 
 export interface BingoTile {
-    id: number
-    text: string
-    marked: boolean
+  id: number
+  text: string
+  marked: boolean
+  weight?: number
+  category?: string
 }
 
 export interface BingoBoardProps {
-    onWin?: () => void
+  onWin?: () => void
 }
 
+export async function fetchTilesFromAPI(): Promise<BingoTile[]> {
+  try {
+    const response = await fetch("http://localhost:8080/tiles")
+    if (!response.ok) {
+      throw new Error("Failed to fetch tiles")
+    }
+    const tiles = await response.json()
+    return tiles.map((tile: any) => ({
+      id: tile.id,
+      text: tile.text,
+      marked: false,
+      weight: tile.weight || 1,
+      category: tile.category || "General",
+    }))
+  } catch (error) {
+    console.error("Error fetching tiles:", error)
+    // Return empty array on error - component will handle fallback
+    return []
+  }
+}
 
-export function randomizeTiles(currentTiles: BingoTile[], ctx: ChatContextValue): BingoTile[] {
+function weightedRandomSelection(tiles: BingoTile[], count: number): BingoTile[] {
+  const selected: BingoTile[] = []
+  const available = [...tiles]
 
-    if (ctx.episode.isLive) return currentTiles;
+  while (selected.length < count && available.length > 0) {
+    // Calculate total weight
+    const totalWeight = available.reduce((sum, tile) => sum + (tile.weight || 1), 0)
 
-    const shuffled = [...PODCAST_TILES].sort(() => Math.random() - 0.5)
-    const selected = shuffled.slice(0, 24)
+    // Random selection based on weight
+    let random = Math.random() * totalWeight
+    let selectedIndex = 0
 
-    const newTiles: BingoTile[] = selected;
+    for (let i = 0; i < available.length; i++) {
+      random -= available[i].weight || 1
+      if (random <= 0) {
+        selectedIndex = i
+        break
+      }
+    }
 
-    newTiles.splice(12, 0, {
-        id: -1,
-        text: "FREE",
-        marked: true,
-    });
+    selected.push(available[selectedIndex])
+    available.splice(selectedIndex, 1)
+  }
 
-    return newTiles;
+  return selected
+}
+
+export function randomizeTiles(
+  currentTiles: BingoTile[],
+  ctx: ChatContextValue,
+  availableTiles: BingoTile[],
+): BingoTile[] {
+  if (ctx.episode.isLive) return currentTiles
+
+  const selected = weightedRandomSelection(availableTiles, 24)
+
+  const newTiles: BingoTile[] = selected
+
+  // Add FREE space in the center
+  newTiles.splice(12, 0, {
+    id: -1,
+    text: "FREE",
+    marked: true,
+  })
+
+  return newTiles
 }

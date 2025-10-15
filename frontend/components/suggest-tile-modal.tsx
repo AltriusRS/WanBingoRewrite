@@ -12,22 +12,38 @@ import { Textarea } from "@/components/ui/textarea"
 interface SuggestTileModalProps {
   open: boolean
   onOpenChange: (open: boolean) => void
-  onSubmit: (data: { name: string; tileName: string; reason: string }) => void
+  onSubmit?: (data: { name: string; tileName: string; reason: string }) => void
 }
 
 export function SuggestTileModal({ open, onOpenChange, onSubmit }: SuggestTileModalProps) {
   const [name, setName] = useState("")
   const [tileName, setTileName] = useState("")
   const [reason, setReason] = useState("")
+  const [submitting, setSubmitting] = useState(false)
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
     if (name.trim() && tileName.trim() && reason.trim()) {
-      onSubmit({ name, tileName, reason })
+      setSubmitting(true)
+
+      try {
+        await fetch("http://localhost:8080/api/suggestions", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ name, tileName, reason }),
+        })
+      } catch (error) {
+        console.error("Failed to submit suggestion:", error)
+      }
+
+      // Call optional callback
+      onSubmit?.({ name, tileName, reason })
+
       // Reset form
       setName("")
       setTileName("")
       setReason("")
+      setSubmitting(false)
       onOpenChange(false)
     }
   }
@@ -79,10 +95,12 @@ export function SuggestTileModal({ open, onOpenChange, onSubmit }: SuggestTileMo
             <p className="text-xs text-muted-foreground">{reason.length}/200 characters</p>
           </div>
           <div className="flex justify-end gap-3">
-            <Button type="button" variant="outline" onClick={() => onOpenChange(false)}>
+            <Button type="button" variant="outline" onClick={() => onOpenChange(false)} disabled={submitting}>
               Cancel
             </Button>
-            <Button type="submit">Submit Suggestion</Button>
+            <Button type="submit" disabled={submitting}>
+              {submitting ? "Submitting..." : "Submit Suggestion"}
+            </Button>
           </div>
         </form>
       </DialogContent>
