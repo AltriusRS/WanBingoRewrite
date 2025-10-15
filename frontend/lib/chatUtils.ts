@@ -8,7 +8,7 @@ import {fromZonedTime} from "date-fns-tz";
  */
 export async function postMessage(message: string): Promise<boolean> {
     try {
-        await fetch("http://localhost:8080/api/chat/message", {
+        await fetch("https://api.bingo.local/chat/message", {
             method: "POST",
             headers: {"Content-Type": "application/json"},
             body: JSON.stringify({message, username: "tester"}),

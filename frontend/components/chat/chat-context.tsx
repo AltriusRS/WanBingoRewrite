@@ -66,7 +66,7 @@ export function ChatProvider({children}: { children: React.ReactNode }) {
     }), [messages, memberCount, memberList, memberListLoading, memberListError, liveTime, text, sending, episode]) as ChatContextValue;
 
     useEffect(() => {
-        const es = new EventSource("http://localhost:8080/api/chat/stream")
+        const es = new EventSource("https://api.bingo.local/chat/stream")
 
         es.onmessage = (ev) => {
             try {
