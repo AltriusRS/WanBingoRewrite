@@ -2,13 +2,12 @@ package db
 
 import (
 	"context"
-	"errors"
+	"crypto/rand"
+	"encoding/hex"
 	"log"
 	"os"
 	"time"
-	"wanshow-bingo/db/models"
 
-	"github.com/jackc/pgx/v5"
 	"github.com/jackc/pgx/v5/pgxpool"
 )
 
@@ -52,112 +51,16 @@ func Pool() *pgxpool.Pool {
 	return pool
 }
 
-func GetLatestShow(ctx context.Context) (*models.Show, error) {
-	pool := Pool()
-
-	latestShowRows, err := pool.Query(ctx, "SELECT * FROM shows ORDER BY scheduled_time DESC LIMIT 1")
-	defer latestShowRows.Close()
-
-	if err != nil {
-		return nil, err
-	}
-
-	latestShows, err := pgx.CollectRows(latestShowRows, pgx.RowToStructByName[models.Show])
-
-	if err != nil {
-		return nil, err
-	}
-
-	latestShow := latestShows[0]
-
-	return &latestShow, nil
+// generateID generates a random alphanumeric ID of specified length
+func generateID(length int) string {
+	bytes := make([]byte, length)
+	rand.Read(bytes)
+	return hex.EncodeToString(bytes)[:length]
 }
 
-func PersistShow(ctx context.Context, show *models.Show) error {
-	if len(show.ID) < 10 {
-		return errors.New("invalid show id")
-	}
-
-	pool := Pool()
-
-	persisted, err := pool.Query(
-		ctx,
-		"UPDATE shows SET youtube_id = $1, scheduled_time = $2, actual_start_time = $3, thumbnail = $4, metadata = $5 WHERE id = $6",
-		show.YoutubeID,
-		show.ScheduledTime,
-		show.ActualStartTime,
-		show.Thumbnail,
-		show.Metadata,
-		show.ID,
-	)
-
-	defer persisted.Close()
-
-	if err != nil {
-		log.Printf("database: failed to update show: %v", err)
-		return err
-	}
-
-	return nil
-}
-
-func SaveMessage(ctx context.Context, msg *models.Message) error {
-	latestShow, err := GetLatestShow(ctx)
-	if err != nil {
-		log.Printf("[SSE ClientChannel] - Failed to retrieve latest show - %v", err)
-		return err
-	}
-
-	pool := Pool()
-
-	if pool == nil {
-		log.Printf("[SSE ClientChannel] - Failed to connect to database")
-		return err
-	}
-
-	msg.ShowID = latestShow.ID
-
-	log.Printf("[SSE ClientChannel] - Saving message %v to DB", msg)
-
-	res, err := pool.Query(
-		ctx,
-		"INSERT INTO messages (id, show_id, player_id, contents, system, replying) VALUES ($1, $2, $3, $4, $5, $6)",
-		msg.ID, msg.ShowID, msg.PlayerID, msg.Contents, msg.System, msg.Replying,
-	)
-
-	defer res.Close()
-
-	if err != nil {
-		log.Printf("database: failed to save message: %v", err)
-		return err
-	}
-
-	if res.Err() != nil {
-		log.Printf("database: failed to save message: %v", res.Err())
-	}
-
-	return nil
-}
-
-func GetMessageHistory(ctx context.Context) ([]models.Message, error) {
-	latestShow, err := GetLatestShow(ctx)
-	if err != nil {
-		return nil, err
-	}
-
-	pool := Pool()
-
-	res, err := pool.Query(ctx, "SELECT * FROM messages WHERE show_id = $1 ORDER BY created_at DESC LIMIT 30", latestShow.ID)
-	if err != nil {
-		return nil, err
-	}
-	defer res.Close()
-
-	// RowToStructByName expects the struct type, not pointer
-	messages, err := pgx.CollectRows(res, pgx.RowToStructByName[models.Message])
-	if err != nil {
-		return nil, err
-	}
-
-	return messages, nil
+// generateSessionID generates a 32-character session ID
+func generateSessionID() string {
+	bytes := make([]byte, 16)
+	rand.Read(bytes)
+	return hex.EncodeToString(bytes)
 }

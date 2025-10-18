@@ -7,6 +7,8 @@ import (
 	"net/http"
 	"os"
 	"time"
+	"wanshow-bingo/db"
+	"wanshow-bingo/db/models"
 
 	"github.com/gofiber/fiber/v2"
 	"golang.org/x/oauth2"
@@ -16,17 +18,8 @@ import (
 var (
 	discordOAuthConfig *oauth2.Config
 	discordAPIBaseURL  = "https://discord.com/api/v10"
+	frontendURL        string
 )
-
-// DiscordUser represents a Discord user from the API
-type DiscordUser struct {
-	ID            string `json:"id"`
-	Username      string `json:"username"`
-	Discriminator string `json:"discriminator"`
-	Email         string `json:"email"`
-	Avatar        string `json:"avatar"`
-	Verified      bool   `json:"verified"`
-}
 
 // DiscordGuild represents a Discord guild (server) the user is in
 type DiscordGuild struct {
@@ -42,10 +35,15 @@ func InitDiscordOAuth() {
 	clientID := os.Getenv("DISCORD_CLIENT_ID")
 	clientSecret := os.Getenv("DISCORD_CLIENT_SECRET")
 	redirectURL := os.Getenv("DISCORD_REDIRECT_URL")
+	frontendURL = os.Getenv("FRONTEND_URL")
 
 	if clientID == "" || clientSecret == "" || redirectURL == "" {
 		fmt.Println("Warning: Discord OAuth not configured. Missing DISCORD_CLIENT_ID, DISCORD_CLIENT_SECRET, or DISCORD_REDIRECT_URL")
 		return
+	}
+
+	if frontendURL == "" {
+		fmt.Println("Warning: FRONTEND_URL not set, OAuth callback will not redirect properly")
 	}
 
 	discordOAuthConfig = &oauth2.Config{
@@ -71,6 +69,11 @@ func GetDiscordAuthURL(state string) string {
 	return discordOAuthConfig.AuthCodeURL(state, oauth2.AccessTypeOnline)
 }
 
+// GetFrontendURL returns the configured frontend URL for redirects
+func GetFrontendURL() string {
+	return frontendURL
+}
+
 // ExchangeCodeForToken exchanges the authorization code for an access token
 func ExchangeCodeForToken(code string) (*oauth2.Token, error) {
 	if discordOAuthConfig == nil {
@@ -87,7 +90,7 @@ func ExchangeCodeForToken(code string) (*oauth2.Token, error) {
 }
 
 // GetDiscordUser fetches the Discord user information using the access token
-func GetDiscordUser(token *oauth2.Token) (*DiscordUser, error) {
+func GetDiscordUser(token *oauth2.Token) (*models.DiscordUser, error) {
 	client := discordOAuthConfig.Client(context.Background(), token)
 
 	resp, err := client.Get(discordAPIBaseURL + "/users/@me")
@@ -100,7 +103,7 @@ func GetDiscordUser(token *oauth2.Token) (*DiscordUser, error) {
 		return nil, fmt.Errorf("Discord API returned status %d", resp.StatusCode)
 	}
 
-	var user DiscordUser
+	var user models.DiscordUser
 	if err := json.NewDecoder(resp.Body).Decode(&user); err != nil {
 		return nil, fmt.Errorf("failed to decode Discord user: %w", err)
 	}
@@ -130,69 +133,74 @@ func GetDiscordGuilds(token *oauth2.Token) ([]DiscordGuild, error) {
 	return guilds, nil
 }
 
-// DiscordAuthMiddleware - require a valid Discord session
-func DiscordAuthMiddleware(c *fiber.Ctx) error {
-	discordToken := c.Cookies("discord-token")
-	if discordToken == "" {
+// AuthMiddleware - require a valid session
+func AuthMiddleware(c *fiber.Ctx) error {
+	sessionID := c.Cookies("session_id")
+	if sessionID == "" {
 		return c.Status(fiber.StatusUnauthorized).JSON(fiber.Map{
-			"error": "Missing Discord session cookie",
+			"error": "Missing session cookie",
 		})
 	}
 
-	// Parse the token from the cookie
-	token := &oauth2.Token{
-		AccessToken: discordToken,
-		TokenType:   "Bearer",
-	}
-
-	// Verify the token is still valid by fetching user info
-	user, err := GetDiscordUser(token)
+	// Validate session and get player
+	ctx := context.Background()
+	player, err := db.ValidateSession(ctx, sessionID)
 	if err != nil {
-		// Token is invalid, clear the cookie
-		c.ClearCookie("discord-token")
+		// Session is invalid, clear the cookie
+		c.ClearCookie("session_id")
 		return c.Status(fiber.StatusUnauthorized).JSON(fiber.Map{
-			"error": "Invalid or expired Discord session",
+			"error": "Invalid or expired session",
 		})
 	}
 
-	// Store user info in context
-	c.Locals("discord_user", user)
+	// Store player info in context
+	c.Locals("player", player)
 	return c.Next()
 }
 
-// OptionalDiscordAuthMiddleware - optional Discord session validation
-func OptionalDiscordAuthMiddleware(c *fiber.Ctx) error {
-	discordToken := c.Cookies("discord-token")
-	if discordToken == "" {
+// OptionalPlayerAuthMiddleware - optional session validation
+func OptionalPlayerAuthMiddleware(c *fiber.Ctx) error {
+	sessionID := c.Cookies("session_id")
+	if sessionID == "" {
 		return c.Next()
 	}
 
-	// Parse the token from the cookie
-	token := &oauth2.Token{
-		AccessToken: discordToken,
-		TokenType:   "Bearer",
-	}
-
-	// Verify the token is still valid by fetching user info
-	user, err := GetDiscordUser(token)
+	// Validate session and get player
+	ctx := context.Background()
+	player, err := db.ValidateSession(ctx, sessionID)
 	if err == nil {
-		c.Locals("discord_user", user)
+		c.Locals("player", player)
 	} else {
-		// Token is invalid, clear the cookie
-		c.ClearCookie("discord-token")
+		// Session is invalid, clear the cookie
+		c.ClearCookie("session_id")
 	}
 
 	return c.Next()
 }
 
+// GetPlayerFromContext retrieves the player from the context
+func GetPlayerFromContext(c *fiber.Ctx) (*models.Player, error) {
+	raw := c.Locals("player")
+	if raw == nil {
+		return nil, fmt.Errorf("no player in context")
+	}
+
+	player, ok := raw.(*models.Player)
+	if !ok {
+		return nil, fmt.Errorf("invalid player type in context")
+	}
+
+	return player, nil
+}
+
 // GetDiscordUserFromContext retrieves the Discord user from the context
-func GetDiscordUserFromContext(c *fiber.Ctx) (*DiscordUser, error) {
+func GetDiscordUserFromContext(c *fiber.Ctx) (*models.DiscordUser, error) {
 	raw := c.Locals("discord_user")
 	if raw == nil {
 		return nil, fmt.Errorf("no Discord user in context")
 	}
 
-	user, ok := raw.(*DiscordUser)
+	user, ok := raw.(*models.DiscordUser)
 	if !ok {
 		return nil, fmt.Errorf("invalid Discord user type in context")
 	}

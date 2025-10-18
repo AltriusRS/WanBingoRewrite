@@ -12,4 +12,6 @@ func init() {
 
 func BuildRouter(router fiber.Router) {
 	router.Get("/", Get)
+	router.Get("/show", GetShowTiles)
+	router.Get("/me", GetMyBoard)
 }

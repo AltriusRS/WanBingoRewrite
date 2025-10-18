@@ -7,6 +7,7 @@ DROP TABLE IF EXISTS boards CASCADE;
 DROP TABLE IF EXISTS show_tiles CASCADE;
 DROP TABLE IF EXISTS tiles CASCADE;
 DROP TABLE IF EXISTS shows CASCADE;
+DROP TABLE IF EXISTS sessions CASCADE;
 DROP TABLE IF EXISTS players CASCADE;
 
 -- Players table
@@ -25,6 +26,22 @@ CREATE TABLE players
 
 -- Create index on Discord ID for faster lookups
 CREATE INDEX idx_players_did ON players (did);
+
+-- Sessions table
+CREATE TABLE sessions
+(
+    id         VARCHAR(32) PRIMARY KEY,
+    player_id  VARCHAR(10) REFERENCES players (id) ON DELETE CASCADE,
+    created_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP,
+    updated_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP,
+    expires_at TIMESTAMP WITH TIME ZONE NOT NULL,
+    deleted_at TIMESTAMP WITH TIME ZONE
+);
+
+-- Create index on player_id for faster lookups
+CREATE INDEX idx_sessions_player_id ON sessions (player_id);
+-- Create index on expires_at for cleanup queries
+CREATE INDEX idx_sessions_expires_at ON sessions (expires_at);
 
 -- Shows table
 CREATE TABLE shows
@@ -157,6 +174,12 @@ CREATE TRIGGER update_players_updated_at
     FOR EACH ROW
 EXECUTE FUNCTION update_updated_at_column();
 
+CREATE TRIGGER update_sessions_updated_at
+    BEFORE UPDATE
+    ON sessions
+    FOR EACH ROW
+EXECUTE FUNCTION update_updated_at_column();
+
 CREATE TRIGGER update_shows_updated_at
     BEFORE UPDATE
     ON shows
@@ -195,6 +218,7 @@ EXECUTE FUNCTION update_updated_at_column();
 
 -- Add comments to document the schema
 COMMENT ON TABLE players IS 'Stores user account information';
+COMMENT ON TABLE sessions IS 'Stores user session tokens for authentication';
 COMMENT ON TABLE shows IS 'Stores information about WAN show episodes';
 COMMENT ON TABLE tiles IS 'Stores bingo tile definitions';
 COMMENT ON TABLE show_tiles IS 'Junction table linking tiles to specific shows with dynamic scoring';
