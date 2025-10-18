@@ -51,6 +51,12 @@ func HandleAggregateEvent(newAggregate *whenplane.Aggregate) {
 		return
 	}
 
+	// Update show state based on aggregate
+	err = UpdateShowState(context.Background(), newAggregate)
+	if err != nil {
+		log.Printf("Failed to update show state: %v", err)
+	}
+
 	showsAreEqual, err := oldShow.Compare(newShow)
 
 	if err != nil {
@@ -179,6 +185,7 @@ func BuildShowFromAggregate(aggregate *whenplane.Aggregate) *models.Show {
 
 	show := &models.Show{
 		ID:              "",
+		State:           models.ShowStateScheduled,
 		YoutubeID:       aggregate.Youtube.VideoID,
 		ScheduledTime:   &next,
 		ActualStartTime: actualStartTime,
@@ -302,8 +309,9 @@ func CreateNewShow(ctx context.Context, tx pgx.Tx, newShow *models.Show) (*strin
 
 	insertResult, err := tx.Query(
 		ctx,
-		"INSERT INTO shows (id, youtube_id, scheduled_time, actual_start_time, thumbnail, metadata, created_at, updated_at, deleted_at) VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9) RETURNING id",
+		"INSERT INTO shows (id, state, youtube_id, scheduled_time, actual_start_time, thumbnail, metadata, created_at, updated_at, deleted_at) VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10) RETURNING id",
 		newShow.ID,
+		string(newShow.State),
 		newShow.YoutubeID,
 		newShow.ScheduledTime,
 		newShow.ActualStartTime,
@@ -398,4 +406,31 @@ func ExtractShowTitle(title string) string {
 
 func Distances(a string, b string) int {
 	return levenshtein.DistanceForStrings([]rune(a), []rune(b), levenshtein.DefaultOptions)
+}
+
+func UpdateShowState(ctx context.Context, aggregate *whenplane.Aggregate) error {
+	latestShow, err := db.GetLatestShow(ctx)
+	if err != nil {
+		return err
+	}
+
+	newState := latestShow.State
+
+	if aggregate.Youtube.IsLive {
+		newState = models.ShowStateLive
+	} else if aggregate.Youtube.VideoID != nil || aggregate.Floatplane.IsThumbnailNew {
+		newState = models.ShowStateUpcoming
+	} else if latestShow.State == models.ShowStateLive {
+		newState = models.ShowStateFinished
+	}
+
+	if newState != latestShow.State {
+		log.Printf("[AGGREGATE] Updating show state from %s to %s", latestShow.State, newState)
+		err = db.UpdateShowState(ctx, latestShow.ID, newState)
+		if err != nil {
+			return err
+		}
+	}
+
+	return nil
 }

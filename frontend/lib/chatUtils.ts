@@ -43,6 +43,7 @@ export interface Player {
 
 export interface Show {
     id: string;
+    state: string;
     youtube_id?: string;
     scheduled_time?: string;
     actual_start_time?: string;

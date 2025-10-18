@@ -17,17 +17,17 @@ func PersistShow(ctx context.Context, show *models.Show, tx ...pgx.Tx) error {
 			// New show, generate ID and insert
 			show.ID, _ = gonanoid.New(10)
 			_, err := tx[0].Exec(ctx, `
-				INSERT INTO shows (id, youtube_id, scheduled_time, actual_start_time, thumbnail, metadata)
-				VALUES ($1, $2, $3, $4, $5, $6)
-			`, show.ID, show.YoutubeID, show.ScheduledTime, show.ActualStartTime, show.Thumbnail, show.Metadata)
+				INSERT INTO shows (id, state, youtube_id, scheduled_time, actual_start_time, thumbnail, metadata)
+				VALUES ($1, $2, $3, $4, $5, $6, $7)
+			`, show.ID, show.State, show.YoutubeID, show.ScheduledTime, show.ActualStartTime, show.Thumbnail, show.Metadata)
 			return err
 		} else {
 			// Existing show, update
 			_, err := tx[0].Exec(ctx, `
 				UPDATE shows
-				SET youtube_id = $1, scheduled_time = $2, actual_start_time = $3, thumbnail = $4, metadata = $5, updated_at = CURRENT_TIMESTAMP
-				WHERE id = $6 AND deleted_at IS NULL
-			`, show.YoutubeID, show.ScheduledTime, show.ActualStartTime, show.Thumbnail, show.Metadata, show.ID)
+				SET state = $1, youtube_id = $2, scheduled_time = $3, actual_start_time = $4, thumbnail = $5, metadata = $6, updated_at = CURRENT_TIMESTAMP
+				WHERE id = $7 AND deleted_at IS NULL
+			`, show.State, show.YoutubeID, show.ScheduledTime, show.ActualStartTime, show.Thumbnail, show.Metadata, show.ID)
 			return err
 		}
 	} else {
@@ -41,17 +41,17 @@ func PersistShow(ctx context.Context, show *models.Show, tx ...pgx.Tx) error {
 			// New show, generate ID and insert
 			show.ID, _ = gonanoid.New(10)
 			_, err := pool.Exec(ctx, `
-				INSERT INTO shows (id, youtube_id, scheduled_time, actual_start_time, thumbnail, metadata)
-				VALUES ($1, $2, $3, $4, $5, $6)
-			`, show.ID, show.YoutubeID, show.ScheduledTime, show.ActualStartTime, show.Thumbnail, show.Metadata)
+				INSERT INTO shows (id, state, youtube_id, scheduled_time, actual_start_time, thumbnail, metadata)
+				VALUES ($1, $2, $3, $4, $5, $6, $7)
+			`, show.ID, show.State, show.YoutubeID, show.ScheduledTime, show.ActualStartTime, show.Thumbnail, show.Metadata)
 			return err
 		} else {
 			// Existing show, update
 			_, err := pool.Exec(ctx, `
 				UPDATE shows
-				SET youtube_id = $1, scheduled_time = $2, actual_start_time = $3, thumbnail = $4, metadata = $5, updated_at = CURRENT_TIMESTAMP
-				WHERE id = $6 AND deleted_at IS NULL
-			`, show.YoutubeID, show.ScheduledTime, show.ActualStartTime, show.Thumbnail, show.Metadata, show.ID)
+				SET state = $1, youtube_id = $2, scheduled_time = $3, actual_start_time = $4, thumbnail = $5, metadata = $6, updated_at = CURRENT_TIMESTAMP
+				WHERE id = $7 AND deleted_at IS NULL
+			`, show.State, show.YoutubeID, show.ScheduledTime, show.ActualStartTime, show.Thumbnail, show.Metadata, show.ID)
 			return err
 		}
 	}
@@ -63,7 +63,7 @@ func GetShowByID(ctx context.Context, id string, tx ...pgx.Tx) (*models.Show, er
 
 	if len(tx) > 0 {
 		row = tx[0].QueryRow(ctx, `
-			SELECT id, youtube_id, scheduled_time, actual_start_time, thumbnail, metadata, created_at, updated_at, deleted_at
+			SELECT id, state, youtube_id, scheduled_time, actual_start_time, thumbnail, metadata, created_at, updated_at, deleted_at
 			FROM shows
 			WHERE id = $1 AND deleted_at IS NULL
 		`, id)
@@ -73,7 +73,7 @@ func GetShowByID(ctx context.Context, id string, tx ...pgx.Tx) (*models.Show, er
 			return nil, errors.New("database not available")
 		}
 		row = pool.QueryRow(ctx, `
-			SELECT id, youtube_id, scheduled_time, actual_start_time, thumbnail, metadata, created_at, updated_at, deleted_at
+			SELECT id, state, youtube_id, scheduled_time, actual_start_time, thumbnail, metadata, created_at, updated_at, deleted_at
 			FROM shows
 			WHERE id = $1 AND deleted_at IS NULL
 		`, id)
@@ -81,7 +81,7 @@ func GetShowByID(ctx context.Context, id string, tx ...pgx.Tx) (*models.Show, er
 
 	var show models.Show
 	err := row.Scan(
-		&show.ID, &show.YoutubeID, &show.ScheduledTime, &show.ActualStartTime, &show.Thumbnail, &show.Metadata,
+		&show.ID, &show.State, &show.YoutubeID, &show.ScheduledTime, &show.ActualStartTime, &show.Thumbnail, &show.Metadata,
 		&show.CreatedAt, &show.UpdatedAt, &show.DeletedAt,
 	)
 
@@ -111,7 +111,7 @@ func GetLatestShow(ctx context.Context, tx ...pgx.Tx) (*models.Show, error) {
 
 	if len(tx) > 0 {
 		row = tx[0].QueryRow(ctx, `
-			SELECT id, youtube_id, scheduled_time, actual_start_time, thumbnail, metadata, created_at, updated_at, deleted_at
+			SELECT id, state, youtube_id, scheduled_time, actual_start_time, thumbnail, metadata, created_at, updated_at, deleted_at
 			FROM shows
 			WHERE deleted_at IS NULL
 			ORDER BY scheduled_time DESC
@@ -123,7 +123,7 @@ func GetLatestShow(ctx context.Context, tx ...pgx.Tx) (*models.Show, error) {
 			return nil, errors.New("database not available")
 		}
 		row = pool.QueryRow(ctx, `
-			SELECT id, youtube_id, scheduled_time, actual_start_time, thumbnail, metadata, created_at, updated_at, deleted_at
+			SELECT id, state, youtube_id, scheduled_time, actual_start_time, thumbnail, metadata, created_at, updated_at, deleted_at
 			FROM shows
 			WHERE deleted_at IS NULL
 			ORDER BY scheduled_time DESC
@@ -133,7 +133,7 @@ func GetLatestShow(ctx context.Context, tx ...pgx.Tx) (*models.Show, error) {
 
 	var show models.Show
 	err := row.Scan(
-		&show.ID, &show.YoutubeID, &show.ScheduledTime, &show.ActualStartTime, &show.Thumbnail, &show.Metadata,
+		&show.ID, &show.State, &show.YoutubeID, &show.ScheduledTime, &show.ActualStartTime, &show.Thumbnail, &show.Metadata,
 		&show.CreatedAt, &show.UpdatedAt, &show.DeletedAt,
 	)
 
@@ -145,4 +145,20 @@ func GetLatestShow(ctx context.Context, tx ...pgx.Tx) (*models.Show, error) {
 	}
 
 	return &show, nil
+}
+
+// UpdateShowState updates the state of a show
+func UpdateShowState(ctx context.Context, showID string, state models.ShowState) error {
+	pool := Pool()
+	if pool == nil {
+		return errors.New("database not available")
+	}
+
+	_, err := pool.Exec(ctx, `
+		UPDATE shows
+		SET state = $1, updated_at = CURRENT_TIMESTAMP
+		WHERE id = $2 AND deleted_at IS NULL
+	`, state, showID)
+
+	return err
 }

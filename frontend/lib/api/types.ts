@@ -14,6 +14,7 @@ interface Player {
 // Show represents a WAN show episode
 interface Show {
     id: string;
+    state: string;
     youtube_id?: string | null;
     scheduled_time?: string | null; // ISO date string
     actual_start_time?: string | null; // ISO date string

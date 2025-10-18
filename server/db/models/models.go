@@ -37,9 +37,20 @@ type Session struct {
 	DeletedAt *time.Time `json:"deleted_at" db:"deleted_at"`
 }
 
+// ShowState represents the state of a show
+type ShowState string
+
+const (
+	ShowStateScheduled ShowState = "scheduled"
+	ShowStateUpcoming  ShowState = "upcoming"
+	ShowStateLive      ShowState = "live"
+	ShowStateFinished  ShowState = "finished"
+)
+
 // Show represents a WAN show episode
 type Show struct {
 	ID              string                 `json:"id" db:"id"`
+	State           ShowState              `json:"state" db:"state"`
 	YoutubeID       *string                `json:"youtube_id" db:"youtube_id"`
 	ScheduledTime   *time.Time             `json:"scheduled_time" db:"scheduled_time"`
 	ActualStartTime *time.Time             `json:"actual_start_time" db:"actual_start_time"`

@@ -1,0 +1,2 @@
+-- Seed data for episode states
+-- Existing shows can be updated to 'finished' if they have actual_start_time or something, but for now, leave as default
