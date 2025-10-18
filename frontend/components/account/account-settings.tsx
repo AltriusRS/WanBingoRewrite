@@ -19,8 +19,10 @@ export function AccountSettings() {
     const [displayName, setDisplayName] = useState("")
     const [avatarUrl, setAvatarUrl] = useState("")
     const [chatColor, setChatColor] = useState("#FF6900")
+    const [soundOnMention, setSoundOnMention] = useState(true)
     const [backgroundImageEnabled, setBackgroundImageEnabled] = useState(false)
     const [preferredTheme, setPreferredTheme] = useState("dark")
+    const [autoYoutubePlayback, setAutoYoutubePlayback] = useState(false)
     const [saving, setSaving] = useState(false)
 
     const themeOptions = [
@@ -41,8 +43,10 @@ export function AccountSettings() {
             if (user.settings) {
                 const settings = user.settings as any
                 setChatColor(settings.chatColor || "#FF6900")
+                setSoundOnMention(settings.soundOnMention !== false) // Default to true
                 setBackgroundImageEnabled(settings.backgroundImageEnabled || false)
                 setPreferredTheme(settings.preferredTheme || "dark")
+                setAutoYoutubePlayback(settings.autoYoutubePlayback || false)
             }
         }
     }, [user])
@@ -60,8 +64,10 @@ export function AccountSettings() {
                     avatar: avatarUrl,
                     settings: {
                         chatColor,
+                        soundOnMention,
                         backgroundImageEnabled,
                         preferredTheme,
+                        autoYoutubePlayback,
                     },
                 }),
             })
@@ -145,7 +151,7 @@ export function AccountSettings() {
                 <Card className="p-6">
                     <h2 className="mb-4 text-lg font-semibold text-foreground">Chat Settings</h2>
 
-                    <div className="space-y-4">
+                    <div className="space-y-6">
                         <div className="space-y-2">
                             <Label htmlFor="chat-color">Chat Name Color</Label>
                             <div className="flex gap-2">
@@ -160,28 +166,56 @@ export function AccountSettings() {
                                        placeholder="#FF6900"/>
                             </div>
                         </div>
+
+                        <div className="flex items-center justify-between">
+                            <div className="space-y-0.5">
+                                <Label htmlFor="sound-mention">Sound on Mention</Label>
+                                <p className="text-sm text-muted-foreground">Play a sound when someone mentions you in chat</p>
+                            </div>
+                            <Switch
+                                id="sound-mention"
+                                checked={soundOnMention}
+                                onCheckedChange={setSoundOnMention}
+                            />
+                        </div>
                     </div>
                 </Card>
 
                 <Card className="p-6">
-                    <h2 className="mb-4 text-lg font-semibold text-foreground">Appearance</h2>
+                    <h2 className="mb-4 text-lg font-semibold text-foreground">Themes</h2>
+
+                    <div className="space-y-2">
+                        <Label htmlFor="theme-select">Preferred Theme</Label>
+                        <Select value={preferredTheme} onValueChange={setPreferredTheme}>
+                            <SelectTrigger>
+                                <SelectValue placeholder="Select a theme" />
+                            </SelectTrigger>
+                            <SelectContent>
+                                {themeOptions.map((theme) => (
+                                    <SelectItem key={theme.value} value={theme.value}>
+                                        {theme.name}
+                                    </SelectItem>
+                                ))}
+                            </SelectContent>
+                        </Select>
+                        <p className="text-sm text-muted-foreground">Choose your preferred theme for the application</p>
+                    </div>
+                </Card>
+
+                <Card className="p-6">
+                    <h2 className="mb-4 text-lg font-semibold text-foreground">Video</h2>
 
                     <div className="space-y-6">
-                        <div className="space-y-2">
-                            <Label htmlFor="theme-select">Preferred Theme</Label>
-                            <Select value={preferredTheme} onValueChange={setPreferredTheme}>
-                                <SelectTrigger>
-                                    <SelectValue placeholder="Select a theme" />
-                                </SelectTrigger>
-                                <SelectContent>
-                                    {themeOptions.map((theme) => (
-                                        <SelectItem key={theme.value} value={theme.value}>
-                                            {theme.name}
-                                        </SelectItem>
-                                    ))}
-                                </SelectContent>
-                            </Select>
-                            <p className="text-sm text-muted-foreground">Choose your preferred theme for the application</p>
+                        <div className="flex items-center justify-between">
+                            <div className="space-y-0.5">
+                                <Label htmlFor="youtube-autoplay">Auto YouTube Playback</Label>
+                                <p className="text-sm text-muted-foreground">Automatically embed and play YouTube video when show is live</p>
+                            </div>
+                            <Switch
+                                id="youtube-autoplay"
+                                checked={autoYoutubePlayback}
+                                onCheckedChange={setAutoYoutubePlayback}
+                            />
                         </div>
 
                         <div className="flex items-center justify-between">
