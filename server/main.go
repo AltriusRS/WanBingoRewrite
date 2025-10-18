@@ -2,6 +2,7 @@ package main
 
 import (
 	"os"
+	_ "time/tzdata"
 	"wanshow-bingo/db"
 	_ "wanshow-bingo/handlers"
 	"wanshow-bingo/middleware"
