@@ -2,10 +2,10 @@
 
 import {useEffect, useState} from "react"
 import {Card} from "@/components/ui/card"
-import {BingoBoardProps, BingoTile as IBingoTile, fetchTilesFromAPI, randomizeTiles} from "@/lib/bingoUtils";
+import {BingoBoardProps, BingoTile as IBingoTile, fetchBoardFromAPI} from "@/lib/bingoUtils";
 import {useChat} from "@/components/chat/chat-context";
 import {BingoTile} from "./tile"
-import {checkWin, triggerConfetti} from "@/components/bingo/utils";
+
 import {BingoStatusBar} from "@/components/bingo/status-bar";
 
 export function BingoBoard({onWin}: BingoBoardProps) {
@@ -14,8 +14,7 @@ export function BingoBoard({onWin}: BingoBoardProps) {
     const [hasWon, setHasWon] = useState(false)
 
     const resetBoard = async (e: unknown) => {
-        let allTiles = await fetchTilesFromAPI();
-        let newTiles: IBingoTile[] = randomizeTiles(tiles, ctx, allTiles)
+        let newTiles = await fetchBoardFromAPI()
 
         setTiles(newTiles)
         setHasWon(false)
@@ -26,17 +25,7 @@ export function BingoBoard({onWin}: BingoBoardProps) {
         if (!mappedTile) return console.error("Unable to find tile matching id", id);
         if (mappedTile.id === -1) return
 
-        setTiles((prev) => {
-            const newTiles = prev.map((tile) => (tile.id === id ? {...tile, marked: !tile.marked} : tile))
-
-            if (!hasWon && checkWin(newTiles)) {
-                setHasWon(true)
-                triggerConfetti()
-                onWin?.()
-            }
-
-            return newTiles
-        })
+        setTiles((prev) => prev.map((tile) => (tile.id === id ? {...tile, marked: !tile.marked} : tile)))
     }
 
     useEffect(() => {

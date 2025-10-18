@@ -1,6 +1,7 @@
 package tilerouter
 
 import (
+	"wanshow-bingo/middleware"
 	"wanshow-bingo/utils"
 
 	"github.com/gofiber/fiber/v2"
@@ -13,7 +14,7 @@ func init() {
 func BuildRouter(router fiber.Router) {
 	router.Get("/", Get)
 	router.Get("/show", GetShowTiles)
-	router.Get("/me", GetMyBoard)
+	router.Get("/me", middleware.AuthMiddleware, GetMyBoard)
 	router.Get("/anonymous", GetAnonymousBoard)
 	router.Get("/:tile_id", GetTileByID)
 }
