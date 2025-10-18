@@ -44,6 +44,15 @@ services:
       - ./Caddyfile:/etc/caddy/Caddyfile
       - caddy_data:/data
 
+  watchtower:
+    image: containrrr/watchtower
+    volumes:
+      - /var/run/docker.sock:/var/run/docker.sock
+    environment:
+      - WATCHTOWER_CLEANUP=true
+      - WATCHTOWER_SCHEDULE=0 2 * * 0-4
+    restart: unless-stopped
+
 volumes:
   caddy_data:
   postgres_data:
