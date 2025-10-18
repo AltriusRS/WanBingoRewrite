@@ -1,5 +1,6 @@
 import {ChatContextValue} from "@/components/chat/chat-context";
 import {fromZonedTime} from "date-fns-tz";
+import {ReactNode} from "react";
 
 
 /**
@@ -8,10 +9,12 @@ import {fromZonedTime} from "date-fns-tz";
  */
 export async function postMessage(message: string): Promise<boolean> {
     try {
-        await fetch("https://api.bingo.local/chat/message", {
+        const apiRoot = process.env.NEXT_PUBLIC_API_ROOT || "http://localhost:8000"
+        await fetch(`${apiRoot}/chat/message`, {
             method: "POST",
             headers: {"Content-Type": "application/json"},
-            body: JSON.stringify({message, username: "tester"}),
+            credentials: "include", // Include cookies for authentication
+            body: JSON.stringify({message}),
         })
         return true;
     } catch (err) {
@@ -25,40 +28,116 @@ export interface ChatPanelProps {
     isMobile?: boolean
 }
 
-export interface EpisodeInfo {
-    id?: string
-    title: string
-    date: string
-    thumbnail: string | null
-    isLive: boolean
-    startTime: Date
+export interface Player {
+    id: string;
+    did: string;
+    display_name: string;
+    avatar?: string;
+    settings?: { [key: string]: any };
+    score: number;
+    created_at: string;
+    updated_at: string;
+    deleted_at?: string;
+}
+
+export interface Show {
+    id: string;
+    youtube_id?: string;
+    scheduled_time?: string;
+    actual_start_time?: string;
+    thumbnail?: string;
+    metadata?: { [key: string]: any };
+    created_at: string;
+    updated_at: string;
+    deleted_at?: string;
+}
+
+export interface Tile {
+    id: string;
+    title: string;
+    category?: string;
+    last_drawn?: string;
+    created_by?: string;
+    weight: number;
+    score: number;
+    settings: { [key: string]: any };
+    created_at: string;
+    updated_at: string;
+    deleted_at?: string;
+}
+
+export interface ShowTile {
+    show_id: string;
+    tile_id: string;
+    weight: number;
+    score: number;
+    created_at: string;
+    updated_at: string;
+    deleted_at?: string;
+}
+
+export interface Board {
+    id: string;
+    player_id: string;
+    show_id: string;
+    tiles: string[];
+    winner: boolean;
+    total_score: number;
+    potential_score: number;
+    regeneration_diminisher: number;
+    created_at: string;
+    updated_at: string;
+    deleted_at?: string;
+}
+
+export interface TileConfirmation {
+    id: string;
+    show_id: string;
+    tile_id: string;
+    confirmed_by?: string;
+    context?: string;
+    confirmation_time: string;
+    created_at: string;
+    updated_at: string;
+    deleted_at?: string;
 }
 
 
-export type ChatMessage = {
-    id: number
-    type: "user" | "system"
-    username?: string
-    message: string
-    timestamp: string
+export interface ChatMessage {
+    id: string;
+    show_id: string;
+    player_id: string;
+    contents: string;
+    system: boolean;
+    replying?: string;
+    created_at: string;
+    updated_at: string;
+    deleted_at?: string;
+    player?: Partial<Player>
+    html: ReactNode
+}
+
+export interface MessageRequest {
+    contents: string;
 }
 
 
-export function updateLiveTime(episodeInfo: EpisodeInfo, chatContext: ChatContextValue) {
+export function updateLiveTime(episodeInfo: Show, chatContext: ChatContextValue) {
     const now = new Date()
-    const diff = Math.abs(now.getTime() - episodeInfo.startTime.getTime())
+
+    const diff = Math.abs(now.getTime() - new Date(episodeInfo.actual_start_time ?? episodeInfo.scheduled_time ?? episodeInfo.created_at).getTime())
     const minutes = Math.floor(diff / 60000)
     const hours = Math.floor(minutes / 60)
     const days = Math.floor(hours / 24)
     const mins = minutes % 60
     const hrs = hours % 24
 
-    if (episodeInfo.isLive) {
+    if (episodeInfo.actual_start_time) {
         chatContext.setLiveTime(hours > 0 ? `${hours}h ${mins}m` : `${mins}m`)
     } else {
         if (episodeInfo.id) {
             chatContext.setLiveTime("imminently")
-        } else if (episodeInfo.startTime > now) {
+        } else if (new Date(episodeInfo.actual_start_time ?? episodeInfo.scheduled_time ?? episodeInfo.created_at) > now) {
             chatContext.setLiveTime(days > 0 ? `in ${days}d ${hrs}h ${mins}m` : hours > 0 ? `in ${hours}h ${mins}m` : `in ${mins}m`)
         }
     }
@@ -102,25 +181,9 @@ export function handleSocketProtocol(protoMessage: SSEMessage, ctx: ChatContextV
 
         case 'whenplane.aggregate':
             console.log("Received aggregate update:", protoMessage.data);
-            const aggregate = protoMessage.data as any;
+            const aggregate = protoMessage.data as Show;
 
-            ctx.setEpisode(() => {
-                let videoId = aggregate.youtube.videoId || undefined;
-
-                let title = (aggregate.floatplane.title || "Unknown").split(" - ")[0] || "Unknown";
-
-                let date = (new Date((aggregate.floatplane.title || "Unknown").split(" - ")[1]) || new Date()).toISOString();
-
-                let thumbnail = videoId ? "https://i.ytimg.com/vi/" + videoId + "/maxresdefault_live.jpg" : (aggregate.floatplane.thumbnail || null)
-                return {
-                    id: videoId,
-                    title,
-                    date,
-                    thumbnail,
-                    isLive: aggregate.youtube.isLive || false,
-                    startTime: getNextWan()
-                } as EpisodeInfo;
-            })
+            ctx.setEpisode((_) => aggregate)
 
             break;
         default:
@@ -132,9 +195,14 @@ export function handleSocketProtocol(protoMessage: SSEMessage, ctx: ChatContextV
 async function handleChatMessage(msg: ChatMessage, ctx: ChatContextValue) {
     console.log("Received chat message:", msg);
     // Truncate the list to 100 messages
+
+    if (ctx.messages.filter((s) => s.id === msg.id).length > 0) {
+        console.warn("Duplicate message ID returned - skipping");
+        return;
+    }
     ctx.setMessages((prev) => {
         if (prev.length > 99) {
-            return [...prev.slice(0, 99), msg]
+            return [...prev.slice(1, 100), msg]
         } else {
             return [...prev, msg]
         }

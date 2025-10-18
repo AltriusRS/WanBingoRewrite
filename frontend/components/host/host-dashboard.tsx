@@ -8,15 +8,18 @@ import { TestMessagePanel } from "./test-message-panel"
 import { TileManagementPanel } from "./tile-management-panel"
 import { SuggestionManagementPanel } from "./suggestion-management-panel"
 import { LogOut } from "lucide-react"
-import type { User } from "@workos-inc/node"
+import { useAuth } from "@/lib/auth"
 
-interface HostDashboardProps {
-  user: User
-}
+export function HostDashboard() {
+  const { user, logout } = useAuth()
 
-export function HostDashboard({ user }: HostDashboardProps) {
   const handleSignOut = async () => {
-    window.location.href = "/api/auth/signout"
+    await logout()
+    window.location.href = "/"
+  }
+
+  if (!user) {
+    return <div>Loading...</div>
   }
 
   return (
