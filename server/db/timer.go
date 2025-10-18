@@ -7,6 +7,7 @@ import (
 	"wanshow-bingo/db/models"
 
 	"github.com/jackc/pgx/v5"
+	"github.com/matoous/go-nanoid/v2"
 )
 
 // PersistTimer saves or updates a Timer in the database
@@ -15,7 +16,7 @@ func PersistTimer(ctx context.Context, timer *models.Timer, tx ...pgx.Tx) error 
 		// Use transaction
 		if timer.ID == "" {
 			// New timer, generate ID and insert
-			timer.ID = generateID(10)
+			timer.ID, _ = gonanoid.New(10)
 			_, err := tx[0].Exec(ctx, `
 				INSERT INTO timers (id, title, duration, created_by, show_id, starts_at, expires_at, is_active, settings)
 				VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9)
@@ -39,7 +40,7 @@ func PersistTimer(ctx context.Context, timer *models.Timer, tx ...pgx.Tx) error 
 
 		if timer.ID == "" {
 			// New timer, generate ID and insert
-			timer.ID = generateID(10)
+			timer.ID, _ = gonanoid.New(10)
 			_, err := pool.Exec(ctx, `
 				INSERT INTO timers (id, title, duration, created_by, show_id, starts_at, expires_at, is_active, settings)
 				VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9)

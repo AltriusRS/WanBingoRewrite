@@ -13,6 +13,6 @@ func init() {
 }
 
 func ChatRouter(router fiber.Router) {
-	router.Post("/", middleware.RequiredAuthMiddleware, Post)
+	router.Post("/", middleware.AuthMiddleware, Post)
 	router.Post("/s", PostSystem)
 }

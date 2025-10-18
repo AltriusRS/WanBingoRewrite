@@ -13,13 +13,13 @@ func init() {
 }
 
 func BuildRouter(router fiber.Router) {
-	// Public routes - no authentication required
-	router.Get("/", GetAll)
-	router.Get("/:identifier", GetByIdentifier)
-
 	// Protected routes - require authentication
 	protected := router.Group("")
 	protected.Use(middleware.AuthMiddleware)
 
 	protected.Get("/me", me.Get)
+
+	// Public routes - no authentication required
+	router.Get("/", GetAll)
+	router.Get("/:identifier", GetByIdentifier)
 }

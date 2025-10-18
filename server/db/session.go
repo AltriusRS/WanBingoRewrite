@@ -158,7 +158,7 @@ func ValidateSession(ctx context.Context, sessionID string, tx ...pgx.Tx) (*mode
 
 	var player models.Player
 	err := row.Scan(
-		&player.ID, &player.DID, &player.DisplayName, &player.Avatar, &player.Settings, &player.Score,
+		&player.ID, &player.DID, &player.DisplayName, &player.Avatar, &player.Settings, &player.Score, &player.Permissions,
 		&player.CreatedAt, &player.UpdatedAt, &player.DeletedAt,
 	)
 

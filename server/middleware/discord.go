@@ -214,17 +214,27 @@ func SetDiscordSessionCookie(c *fiber.Ctx, token *oauth2.Token) {
 		Name:     "discord-token",
 		Value:    token.AccessToken,
 		Path:     "/",
+		Domain:   "api.bingo.local",              // Match other cookies
 		Expires:  time.Now().Add(24 * time.Hour), // Discord tokens typically last 24 hours
 		HTTPOnly: true,
-		Secure:   os.Getenv("NODE_ENV") == "production", // Only secure in production
-		SameSite: "Lax",
+		Secure:   true,   // HTTPS enabled via Caddy proxy
+		SameSite: "None", // Allow cross-site with HTTPS
 	}
 	c.Cookie(cookie)
 }
 
 // ClearDiscordSessionCookie clears the Discord session cookie
 func ClearDiscordSessionCookie(c *fiber.Ctx) {
-	c.ClearCookie("discord-token")
+	c.Cookie(&fiber.Cookie{
+		Name:     "discord-token",
+		Value:    "",
+		Path:     "/",
+		Domain:   "api.bingo.local",
+		MaxAge:   -1, // Expire immediately
+		HTTPOnly: true,
+		Secure:   true,
+		SameSite: "None",
+	})
 }
 
 // RequirePermissionMiddleware checks if the authenticated user has a specific permission

@@ -6,6 +6,7 @@ import (
 	"wanshow-bingo/db/models"
 
 	"github.com/jackc/pgx/v5"
+	"github.com/matoous/go-nanoid/v2"
 )
 
 // PersistMessage saves or updates a Message in the database
@@ -14,7 +15,7 @@ func PersistMessage(ctx context.Context, message *models.Message, tx ...pgx.Tx) 
 		// Use transaction
 		if message.ID == "" {
 			// New message, generate ID and insert
-			message.ID = generateID(10)
+			message.ID, _ = gonanoid.New(10)
 			_, err := tx[0].Exec(ctx, `
 				INSERT INTO messages (id, show_id, player_id, contents, system, replying)
 				VALUES ($1, $2, $3, $4, $5, $6)
@@ -38,7 +39,7 @@ func PersistMessage(ctx context.Context, message *models.Message, tx ...pgx.Tx) 
 
 		if message.ID == "" {
 			// New message, generate ID and insert
-			message.ID = generateID(10)
+			message.ID, _ = gonanoid.New(10)
 			_, err := pool.Exec(ctx, `
 				INSERT INTO messages (id, show_id, player_id, contents, system, replying)
 				VALUES ($1, $2, $3, $4, $5, $6)

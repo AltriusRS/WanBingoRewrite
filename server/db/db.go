@@ -2,13 +2,12 @@ package db
 
 import (
 	"context"
-	"crypto/rand"
-	"encoding/hex"
 	"log"
 	"os"
 	"time"
 
 	"github.com/jackc/pgx/v5/pgxpool"
+	"github.com/matoous/go-nanoid/v2"
 )
 
 var pool *pgxpool.Pool
@@ -51,16 +50,8 @@ func Pool() *pgxpool.Pool {
 	return pool
 }
 
-// generateID generates a random alphanumeric ID of specified length
-func generateID(length int) string {
-	bytes := make([]byte, length)
-	rand.Read(bytes)
-	return hex.EncodeToString(bytes)[:length]
-}
-
 // generateSessionID generates a 32-character session ID
 func generateSessionID() string {
-	bytes := make([]byte, 16)
-	rand.Read(bytes)
-	return hex.EncodeToString(bytes)
+	id, _ := gonanoid.New(32)
+	return id
 }

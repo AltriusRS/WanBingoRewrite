@@ -7,6 +7,7 @@ import (
 	"wanshow-bingo/db/models"
 
 	"github.com/jackc/pgx/v5"
+	"github.com/matoous/go-nanoid/v2"
 )
 
 // PersistPlayer saves or updates a Player in the database
@@ -15,7 +16,7 @@ func PersistPlayer(ctx context.Context, player *models.Player, tx ...pgx.Tx) err
 		// Use provided transaction
 		if player.ID == "" {
 			// New player, generate ID and insert
-			player.ID = generateID(10)
+			player.ID, _ = gonanoid.New(10)
 			_, err := tx[0].Exec(ctx, `
 				INSERT INTO players (id, did, display_name, avatar, settings, score, permissions)
 				VALUES ($1, $2, $3, $4, $5, $6, $7)
@@ -39,7 +40,7 @@ func PersistPlayer(ctx context.Context, player *models.Player, tx ...pgx.Tx) err
 
 		if player.ID == "" {
 			// New player, generate ID and insert
-			player.ID = generateID(10)
+			player.ID, _ = gonanoid.New(10)
 			_, err := pool.Exec(ctx, `
 				INSERT INTO players (id, did, display_name, avatar, settings, score, permissions)
 				VALUES ($1, $2, $3, $4, $5, $6, $7)
@@ -134,7 +135,7 @@ func FindOrCreatePlayer(ctx context.Context, discordUser *models.DiscordUser, tx
 		}
 
 		// Player doesn't exist, create new one
-		playerID := generateID(10)
+		playerID, _ := gonanoid.New(10)
 		defaultPerms := models.DefaultPermissions()
 		_, err = tx[0].Exec(ctx, `
 			INSERT INTO players (id, did, display_name, avatar, settings, score, permissions)
@@ -184,7 +185,7 @@ func FindOrCreatePlayer(ctx context.Context, discordUser *models.DiscordUser, tx
 		}
 
 		// Player doesn't exist, create new one
-		playerID := generateID(10)
+		playerID, _ := gonanoid.New(10)
 		defaultPerms := models.DefaultPermissions()
 		_, err = pool.Exec(ctx, `
 			INSERT INTO players (id, did, display_name, avatar, settings, score, permissions)
