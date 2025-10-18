@@ -11,7 +11,15 @@ export function UserThemeProvider({ children }: { children: React.ReactNode }) {
     useEffect(() => {
         if (user?.settings) {
             const settings = user.settings as any
-            const preferredTheme = settings.preferredTheme
+            let preferredTheme = "dark"
+
+            // Check nested structure first, then fallback to flat structure
+            if (settings.themes?.preferred) {
+                preferredTheme = settings.themes.preferred
+            } else if (settings.preferredTheme) {
+                preferredTheme = settings.preferredTheme
+            }
+
             if (preferredTheme) {
                 setTheme(preferredTheme)
             }

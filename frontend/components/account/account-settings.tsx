@@ -42,11 +42,33 @@ export function AccountSettings() {
             // Load settings
             if (user.settings) {
                 const settings = user.settings as any
-                setChatColor(settings.chatColor || "#FF6900")
-                setSoundOnMention(settings.soundOnMention !== false) // Default to true
-                setBackgroundImageEnabled(settings.backgroundImageEnabled || false)
-                setPreferredTheme(settings.preferredTheme || "dark")
-                setAutoYoutubePlayback(settings.autoYoutubePlayback || false)
+                // Chat settings
+                if (settings.chat) {
+                    setChatColor(settings.chat.color || "#FF6900")
+                    setSoundOnMention(settings.chat.soundOnMention !== false) // Default to true
+                } else {
+                    // Fallback for old flat structure
+                    setChatColor(settings.chatColor || "#FF6900")
+                    setSoundOnMention(settings.soundOnMention !== false)
+                }
+
+                // Theme settings
+                if (settings.themes) {
+                    setPreferredTheme(settings.themes.preferred || "dark")
+                } else {
+                    // Fallback for old flat structure
+                    setPreferredTheme(settings.preferredTheme || "dark")
+                }
+
+                // Video settings
+                if (settings.video) {
+                    setAutoYoutubePlayback(settings.video.autoYoutubePlayback || false)
+                    setBackgroundImageEnabled(settings.video.backgroundImageEnabled || false)
+                } else {
+                    // Fallback for old flat structure
+                    setAutoYoutubePlayback(settings.autoYoutubePlayback || false)
+                    setBackgroundImageEnabled(settings.backgroundImageEnabled || false)
+                }
             }
         }
     }, [user])
@@ -63,11 +85,17 @@ export function AccountSettings() {
                     display_name: displayName,
                     avatar: avatarUrl,
                     settings: {
-                        chatColor,
-                        soundOnMention,
-                        backgroundImageEnabled,
-                        preferredTheme,
-                        autoYoutubePlayback,
+                        chat: {
+                            color: chatColor,
+                            soundOnMention,
+                        },
+                        themes: {
+                            preferred: preferredTheme,
+                        },
+                        video: {
+                            autoYoutubePlayback,
+                            backgroundImageEnabled,
+                        },
                     },
                 }),
             })
