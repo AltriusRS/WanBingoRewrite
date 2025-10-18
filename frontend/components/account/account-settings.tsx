@@ -9,46 +9,59 @@ import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
 import { ArrowLeft, Upload } from "lucide-react"
 import Link from "next/link"
 import { Switch } from "@/components/ui/switch"
-import { useAuth, type DiscordUser } from "@/lib/auth"
+import { useAuth } from "@/components/auth"
+import { Player } from "@/lib/auth"
 
 export function AccountSettings() {
-  const { user } = useAuth()
-  const [displayName, setDisplayName] = useState("")
-  const [avatarUrl, setAvatarUrl] = useState("")
-  const [chatColor, setChatColor] = useState("#FF6900")
-  const [backgroundImageEnabled, setBackgroundImageEnabled] = useState(false)
-  const [saving, setSaving] = useState(false)
+   const auth = useAuth()
+   const user = auth.user
+   const [displayName, setDisplayName] = useState("")
+   const [avatarUrl, setAvatarUrl] = useState("")
+   const [chatColor, setChatColor] = useState("#FF6900")
+   const [backgroundImageEnabled, setBackgroundImageEnabled] = useState(false)
+   const [saving, setSaving] = useState(false)
 
-  useEffect(() => {
-    if (user) {
-      setDisplayName(user.username)
-      // Discord avatar URL format
-      if (user.avatar) {
-        setAvatarUrl(`https://cdn.discordapp.com/avatars/${user.id}/${user.avatar}.png`)
-      }
-    }
-  }, [user])
+   useEffect(() => {
+     if (user) {
+       setDisplayName(user.display_name || "")
+       setAvatarUrl(user.avatar || "")
+       // Load settings
+       if (user.settings) {
+         const settings = user.settings as any
+         setChatColor(settings.chatColor || "#FF6900")
+         setBackgroundImageEnabled(settings.backgroundImageEnabled || false)
+       }
+     }
+   }, [user])
 
-  const handleSave = async () => {
-    setSaving(true)
+   const handleSave = async () => {
+     setSaving(true)
 
-    try {
-      await fetch("/api/account/update", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({
-          displayName,
-          avatarUrl,
-          chatColor,
-          backgroundImageEnabled,
-        }),
-      })
-    } catch (error) {
-      console.error("Failed to save settings:", error)
-    } finally {
-      setSaving(false)
-    }
-  }
+     try {
+       const response = await fetch("https://api.bingo.local/users/me", {
+         method: "PUT",
+         credentials: "include",
+         headers: { "Content-Type": "application/json" },
+         body: JSON.stringify({
+           display_name: displayName,
+           avatar: avatarUrl,
+           settings: {
+             chatColor,
+             backgroundImageEnabled,
+           },
+         }),
+       })
+       if (!response.ok) {
+         throw new Error("Failed to update")
+       }
+       // Refetch user data
+       await auth.refetch()
+     } catch (error) {
+       console.error("Failed to save settings:", error)
+     } finally {
+       setSaving(false)
+     }
+   }
 
   if (!user) {
     return <div>Loading...</div>
@@ -75,32 +88,27 @@ export function AccountSettings() {
           <h2 className="mb-4 text-lg font-semibold text-foreground">Profile</h2>
 
           <div className="space-y-6">
-            <div className="flex items-center gap-4">
-              <Avatar className="h-20 w-20">
-                <AvatarImage src={avatarUrl || "/placeholder.svg"} alt={displayName} />
-                <AvatarFallback className="bg-primary/10 text-lg">
-                  {displayName
-                    .split(" ")
-                    .map((n) => n[0])
-                    .join("")
-                    .toUpperCase()}
-                </AvatarFallback>
-              </Avatar>
-              <div className="flex-1">
-                <Label htmlFor="avatar-url">Avatar URL</Label>
-                <div className="flex gap-2">
-                  <Input
-                    id="avatar-url"
-                    value={avatarUrl}
-                    onChange={(e) => setAvatarUrl(e.target.value)}
-                    placeholder="https://example.com/avatar.jpg"
-                  />
-                  <Button variant="outline" size="icon">
-                    <Upload className="h-4 w-4" />
-                  </Button>
-                </div>
-              </div>
-            </div>
+             <div className="flex items-center gap-4">
+               <Avatar className="h-20 w-20">
+                 <AvatarImage src={avatarUrl || "/placeholder-user.jpg"} alt={displayName} />
+                 <AvatarFallback className="bg-primary/10 text-lg">
+                   {displayName
+                     .split(" ")
+                     .map((n) => n[0])
+                     .join("")
+                     .toUpperCase()}
+                 </AvatarFallback>
+               </Avatar>
+               <div className="flex-1">
+                 <Label htmlFor="avatar-url">Avatar URL</Label>
+                 <Input
+                   id="avatar-url"
+                   value={avatarUrl}
+                   onChange={(e) => setAvatarUrl(e.target.value)}
+                   placeholder="https://example.com/avatar.jpg"
+                 />
+               </div>
+             </div>
 
             <div className="space-y-2">
               <Label htmlFor="display-name">Display Name</Label>
@@ -112,17 +120,11 @@ export function AccountSettings() {
               />
             </div>
 
-            <div className="space-y-2">
-              <Label htmlFor="email">Email</Label>
-              <Input id="email" value={user.email || ""} disabled />
-              <p className="text-xs text-muted-foreground">Email cannot be changed</p>
-            </div>
-
-            <div className="space-y-2">
-              <Label htmlFor="discord-id">Discord ID</Label>
-              <Input id="discord-id" value={user.id} disabled />
-              <p className="text-xs text-muted-foreground">Your unique Discord identifier</p>
-            </div>
+             <div className="space-y-2">
+               <Label htmlFor="player-id">Player ID</Label>
+               <Input id="player-id" value={user.id} disabled />
+               <p className="text-xs text-muted-foreground">Your unique player identifier</p>
+             </div>
           </div>
         </Card>
 
