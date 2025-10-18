@@ -40,10 +40,10 @@ export function BingoBoard({onWin}: BingoBoardProps) {
         }
     }
 
-    const toggleTile = (id: number) => {
+    const toggleTile = (id: string) => {
         let mappedTile = tiles.filter((f) => f.id === id)[0];
         if (!mappedTile) return console.error("Unable to find tile matching id", id);
-        if (mappedTile.id === -1) return
+        if (mappedTile.id === "-1") return
 
         setTiles((prev) => prev.map((tile) => (tile.id === id ? {...tile, marked: !tile.marked} : tile)))
     }

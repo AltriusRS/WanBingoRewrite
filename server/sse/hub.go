@@ -77,12 +77,12 @@ func (h *Hub) Run() {
 	for {
 		select {
 		case c := <-h.register:
-			utils.Debugf("[SSE - %s] Registering client %s", h.name, c)
+			utils.Debugf("[SSE - %s] Registering client", h.name)
 			h.clients[c.Id] = c
 			go h.BroadcastConnectionCount()
 		case c := <-h.unregister:
 			if _, ok := h.clients[c.Id]; ok {
-				utils.Debugf("[SSE - %s] Deregistering client %s", h.name, c)
+				utils.Debugf("[SSE - %s] Deregistering client", h.name)
 				delete(h.clients, c.Id)
 				go h.BroadcastConnectionCount()
 			}

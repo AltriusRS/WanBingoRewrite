@@ -94,8 +94,12 @@ func uploadToR2(key string, data []byte, contentType string) error {
 	})
 
 	// Upload object
+	bucket := os.Getenv("R2_BUCKET")
+	if bucket == "" {
+		return fmt.Errorf("R2_BUCKET environment variable not set")
+	}
 	_, err = client.PutObject(context.TODO(), &s3.PutObjectInput{
-		Bucket:      aws.String("bingo"),
+		Bucket:      aws.String(bucket),
 		Key:         aws.String(key),
 		Body:        bytes.NewReader(data),
 		ContentType: aws.String(contentType),
