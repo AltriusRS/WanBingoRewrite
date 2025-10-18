@@ -1,10 +1,57 @@
 "use client"
+import { useState, useEffect } from "react"
 import { Card } from "@/components/ui/card"
 import { Badge } from "@/components/ui/badge"
+import { Button } from "@/components/ui/button"
+import { Clock } from "lucide-react"
 import { useChat } from "@/components/chat/chat-context"
+import { getApiRoot } from "@/lib/auth"
+import type { BingoTile } from "@/lib/bingoUtils"
 
 export function EpisodeInfoPanel() {
   const { episode, liveTime } = useChat()
+  const [lateTile, setLateTile] = useState<BingoTile | null>(null)
+
+  useEffect(() => {
+    fetchLateTile()
+  }, [])
+
+  const fetchLateTile = async () => {
+    try {
+      const response = await fetch(`${getApiRoot()}/tiles?category=Late`)
+      const data = await response.json()
+      const tiles: BingoTile[] = data.tiles
+      const late = tiles.find(t => t.title === "Show Is Late")
+      if (late) setLateTile(late)
+    } catch (error) {
+      console.error("Failed to fetch late tile:", error)
+    }
+  }
+
+  const handleConfirmLate = async () => {
+    if (!lateTile) return
+
+    try {
+      const response = await fetch(`${getApiRoot()}/tiles/confirmations`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        credentials: "include",
+        body: JSON.stringify({
+          tile_id: lateTile.id,
+          context: "",
+        }),
+      })
+
+      if (!response.ok) {
+        throw new Error("Failed to confirm tile")
+      }
+
+      alert("Show Is Late confirmed!")
+    } catch (error) {
+      console.error("Failed to confirm late tile:", error)
+      alert("Failed to confirm Show Is Late")
+    }
+  }
 
   return (
     <Card className="p-4">
@@ -41,6 +88,18 @@ export function EpisodeInfoPanel() {
             </>
           )}
         </div>
+
+        {lateTile && (
+          <Button
+            variant="outline"
+            size="sm"
+            className="w-full gap-2"
+            onClick={handleConfirmLate}
+          >
+            <Clock className="h-4 w-4" />
+            Confirm Show Is Late
+          </Button>
+        )}
       </div>
     </Card>
   )

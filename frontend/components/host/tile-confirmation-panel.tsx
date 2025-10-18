@@ -6,7 +6,7 @@ import {Button} from "@/components/ui/button"
 import {ScrollArea} from "@/components/ui/scroll-area"
 import {TileConfirmationDialog} from "./tile-confirmation-dialog"
 import type {BingoTile} from "@/lib/bingoUtils"
-import {CheckCircle2, Lock, Play} from "lucide-react"
+import {CheckCircle2, Lock, Play, Hash} from "lucide-react"
 import {getApiRoot} from "@/lib/auth";
 
 interface TileLock {
@@ -145,6 +145,16 @@ export function TileConfirmationPanel() {
         {} as Record<string, BingoTile[]>,
     )
 
+    // Calculate category stats
+    const categoryStats = Object.keys(tilesByCategory).reduce((acc, cat) => {
+        const tilesInCat = tilesByCategory[cat]
+        acc[cat] = {
+            total: tilesInCat.length,
+            inPlay: tilesInCat.filter(t => showTileIds.has(t.id)).length
+        }
+        return acc
+    }, {} as Record<string, { total: number; inPlay: number }>)
+
     const categories = Object.keys(tilesByCategory).sort()
 
     if (loading) {
@@ -158,33 +168,44 @@ export function TileConfirmationPanel() {
     return (
         <>
             <ScrollArea className="h-[calc(100vh-12rem)]">
-                <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
+                <div className="space-y-4">
                     {categories.map((category) => (
-                        <Card key={category} className="p-4">
-                            <h3 className="mb-3 font-semibold text-foreground">{category}</h3>
-                            <div className="space-y-2">
-                                {tilesByCategory[category].map((tile) => {
-                                    const isLocked = locks.has(tile.id)
-                                    const isConfirmed = confirmedTiles.has(tile.id)
-                                    const isInPlay = showTileIds.has(tile.id)
+                        <div key={category} className="bg-muted p-4 rounded-lg">
+                            <h3 className="mb-3 font-semibold text-foreground text-lg flex items-center gap-2">
+                                {category}
+                                <span className="text-sm text-muted-foreground flex items-center gap-1">
+                                    <Play className="h-4 w-4 text-green-500" />
+                                    {categoryStats[category].inPlay}
+                                    <span className="mx-1">/</span>
+                                    <Hash className="h-4 w-4" />
+                                    {categoryStats[category].total}
+                                </span>
+                            </h3>
+                            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-2">
+                                {tilesByCategory[category]
+                                    .sort((a, b) => a.title.localeCompare(b.title))
+                                    .map((tile) => {
+                                        const isLocked = locks.has(tile.id)
+                                        const isConfirmed = confirmedTiles.has(tile.id)
+                                        const isInPlay = showTileIds.has(tile.id)
 
-                                    return (
-                                        <Button
-                                            key={tile.id}
-                                            variant={isConfirmed ? "secondary" : "outline"}
-                                            className="w-full justify-start text-left"
-                                            onClick={() => handleTileClick(tile)}
-                                            disabled={isLocked && locks.get(tile.id)?.lockedBy !== "You"}
-                                        >
-                                            <span className="flex-1 truncate text-sm">{tile.title}</span>
-                                            {isLocked && <Lock className="ml-2 h-4 w-4 text-muted-foreground"/>}
-                                            {isConfirmed && <CheckCircle2 className="ml-2 h-4 w-4 text-primary"/>}
-                                            {isInPlay && <Play className="ml-2 h-4 w-4 text-green-500"/>}
-                                        </Button>
-                                    )
-                                })}
+                                        return (
+                                            <Button
+                                                key={tile.id}
+                                                variant={isConfirmed ? "secondary" : "outline"}
+                                                className="justify-start text-left h-auto py-2"
+                                                onClick={() => handleTileClick(tile)}
+                                                disabled={isLocked && locks.get(tile.id)?.lockedBy !== "You"}
+                                            >
+                                                <span className="flex-1 truncate text-sm">{tile.title}</span>
+                                                {isInPlay && <Play className="ml-2 h-4 w-4 text-green-500 flex-shrink-0" />}
+                                                {isConfirmed && <CheckCircle2 className="ml-2 h-4 w-4 text-primary flex-shrink-0" />}
+                                                {isLocked && <Lock className="ml-2 h-4 w-4 text-muted-foreground flex-shrink-0" />}
+                                            </Button>
+                                        )
+                                    })}
                             </div>
-                        </Card>
+                        </div>
                     ))}
                 </div>
             </ScrollArea>
