@@ -1,0 +1,48 @@
+commit_hash,original_message,new_name
+42fe30f862574e8f44433e99e1789e98b8913b8d,[META] Add script to rebase commit messages,[META] Update project files
+358cec2ea1256e65519cf1076cd6355239f6c639,[SERVER] Bundle migrations in container,[SERVER] Update server
+042a038e1b4a0c481aa6b5b44a802c1f6bed6c74,[SERVER] [DB] Add migration runner,"[DB,SERVER] Update database and server"
+4a97dddd200ca498d2e41f2c6b4cccbda145f3ec,[DB] Split schema into migration files,[DB] Update database
+ba280a5c29ed61f280aee0ebb90c169a48d47c6e,[SERVER] [FRONTEND] [DB] Implement tile suggestion system,"[FRONTEND,SERVER] Update frontend and server"
+a4e3965f07b4d5d05ccf9967f78515c06a8c77e2,feat: enable anonymous bingo gameplay without penalties,"[FRONTEND,SERVER] Update frontend and server"
+bef1fc14cd9388bf9c79a7e01edd7ea5afb2e4f9,cleanup unused files (and trigger rebuild of both services),"[FRONTEND,SERVER] Update frontend and server"
+d35baa6ee327a13241ba6d261efb2ca0da125b25,[CI/CD] Fixing build pipeline,[CI] Update CI/CD
+1baf6c71a4a0d11b481e28a04c29a4acd1bb53fb,this should fix the build issues - also add env arg for cors on the backend server for easy changeover,"[FRONTEND,SERVER] Update frontend and server"
+9af89ea7f8271a8710c19ca820c7463d019e4df3,hopefully fix broken api domain issues from the nextjs inline variable system bullshit,"[CI,META] Update CI/CD and project files"
+c2580e48a2a322d78269352587ad3318c6f7a3b0,Update frontend to hopefully fix the domain issues plagueing prod.,"[FRONTEND,META] Update frontend and project files"
+1cbd13aff89b41b54ded91715573d9648618e78d,[ALL] - Should fix some of the issues being had with domains on prod,"[FRONTEND,META,SERVER] Update frontend, project files and server"
+3146e164519aa9083a71fc49a618de7a31e7d2b5,[CI/CD] Fixing build pipeline,"[CI,FRONTEND,META,SERVER] Update CI/CD, frontend, project files and server"
+68e95c863e6b9177f8eded8542e91cbaf1eb8e65,Update deploy.yml,[CI] Update CI/CD
+e95a36050b88d2dded38e37263d8c5e55dadf7a9,fix all the nextjs build errors because it's dumb and wont show them all at once.,[FRONTEND] Update frontend
+c7c11007ca1ba2f6dfc0824305f25691bbcae529,fix typescript issues when rendering the landing page,[FRONTEND] Update frontend
+3cda71943339b23023401dc4db95bbedabbeebc7,fix compiler erros on frontend site. hopefully,[FRONTEND] Update frontend
+43eab59eccde3145a936a6880e7235c6b7ffc8ba,fix package.json in frontend,[FRONTEND] Update frontend
+1bca4f9d300c78d4d516dc57e0c57ca13b245b87,[BOTH] Working on some minro chat tweaks to make things work a little bit better.,"[FRONTEND,META,SERVER] Update frontend, project files and server"
+d5ac41a6fa4b46ab9a6ab5a3b8629e2d723d89ec,[CI/CD] Trying to fix the broken github action,[CI] Update CI/CD
+4cf240f12d947bafd4ad56beee3fe8d9b5a516ec,[BOTH] Working on bringing the host panel up to snuff for the test run next WAN show,"[FRONTEND,SERVER] Update frontend and server"
+48cddf8bfd6c4e8ad00c59c2ff7724f0df9d4cd6,[FRONTEND] Host panel tile confirmation page is now better laid out,[FRONTEND] Update frontend
+740eaec9287d2f0658146487fe9532dd26bcdb2a,[SERVER] Bring server up to spec for frontend,[SERVER] Update server
+14ab5d14aac4885ba308cf32c0bdfef8a2bbf72a,"[FRONTEND] Fix authentication, working on host dashboard",[FRONTEND] Update frontend
+dd8468489f58092122e32a7fc016393a7cad09ab,[BRUNO] Update bruno config,"[BRUNO,SERVER] Update Bruno tests and server"
+7e34d62b5ff3ce4e06099a0db58054d16654fe61,[DOCKER] add watchtower to watch for new container versions,[META] Update project files
+69d10322d6b8b1c6597b7ba52d89292288bfeeba,[SERVER] fixed the api endpoint for player tile boards,"[FRONTEND,SERVER] Update frontend and server"
+c59919f6d2fc1e55c70584d89076fcd8a88e89c9,add github actions builds,"[CI,FRONTEND,META,SERVER] Update CI/CD, frontend, project files and server"
+d645dfe234d709ba13cf5ac8b270b11d698064cc,[SERVER] Server fixed oAuth and other assorted fixes + changes,[SERVER] Update server
+a9ca40d6a783209f22ce4eadb221bae7562ad107,[FRONTEND] Update components to work with new API layouts,[FRONTEND] Update frontend
+47ba8baeb60b2316695c1d9d0b0f48ed3ca00590,[SERVER] working on fixing oauth,"[META,SERVER] Update project files and server"
+bd9092852b3825238b6533b3037c0756e3feb7cd,delete mistakenly tracked files,"[META,SERVER] Update project files and server"
+0d01ed6e5a72558f7cc02b5b77b034fe16d5861e,[SERVER] Various fixes & additions,[SERVER] Update server
+2017d302ff6ba388c480f0c0780a459af12aba39,Merge branch 'main' of /home/arthur/code/wanbingo with conflicts.,[META] Update project files
+8ee0dc1a127d0ba6866b01484feda545890c8e5b,[SERVER] Bring server up to speed.,"[META,SERVER] Update project files and server"
+4205411ad95d1738a610a0546f21adf5a4895bfa,sort conflict,[META] Update project files
+4892f297167370098d5686784610906ac3ef125c,[SIMULATOR] Create the simulator,[SIMULATOR] Update simulator
+a6a82ace4fc47848e672d6e3a0c1106bce2fca35,Frontend changes,[FRONTEND] Update frontend
+5904bacb1e19e48f7cf4eb99297e85b769a36e02,working on the bingo tile exporter,[EXPORTER] Update exporter
+880c273536adf2d45fb1c7159a2efcd921ce8ce4,[SERVER] Bring server up to speed.,"[META,SERVER] Update project files and server"
+b873f544a5bcae5d28a572268239af15cb62860e,[SIMULATOR] Create the simulator,[SIMULATOR] Update simulator
+41ba8465f623c3474ac2a5ccfb197e169ec5feb7,Frontend changes,[FRONTEND] Update frontend
+6536b4f376855595babcd91a6c3cd7cf679ba8c9,working on the bingo tile exporter,[EXPORTER] Update exporter
+1f9808ce320061b37633c33810a1647b889ff6f9,Changes to Bruno Request Suite,"[BRUNO,META,SERVER,SIMULATOR] Update Bruno tests, project files, server and simulator"
+2f99be621e2c95cafac25fba67dca4be32c6cfe2,Bring frontend up to date to include the authenticated paths (which will now be ripped out and rebuilt),"[FRONTEND,META] Update frontend and project files"
+6d07bddf7f62c9bcdee04b0e5533bf63b04875ad,Working on things,"[BRUNO,META,SERVER] Update Bruno tests, project files and server"
+56e9182f1cadfe6634e4ef29258b22aa4314222d,Initial Commit,"[BRUNO,FRONTEND,META,SERVER] Update Bruno tests, frontend, project files and server"
