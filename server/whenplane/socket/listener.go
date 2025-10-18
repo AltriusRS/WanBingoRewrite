@@ -7,14 +7,13 @@ import (
 	"os"
 	"strconv"
 	"time"
-	"wanshow-bingo/sse"
-	"wanshow-bingo/utils"
 	"wanshow-bingo/whenplane"
+	"wanshow-bingo/whenplane/watcher"
 
 	"github.com/gorilla/websocket"
 )
 
-func init() {
+func Init() {
 	go func() {
 		// Initial one-time fetch to warm the cache
 		fetchAggregateOnce()
@@ -32,6 +31,8 @@ func fetchAggregateOnce() {
 	ms := strconv.FormatInt(time.Now().UnixMilli(), 10)
 	url := base + "&r=" + ms
 
+	log.Printf("Fetching aggregate from %s", url)
+
 	resp, err := http.Get(url)
 	if err != nil {
 		log.Printf("aggregate fetch error: %v", err)
@@ -48,7 +49,7 @@ func fetchAggregateOnce() {
 		return
 	}
 
-	utils.Debugln("aggregate fetched")
+	log.Printf("aggregate fetched\n")
 
 	aggregate, err := whenplane.AggregateFromJSON(string(b))
 
@@ -58,9 +59,7 @@ func fetchAggregateOnce() {
 		return
 	}
 
-	whenplane.UpdateAggregateCache(aggregate)
-
-	PingPong()
+	watcher.AggregateChan <- &aggregate
 }
 
 // connectLiveWebsocketForever maintains a perpetual connection to the WhenPlane
@@ -101,6 +100,7 @@ func connectLiveWebsocketForever() {
 }
 
 func handleWebsocketMessage(c *websocket.Conn) {
+	log.Println("websocket: handleWebsocketMessage")
 	for {
 		_, message, err := c.ReadMessage()
 
@@ -112,9 +112,7 @@ func handleWebsocketMessage(c *websocket.Conn) {
 
 		// Ignore ping/pong textual keepalives
 		if string(message) == "pong" || string(message) == "ping" {
-
-			PingPong()
-
+			continue
 		}
 
 		// If it looks like JSON, store it directly and broadcast to SSE hub
@@ -133,44 +131,5 @@ func AggregateMessage(message string) {
 		return
 	}
 
-	whenplane.UpdateAggregateCache(aggregate)
-
-	err = BroadcastToHubs()
-
-	if err != nil {
-		log.Println("error broadcasting aggregate event:", err)
-		log.Println("message received:", message)
-	}
-}
-
-func PingPong() {
-	err := BroadcastToHubs()
-
-	if err != nil {
-		log.Println("error broadcasting ping pong aggregate:", err)
-	}
-}
-
-func BroadcastToHubs() error {
-	utils.Debugln("[AGGREGATE] Broadcasting aggregate state to hubs")
-	payload := whenplane.GetAggregateCache()
-
-	//if err != nil {
-	//	log.Println("[AGGREGATE] error unmarshalling aggregate: ", err)
-	//	return
-	//}
-
-	chatHub := sse.GetChatHub()
-	if chatHub != nil {
-		utils.Debugln("[AGGREGATE] Broadcasting aggregate state to chat hub")
-		chatHub.BroadcastEvent("whenplane.aggregate", payload)
-	}
-
-	hostHub := sse.GetHostHub()
-	if hostHub != nil {
-		utils.Debugln("[AGGREGATE] Broadcasting aggregate state to host hub")
-		hostHub.BroadcastEvent("whenplane.aggregate", payload)
-	}
-
-	return nil
+	watcher.AggregateChan <- &aggregate
 }

@@ -7,9 +7,9 @@ import (
 
 type Aggregate struct {
 	Youtube struct {
-		IsLive   bool   `json:"isLive"`
-		Upcoming bool   `json:"upcoming"`
-		VideoID  string `json:"videoId"`
+		IsLive   bool    `json:"isLive"`
+		Upcoming bool    `json:"upcoming"`
+		VideoID  *string `json:"videoId"`
 	} `json:"youtube"`
 	Twitch struct {
 		IsLive bool `json:"isLive"`

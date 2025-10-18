@@ -2,6 +2,7 @@ package sse
 
 import (
 	"bufio"
+	"context"
 	"log"
 	"time"
 	"wanshow-bingo/db"
@@ -13,7 +14,6 @@ import (
 	gonanoid "github.com/matoous/go-nanoid/v2"
 	"github.com/workos/workos-go/v4/pkg/usermanagement"
 )
-
 
 type Client struct {
 	Id              string
@@ -79,15 +79,17 @@ func (c *Client) streamWriter(w *bufio.Writer) {
 	connectEvent := BuildEvent("hub.connected", "Connected to chat hub.")
 	go c.Send(connectEvent.String())
 
-	aggregateEvent := BuildEvent("whenplane.aggregate", whenplane.GetAggregateCache())
-	go c.Send(aggregateEvent.String())
+	EmitWhenplaneAgg(c)
 
 	if c.Hub != nil {
-
 		authenticatedEvent := BuildEvent("hub.authenticated", ClientCapabilities{
 			CanChat: true,
 		})
 		go c.Send(authenticatedEvent.String())
+
+		if c.Hub.name == "CHAT" {
+			go SendChatHistory(c)
+		}
 	}
 
 	// Listen for messages and keep-alive ticks
@@ -152,6 +154,17 @@ func (c *Client) write(msg string) error {
 	return nil
 }
 
+func EmitWhenplaneAgg(c *Client) {
+	agg, err := whenplane.GetAggregateCache()
+
+	if err == nil {
+		aggregateEvent := BuildEvent("whenplane.aggregate", agg)
+		go c.Send(aggregateEvent.String())
+	} else {
+		log.Println("[SSE ClientChannel] - Error getting aggregate cache:", err)
+	}
+}
+
 type ClientCapabilities struct {
 	CanChat     bool `json:"canChat"`
 	CanHost     bool `json:"canHost"`
@@ -176,4 +189,21 @@ func (c *Client) GetCapabilities() ClientCapabilities {
 	}
 
 	return UnauthorizedCapabilities
+}
+
+func SendChatHistory(c *Client) {
+	history, err := db.GetMessageHistory(context.Background())
+
+	if err != nil {
+		log.Printf("[SSE ClientChannel] - Failed to retrieve chat history - %v", err)
+		return
+	}
+
+	for i, j := 0, len(history)-1; i < j; i, j = i+1, j-1 {
+		history[i], history[j] = history[j], history[i]
+	}
+	for _, msg := range history {
+		msgEvent := BuildEvent("chat.message", msg)
+		c.Send(msgEvent.String())
+	}
 }

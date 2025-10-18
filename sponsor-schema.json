@@ -1,0 +1,42 @@
+{
+  "$id": "https://wanshow.bingo/sponsors.schema.json",
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "title": "Sponsors",
+  "type": "object",
+  "properties": {
+    "sponsors": {
+      "type": "array",
+      "items": {
+        "$ref": "#/$defs/sponsor"
+      }
+    }
+  },
+  "$defs": {
+    "sponsor": {
+      "type": "object",
+      "properties": {
+        "brand": {
+          "type": "string",
+          "description": "brand's name."
+        },
+        "logo": {
+          "type": "string",
+          "description": "brand's logo url."
+        },
+        "pitch": {
+          "type": "string",
+          "description": "The sales pitch (eg: Get a skin for your device so dbrand can keep messing with Linus)"
+        },
+        "offer": {
+          "description": "The offer being given (eg: 10% off when XYZ)",
+          "type": "string"
+        },
+        "link": {
+          "type": "string",
+          "description": "The url to visit to obtain the offered deal"
+        }
+      }
+    }
+  }
+}
+

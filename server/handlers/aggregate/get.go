@@ -8,6 +8,9 @@ import (
 
 // Get serves the latest cached aggregate JSON.
 func Get(c *fiber.Ctx) error {
-	aggregate := whenplane.GetAggregateCache()
+	aggregate, err := whenplane.GetAggregateCache()
+	if err != nil {
+		return c.Status(fiber.StatusInternalServerError).JSON(fiber.Map{})
+	}
 	return c.JSON(aggregate)
 }
