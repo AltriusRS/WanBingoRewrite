@@ -6,13 +6,12 @@ import (
 	"log"
 	"time"
 	"wanshow-bingo/db"
-	"wanshow-bingo/middleware"
+	"wanshow-bingo/db/models"
 	"wanshow-bingo/utils"
 	"wanshow-bingo/whenplane"
 
 	"github.com/gofiber/fiber/v2"
 	gonanoid "github.com/matoous/go-nanoid/v2"
-	"github.com/workos/workos-go/v4/pkg/usermanagement"
 )
 
 type Client struct {
@@ -22,7 +21,7 @@ type Client struct {
 	Writer          *bufio.Writer
 	ticker          *time.Ticker
 	IsAuthenticated bool
-	User            *usermanagement.User
+	Player          *models.Player
 }
 
 func NewClient() *Client {
@@ -40,16 +39,13 @@ func NewClient() *Client {
 }
 
 func (c *Client) Bind(ctx *fiber.Ctx) error {
-	user := ctx.Locals("user")
+	playerRaw := ctx.Locals("player")
 
-	if user != nil {
+	if playerRaw != nil {
 		c.IsAuthenticated = true
-		wosUser, err := middleware.GetWorkOSUser(ctx)
-
-		if err != nil {
-			return err
+		if player, ok := playerRaw.(*models.Player); ok {
+			c.Player = player
 		}
-		c.User = wosUser
 	}
 
 	// Set required headers for SSE on the RESPONSE

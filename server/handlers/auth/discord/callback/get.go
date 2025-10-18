@@ -1,6 +1,8 @@
 package callback
 
 import (
+	"context"
+	"wanshow-bingo/db"
 	"wanshow-bingo/middleware"
 	"wanshow-bingo/utils"
 
@@ -41,25 +43,40 @@ func Get(c *fiber.Ctx) error {
 	}
 
 	// Get Discord user information
-	user, err := middleware.GetDiscordUser(token)
+	discordUser, err := middleware.GetDiscordUser(token)
 	if err != nil {
 		return c.Status(fiber.StatusInternalServerError).JSON(utils.NewApiError("Failed to fetch Discord user", 500))
 	}
 
-	// Set Discord session cookie
-	middleware.SetDiscordSessionCookie(c, token)
+	// Find or create player in database
+	ctx := context.Background()
+	player, err := db.FindOrCreatePlayer(ctx, discordUser)
+	if err != nil {
+		return c.Status(fiber.StatusInternalServerError).JSON(utils.NewApiError("Failed to create/find player", 500))
+	}
 
-	// Return success response with user info
-	return c.JSON(fiber.Map{
-		"success": true,
-		"user": fiber.Map{
-			"id":            user.ID,
-			"username":      user.Username,
-			"discriminator": user.Discriminator,
-			"email":         user.Email,
-			"avatar":        user.Avatar,
-			"verified":      user.Verified,
-		},
-		"message": "Successfully authenticated with Discord",
+	// Create session for player
+	sessionID, err := db.CreateSession(ctx, player.ID)
+	if err != nil {
+		return c.Status(fiber.StatusInternalServerError).JSON(utils.NewApiError("Failed to create session", 500))
+	}
+
+	// Set session cookie
+	c.Cookie(&fiber.Cookie{
+		Name:     "session_id",
+		Value:    sessionID,
+		Path:     "/",
+		Expires:  c.Context().Time().Add(24 * 60 * 60), // 24 hours
+		HTTPOnly: true,
+		Secure:   false, // Set to true in production with HTTPS
+		SameSite: "Lax",
 	})
+
+	// Redirect to frontend application
+	frontendURL := middleware.GetFrontendURL()
+	if frontendURL == "" {
+		return c.Status(fiber.StatusInternalServerError).JSON(utils.NewApiError("Frontend URL not configured", 500))
+	}
+
+	return c.Redirect(frontendURL, fiber.StatusTemporaryRedirect)
 }

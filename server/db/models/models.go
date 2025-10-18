@@ -17,6 +17,25 @@ type Player struct {
 	DeletedAt   *time.Time              `json:"deleted_at" db:"deleted_at"`
 }
 
+// DiscordUser represents a Discord user from the API
+type DiscordUser struct {
+	ID            string `json:"id"`
+	Username      string `json:"username"`
+	Discriminator string `json:"discriminator"`
+	Email         string `json:"email"`
+	Avatar        string `json:"avatar"`
+	Verified      bool   `json:"verified"`
+}
+
+// Session represents a user session
+type Session struct {
+	ID        string     `json:"id" db:"id"`
+	PlayerID  string     `json:"player_id" db:"player_id"`
+	CreatedAt time.Time  `json:"created_at" db:"created_at"`
+	ExpiresAt time.Time  `json:"expires_at" db:"expires_at"`
+	DeletedAt *time.Time `json:"deleted_at" db:"deleted_at"`
+}
+
 // Show represents a WAN show episode
 type Show struct {
 	ID              string                 `json:"id" db:"id"`

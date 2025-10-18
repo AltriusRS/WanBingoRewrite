@@ -17,6 +17,7 @@ Add the following environment variables to your `.env` file or system environmen
 DISCORD_CLIENT_ID=your_discord_client_id_here
 DISCORD_CLIENT_SECRET=your_discord_client_secret_here
 DISCORD_REDIRECT_URL=http://localhost:8080/auth/discord/callback
+FRONTEND_URL=http://localhost:3000
 
 # Optional: Set to production for secure cookies
 NODE_ENV=development
@@ -41,13 +42,17 @@ The following endpoints are now available:
 ### Authentication Endpoints
 
 - `GET /auth/discord/login` - Initiates Discord OAuth flow
-- `GET /auth/discord/callback` - Handles Discord OAuth callback
+- `GET /auth/discord/callback` - Handles Discord OAuth callback and redirects to frontend
 - `POST /auth/discord/logout` - Logs out the Discord user
 
-### Protected Endpoints (require Discord authentication)
+### User Endpoints
 
-- `GET /auth/discord/user` - Get current Discord user information
-- `GET /auth/discord/guilds` - Get Discord guilds the user is in
+#### Public Endpoints (no authentication required)
+- `GET /users` - Get all players (partial profiles)
+- `GET /users/:identifier` - Get player by ID or display_name (partial profile)
+
+#### Protected Endpoints (require authentication)
+- `GET /users/me` - Get current user information (full profile)
 
 ## Usage Examples
 
@@ -56,17 +61,36 @@ The following endpoints are now available:
 ```javascript
 // Redirect to Discord login
 window.location.href = 'http://localhost:8080/auth/discord/login';
+// After authentication, user will be redirected back to FRONTEND_URL
 
-// Check if user is authenticated
-fetch('/auth/discord/user', {
+// Check if user is authenticated (call this on page load)
+fetch('http://localhost:8080/users/me', {
   credentials: 'include'
 })
 .then(response => response.json())
 .then(data => {
   if (data.success) {
-    console.log('User:', data.user);
+    console.log('Current User:', data.user);
   } else {
     console.log('Not authenticated');
+  }
+});
+
+// Get all players
+fetch('http://localhost:8080/users')
+.then(response => response.json())
+.then(data => {
+  if (data.success) {
+    console.log('All Players:', data.players);
+  }
+});
+
+// Get specific player by ID or display_name
+fetch('http://localhost:8080/users/somePlayerId')
+.then(response => response.json())
+.then(data => {
+  if (data.success) {
+    console.log('Player:', data.player);
   }
 });
 
@@ -84,22 +108,47 @@ fetch('/auth/discord/logout', {
 ### Backend Middleware Usage
 
 ```go
-// Require Discord authentication
-app.Get("/protected", middleware.DiscordAuthMiddleware, func(c *fiber.Ctx) error {
-    user, err := middleware.GetDiscordUserFromContext(c)
+// Get current user (full profile)
+app.Get("/users/me", middleware.AuthMiddleware, func(c *fiber.Ctx) error {
+    player, err := middleware.GetPlayerFromContext(c)
     if err != nil {
         return c.Status(500).JSON(fiber.Map{"error": err.Error()})
     }
-    return c.JSON(fiber.Map{"user": user})
+    return c.JSON(fiber.Map{"success": true, "user": fiber.Map{
+        "id": player.ID,
+        "did": player.DID,
+        "display_name": player.DisplayName,
+        "avatar": player.Avatar,
+        "settings": player.Settings,
+        "score": player.Score,
+        "created_at": player.CreatedAt,
+        "updated_at": player.UpdatedAt,
+    }})
 })
 
-// Optional Discord authentication
-app.Get("/optional", middleware.OptionalDiscordAuthMiddleware, func(c *fiber.Ctx) error {
-    user, err := middleware.GetDiscordUserFromContext(c)
+// Get player by identifier (partial profile)
+app.Get("/users/:identifier", func(c *fiber.Ctx) error {
+    identifier := c.Params("identifier")
+    player, err := db.GetPlayerByIdentifier(context.Background(), identifier)
+    if err != nil {
+        return c.Status(404).JSON(fiber.Map{"error": "Player not found"})
+    }
+    return c.JSON(fiber.Map{"success": true, "player": fiber.Map{
+        "id": player.ID,
+        "display_name": player.DisplayName,
+        "avatar": player.Avatar,
+        "score": player.Score,
+        "created_at": player.CreatedAt,
+    }})
+})
+
+// Optional authentication
+app.Get("/optional", middleware.OptionalPlayerAuthMiddleware, func(c *fiber.Ctx) error {
+    player, err := middleware.GetPlayerFromContext(c)
     if err != nil {
         return c.JSON(fiber.Map{"authenticated": false})
     }
-    return c.JSON(fiber.Map{"authenticated": true, "user": user})
+    return c.JSON(fiber.Map{"authenticated": true, "player": player})
 })
 ```
 
@@ -129,10 +178,13 @@ Common error codes:
 
 ## Testing
 
-1. Start your server: `go run main.go`
-2. Visit `http://localhost:8080/auth/discord/login`
-3. Complete the Discord OAuth flow
-4. Test protected endpoints with the session cookie
+1. Set environment variables including `FRONTEND_URL=http://localhost:3000` (or your frontend URL)
+2. Start your server: `go run main.go`
+3. Start your frontend application on the configured FRONTEND_URL
+4. Visit `http://localhost:8080/auth/discord/login` from your frontend
+5. Complete the Discord OAuth flow
+6. You should be redirected back to your frontend with authentication cookies set
+7. Test protected endpoints with the session cookie
 
 ## Production Considerations
 

@@ -12,5 +12,5 @@ func init() {
 }
 
 func StreamRouter(router fiber.Router) {
-	router.Get("/", middleware.OptionalAuthMiddleware, Get)
+	router.Get("/", middleware.OptionalPlayerAuthMiddleware, Get)
 }
