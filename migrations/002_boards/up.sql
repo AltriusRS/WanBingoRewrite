@@ -58,3 +58,4 @@ EXECUTE FUNCTION update_updated_at_column();
 -- Add comments
 COMMENT ON TABLE boards IS 'Stores player bingo boards for each show';
 COMMENT ON TABLE tile_confirmations IS 'Records when tiles are confirmed during a show';
+COMMENT ON COLUMN boards.tiles IS 'Array of tile IDs representing the player''s bingo board layout';

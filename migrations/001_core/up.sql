@@ -150,4 +150,3 @@ COMMENT ON COLUMN players.did IS 'Discord user ID from OAuth authentication';
 COMMENT ON COLUMN players.settings IS 'JSON object containing user preferences (chat_name_color, pronouns, sound_on_mention, interface_language, etc)';
 COMMENT ON COLUMN tiles.settings IS 'JSON object containing tile configuration (needs_context, has_timer, timer_duration, etc)';
 COMMENT ON COLUMN shows.metadata IS 'JSON object containing additional show data (hosts, sponsors, duration, etc)';
-COMMENT ON COLUMN boards.tiles IS 'Array of tile IDs representing the player''s bingo board layout';

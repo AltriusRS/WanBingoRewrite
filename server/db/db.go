@@ -138,16 +138,14 @@ func applyMigration(ctx context.Context, migrationDir string) error {
 		return fmt.Errorf("failed to read up.sql: %w", err)
 	}
 
-	// Split by semicolon and execute each statement in transaction
-	statements := strings.Split(string(upSQL), ";")
-	for _, stmt := range statements {
-		stmt = strings.TrimSpace(stmt)
-		if stmt == "" {
-			continue
-		}
-		if _, err = tx.Exec(ctx, stmt); err != nil {
-			return fmt.Errorf("failed to execute statement: %w", err)
-		}
+	// Execute the entire up.sql file in a single transaction
+	if _, err = tx.Exec(ctx, string(upSQL)); err != nil {
+		return fmt.Errorf("failed to execute up.sql: %w", err)
+	}
+
+	// Execute the entire up.sql file in a single transaction
+	if _, err = tx.Exec(ctx, string(upSQL)); err != nil {
+		return fmt.Errorf("failed to execute up.sql: %w", err)
 	}
 
 	// Apply seed.sql
@@ -157,15 +155,9 @@ func applyMigration(ctx context.Context, migrationDir string) error {
 		return fmt.Errorf("failed to read seed.sql: %w", err)
 	}
 
-	statements = strings.Split(string(seedSQL), ";")
-	for _, stmt := range statements {
-		stmt = strings.TrimSpace(stmt)
-		if stmt == "" {
-			continue
-		}
-		if _, err = tx.Exec(ctx, stmt); err != nil {
-			return fmt.Errorf("failed to execute seed statement: %w", err)
-		}
+	// Execute the entire seed.sql file in a single transaction
+	if _, err = tx.Exec(ctx, string(seedSQL)); err != nil {
+		return fmt.Errorf("failed to execute seed.sql: %w", err)
 	}
 
 	// Record migration as applied
@@ -219,15 +211,8 @@ func RollbackMigration(ctx context.Context) error {
 	}
 
 	// Execute down.sql in transaction
-	statements := strings.Split(string(downSQL), ";")
-	for _, stmt := range statements {
-		stmt = strings.TrimSpace(stmt)
-		if stmt == "" {
-			continue
-		}
-		if _, err = tx.Exec(ctx, stmt); err != nil {
-			return fmt.Errorf("failed to execute rollback statement: %w", err)
-		}
+	if _, err = tx.Exec(ctx, string(downSQL)); err != nil {
+		return fmt.Errorf("failed to execute down.sql: %w", err)
 	}
 
 	// Remove from migrations table
