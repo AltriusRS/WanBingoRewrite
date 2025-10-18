@@ -2,7 +2,9 @@
 import type {ChatMessage} from "@/lib/chatUtils"
 import {Button} from "@/components/ui/button"
 import {Trash2} from "lucide-react"
-import {parseMessage} from "@/lib/chatRenderer";
+import {MemoizedMarkdown} from "@/components/ui/markdown";
+import {Dialog, DialogContent, DialogFooter, DialogHeader, DialogTitle} from "@/components/ui/dialog";
+import React, {useState} from "react";
 
 interface StandardMessageProps {
     msg: ChatMessage
@@ -10,9 +12,16 @@ interface StandardMessageProps {
     isCurrentUserHost?: boolean
 }
 
-export function StandardMessage({msg, currentUserId, isCurrentUserHost}: StandardMessageProps) {
-    const isOwnMessage = msg.player_id === currentUserId
-    const canDelete = isOwnMessage || isCurrentUserHost
+interface StandardMessageProps {
+    msg: ChatMessage
+}
+
+export function StandardMessage({msg}: StandardMessageProps) {
+    const [open, setOpen] = useState(false);
+    const [clickedUrl, setClickedUrl] = useState("");
+
+    const isOwnMessage = false // msg.player_id === currentUserId
+    const canDelete = false // isOwnMessage || isCurrentUserHost
     const handleDelete = async () => {
         if (!confirm("Delete this message?")) return
 
@@ -76,9 +85,15 @@ export function StandardMessage({msg, currentUserId, isCurrentUserHost}: Standar
                         className="text-xs text-muted-foreground">{new Date(msg.created_at).toLocaleTimeString()}</span>
                 </div>
                 <div className="flex items-start justify-between gap-2">
-                    <div className="text-sm text-foreground prose">
-                        {parseMessage(msg.contents)}
-                    </div>
+                    <MemoizedMarkdown
+                        key={`${msg.id}-text`}
+                        id={msg.id}
+                        content={msg.contents}
+                        onLinkClick={(href) => {
+                            setClickedUrl(href);
+                            setOpen(true);
+                        }}
+                    />
                     {canDelete && (
                         <Button
                             variant="ghost"
@@ -89,6 +104,28 @@ export function StandardMessage({msg, currentUserId, isCurrentUserHost}: Standar
                             <Trash2 className="h-3 w-3"/>
                         </Button>
                     )}
+                    <Dialog open={open} onOpenChange={setOpen}>
+                        <DialogContent>
+                            <DialogHeader>
+                                <DialogTitle>External Link</DialogTitle>
+                            </DialogHeader>
+                            <div className="py-2">You're about to open: {clickedUrl}</div>
+                            <DialogFooter className="flex gap-2 justify-end">
+                                <Button
+                                    onClick={() => {
+                                        window.open(clickedUrl, "_blank");
+                                        setOpen(false);
+                                    }}
+                                >
+                                    Proceed
+                                </Button>
+                                <Button variant="outline" onClick={() => setOpen(false)}>
+                                    Cancel
+                                </Button>
+                            </DialogFooter>
+                        </DialogContent>
+                    </Dialog>
+
                 </div>
             </div>
         </div>

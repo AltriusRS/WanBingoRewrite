@@ -40,7 +40,7 @@ export function AuthProvider({children}: { children: ReactNode }) {
             setLoading(true)
             setError(null)
 
-            const response = await fetch(`${getApiRoot()}/auth/discord/user`, {
+            const response = await fetch(`${getApiRoot()}/users/me`, {
                 credentials: "include", // Include cookies
             })
 
@@ -51,6 +51,7 @@ export function AuthProvider({children}: { children: ReactNode }) {
                 // Not authenticated
                 setUser(null)
             } else {
+                console.error(await response.json())
                 throw new Error("Failed to fetch user")
             }
         } catch (err) {
