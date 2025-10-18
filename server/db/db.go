@@ -75,6 +75,19 @@ func RunMigrations(ctx context.Context) error {
 		return fmt.Errorf("database not initialized")
 	}
 
+	// Debug: Check what tables already exist
+	var existingTables []string
+	rows, err := pool.Query(ctx, "SELECT table_name FROM information_schema.tables WHERE table_schema = 'public'")
+	if err == nil {
+		defer rows.Close()
+		for rows.Next() {
+			var tableName string
+			rows.Scan(&tableName)
+			existingTables = append(existingTables, tableName)
+		}
+		log.Printf("Existing tables in database: %v", existingTables)
+	}
+
 	// Get list of migration directories
 	migrationsDir := "migrations"
 	entries, err := os.ReadDir(migrationsDir)
@@ -120,6 +133,7 @@ func applyMigration(ctx context.Context, migrationDir string) error {
 		log.Printf("Migration %s status check failed (%v), assuming not applied", version, err)
 		count = 0
 	}
+	log.Printf("Migration %s check result: count=%d, err=%v", version, count, err)
 	if count > 0 {
 		log.Printf("Migration %s already applied, skipping", version)
 		return nil
