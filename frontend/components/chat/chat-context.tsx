@@ -5,7 +5,7 @@ import {ChatMessage, handleSocketProtocol, Show, SSEMessage, Player} from "@/lib
 
 export interface ChatContextValue {
     messages: ChatMessage[]
-    setMessages: React.Dispatch<React.SetStateAction<ChatMessage[]>>>
+    setMessages: React.Dispatch<React.SetStateAction<ChatMessage[]>>
     memberCount: number
     setMemberCount: React.Dispatch<React.SetStateAction<number>>
     memberList: Player[]
@@ -25,7 +25,6 @@ export interface ChatContextValue {
 }
 
 const ChatContext = createContext<ChatContextValue | null>(null)
-
 
 export function ChatProvider({children}: { children: React.ReactNode }) {
     const [messages, setMessages] = useState<ChatMessage[]>([])
@@ -51,15 +50,15 @@ export function ChatProvider({children}: { children: React.ReactNode }) {
     })
 
     const value = useMemo(() => ({
-        messages, setMessages
-        , memberCount, setMemberCount
-        , memberList, setMemberList
-        , memberListLoading, setMemberListLoading
-        , memberListError, setMemberListError
-        , liveTime, setLiveTime
-        , text, setText
-        , sending, setSending
-        , episode, setEpisode
+        messages, setMessages,
+        memberCount, setMemberCount,
+        memberList, setMemberList,
+        memberListLoading, setMemberListLoading,
+        memberListError, setMemberListError,
+        liveTime, setLiveTime,
+        text, setText,
+        sending, setSending,
+        episode, setEpisode
     }), [messages, memberCount, memberList, memberListLoading, memberListError, liveTime, text, sending, episode]) as ChatContextValue;
 
     useEffect(() => {
