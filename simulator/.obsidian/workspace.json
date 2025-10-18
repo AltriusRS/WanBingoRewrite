@@ -1,0 +1,189 @@
+{
+  "main": {
+    "id": "d2357f570351d691",
+    "type": "split",
+    "children": [
+      {
+        "id": "2d6f6685dd9ca2f8",
+        "type": "tabs",
+        "children": [
+          {
+            "id": "db9a04ce0e9f38c1",
+            "type": "leaf",
+            "state": {
+              "type": "image",
+              "state": {
+                "file": "weekly_scores.png"
+              },
+              "icon": "lucide-image",
+              "title": "weekly_scores"
+            }
+          }
+        ]
+      }
+    ],
+    "direction": "vertical"
+  },
+  "left": {
+    "id": "94b294d7740c7583",
+    "type": "split",
+    "children": [
+      {
+        "id": "fecd465586c91db3",
+        "type": "tabs",
+        "children": [
+          {
+            "id": "8740038a068840f8",
+            "type": "leaf",
+            "state": {
+              "type": "file-explorer",
+              "state": {
+                "sortOrder": "alphabetical",
+                "autoReveal": false
+              },
+              "icon": "lucide-folder-closed",
+              "title": "Files"
+            }
+          },
+          {
+            "id": "45cb16c2fb0e4a49",
+            "type": "leaf",
+            "state": {
+              "type": "search",
+              "state": {
+                "query": "",
+                "matchingCase": false,
+                "explainSearch": false,
+                "collapseAll": false,
+                "extraContext": false,
+                "sortOrder": "alphabetical"
+              },
+              "icon": "lucide-search",
+              "title": "Search"
+            }
+          },
+          {
+            "id": "0cd53380f9277223",
+            "type": "leaf",
+            "state": {
+              "type": "bookmarks",
+              "state": {},
+              "icon": "lucide-bookmark",
+              "title": "Bookmarks"
+            }
+          }
+        ]
+      }
+    ],
+    "direction": "horizontal",
+    "width": 200
+  },
+  "right": {
+    "id": "67dfd63593c23cd6",
+    "type": "split",
+    "children": [
+      {
+        "id": "1881c22e55576c99",
+        "type": "tabs",
+        "children": [
+          {
+            "id": "ba66922695f2dc5e",
+            "type": "leaf",
+            "state": {
+              "type": "backlink",
+              "state": {
+                "file": "weekly_scores.png",
+                "collapseAll": false,
+                "extraContext": false,
+                "sortOrder": "alphabetical",
+                "showSearch": false,
+                "searchQuery": "",
+                "backlinkCollapsed": false,
+                "unlinkedCollapsed": true
+              },
+              "icon": "links-coming-in",
+              "title": "Backlinks for weekly_scores"
+            }
+          },
+          {
+            "id": "81accf4abda7376c",
+            "type": "leaf",
+            "state": {
+              "type": "outgoing-link",
+              "state": {
+                "file": "weekly_scores.png",
+                "linksCollapsed": false,
+                "unlinkedCollapsed": true
+              },
+              "icon": "links-going-out",
+              "title": "Outgoing links from weekly_scores"
+            }
+          },
+          {
+            "id": "c529a89d0da405de",
+            "type": "leaf",
+            "state": {
+              "type": "tag",
+              "state": {
+                "sortOrder": "frequency",
+                "useHierarchy": true,
+                "showSearch": false,
+                "searchQuery": ""
+              },
+              "icon": "lucide-tags",
+              "title": "Tags"
+            }
+          },
+          {
+            "id": "6fe68aea681637e0",
+            "type": "leaf",
+            "state": {
+              "type": "outline",
+              "state": {
+                "file": "weekly_scores.png",
+                "followCursor": false,
+                "showSearch": false,
+                "searchQuery": ""
+              },
+              "icon": "lucide-list",
+              "title": "Outline of weekly_scores"
+            }
+          }
+        ]
+      }
+    ],
+    "direction": "horizontal",
+    "width": 300,
+    "collapsed": true
+  },
+  "left-ribbon": {
+    "hiddenItems": {
+      "switcher:Open quick switcher": false,
+      "graph:Open graph view": false,
+      "canvas:Create new canvas": false,
+      "daily-notes:Open today's daily note": false,
+      "templates:Insert template": false,
+      "command-palette:Open command palette": false,
+      "bases:Create new base": false
+    }
+  },
+  "active": "db9a04ce0e9f38c1",
+  "lastOpenFiles": [
+    "target/release/deps/bingo_sim-3c127814577a87ad",
+    "target/release/deps/bingo_sim-3c127814577a87ad.tmp6ef3f3e",
+    "target/release/deps/bingo_sim-3c127814577a87ad.bingo_sim.9a772943a6da322c-cgu.00.rcgu.o",
+    "target/release/deps/bingo_sim-3c127814577a87ad.bingo_sim.9a772943a6da322c-cgu.11.rcgu.o",
+    "target/release/deps/bingo_sim-3c127814577a87ad.bingo_sim.9a772943a6da322c-cgu.13.rcgu.o",
+    "target/release/deps/bingo_sim-3c127814577a87ad.bingo_sim.9a772943a6da322c-cgu.10.rcgu.o",
+    "target/release/deps/bingo_sim-3c127814577a87ad.bingo_sim.9a772943a6da322c-cgu.03.rcgu.o",
+    "target/release/deps/bingo_sim-3c127814577a87ad.bingo_sim.9a772943a6da322c-cgu.05.rcgu.o",
+    "target/release/deps/bingo_sim-3c127814577a87ad.bingo_sim.9a772943a6da322c-cgu.07.rcgu.o",
+    "target/release/deps/bingo_sim-3c127814577a87ad.bingo_sim.9a772943a6da322c-cgu.15.rcgu.o",
+    "target/release/deps/bingo_sim-3c127814577a87ad.bingo_sim.9a772943a6da322c-cgu.02.rcgu.o",
+    "weekly_boxplot.png",
+    "stats.md",
+    "potential_maxes.png",
+    "final_scores.png",
+    "weekly_scores.png"
+  ]
+}
