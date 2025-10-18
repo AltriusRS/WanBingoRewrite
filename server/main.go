@@ -6,6 +6,7 @@ import (
 	_ "wanshow-bingo/handlers"
 	"wanshow-bingo/middleware"
 	_ "wanshow-bingo/sse"
+	_ "wanshow-bingo/timers"
 	"wanshow-bingo/utils"
 	"wanshow-bingo/whenplane/socket"
 )

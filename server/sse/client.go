@@ -195,11 +195,43 @@ func SendChatHistory(c *Client) {
 		return
 	}
 
+	// Get all players for the chat history to include player info
+	players, err := db.GetAllPlayers(context.Background())
+	if err != nil {
+		log.Printf("[SSE ClientChannel] - Failed to retrieve players for chat history - %v", err)
+		// Continue without player info
+		players = []models.Player{}
+	}
+
+	// Create a map of player IDs to player info for quick lookup
+	playerMap := make(map[string]map[string]interface{})
+	for _, player := range players {
+		playerMap[player.ID] = map[string]interface{}{
+			"id":           player.ID,
+			"display_name": player.DisplayName,
+			"avatar":       player.Avatar,
+		}
+	}
+
 	for i, j := 0, len(history)-1; i < j; i, j = i+1, j-1 {
 		history[i], history[j] = history[j], history[i]
 	}
+
+	// Send chat history
 	for _, msg := range history {
 		msgEvent := BuildEvent("chat.message", msg)
 		c.Send(msgEvent.String())
 	}
+
+	// Send player information for the chat participants
+	playerList := make([]map[string]interface{}, 0, len(playerMap))
+	for _, playerInfo := range playerMap {
+		playerList = append(playerList, playerInfo)
+	}
+
+	playersEvent := BuildEvent("chat.players", map[string]interface{}{
+		"players": playerList,
+		"count":   len(playerList),
+	})
+	c.Send(playersEvent.String())
 }

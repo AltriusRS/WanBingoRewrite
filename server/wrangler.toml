@@ -1,0 +1,31 @@
+name = "wan-bingo-moderation"
+main = "cloudflare-worker-moderation.js"
+compatibility_date = "2024-01-01"
+
+# Environment variables (set via wrangler secret put)
+# OPENAI_API_KEY - Your OpenAI API key
+# MODEL - Optional, defaults to gpt-4o-mini
+
+[vars]
+# Default model (can be overridden with secret)
+MODEL = "gpt-4o-mini"
+
+# Build configuration
+[build]
+command = "echo 'No build step required'"
+
+# Deployment configuration
+[[deployments]]
+# Default deployment
+strategy = "percentage"
+percentage = 100
+
+# CORS configuration for development
+[dev]
+# Allow all origins in development
+cors = { allowed_origins = ["*"] }
+
+# Analytics (optional)
+[analytics_engine]
+# Enable analytics for monitoring
+enabled = true

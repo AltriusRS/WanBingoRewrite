@@ -68,6 +68,57 @@ server. It is immediately forwarded to the clients over the SSE gateway.
 This data is used to display the thumbnail, title, and live status of
 The WAN Show on the website.
 
+## Message Moderation
+
+All chat messages are automatically moderated using a multi-layered approach:
+
+### Markdown Content Filtering
+- **Allowed**: Inline formatting (`*italic*`, `**bold**`, `***bold italic***`, `~~strikethrough~~`, `` `code` ``)
+- **Allowed**: Links (`[text](url)`, `[text][ref]`, bare URLs like `https://example.com`)
+- **Rejected**: Headers (`# ## ###` at line start)
+- **Rejected**: Blockquotes (`>` at line start)
+- **Rejected**: Lists (`- `, `* `, `1. ` at line start)
+- **Rejected**: Horizontal rules (`---`, `***`, `___`)
+- **Rejected**: Tables (containing `|` and separator lines)
+- **Rejected**: Code blocks (```` ``` ````)
+- **Rejected**: Images (`![alt](url)`, `![alt][ref]`)
+
+### Keyword Filtering
+- Checks for common slurs, hate speech, and inappropriate language
+- Includes leetspeak variations and common bypass attempts (e.g., "n1gger", "f*ck")
+- Detects excessive character repetition and all-caps messages
+
+### LLM-Based Detection (Optional)
+- Integrates with a configurable LLM endpoint for advanced content analysis
+- Detects subtle forms of hate speech and toxicity that keyword filters might miss
+- Requires 70%+ confidence threshold for rejection
+
+### Moderation Configuration
+Set the `LLM_MODERATION_ENDPOINT` environment variable to enable LLM-based moderation:
+
+```bash
+LLM_MODERATION_ENDPOINT=http://localhost:11434/api/moderation
+```
+
+The LLM should accept POST requests with:
+```json
+{
+  "content": "message content here"
+}
+```
+
+And respond with:
+```json
+{
+  "toxic": true|false,
+  "confidence": 0.85,
+  "reason": "optional explanation"
+}
+```
+
+### System Messages
+System messages (`POST /chat/s`) bypass all content moderation and allow full markdown formatting, as they are only accessible to trusted administrators.
+
 ## Chat Permissions
 
 These are the permissions that can be granted to a user in the chat hub.

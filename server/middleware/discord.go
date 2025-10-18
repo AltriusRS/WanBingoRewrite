@@ -226,3 +226,40 @@ func SetDiscordSessionCookie(c *fiber.Ctx, token *oauth2.Token) {
 func ClearDiscordSessionCookie(c *fiber.Ctx) {
 	c.ClearCookie("discord-token")
 }
+
+// RequirePermissionMiddleware checks if the authenticated user has a specific permission
+func RequirePermissionMiddleware(permissionName string) fiber.Handler {
+	return func(c *fiber.Ctx) error {
+		player, err := GetPlayerFromContext(c)
+		if err != nil {
+			return c.Status(fiber.StatusUnauthorized).JSON(fiber.Map{
+				"error": "Authentication required",
+			})
+		}
+
+		// Find the permission constant by name
+		var requiredPerm models.Permission
+		found := false
+		for perm, name := range models.PermissionNames {
+			if name == permissionName {
+				requiredPerm = perm
+				found = true
+				break
+			}
+		}
+
+		if !found {
+			return c.Status(fiber.StatusInternalServerError).JSON(fiber.Map{
+				"error": "Invalid permission name",
+			})
+		}
+
+		if !player.Permissions.HasPermission(requiredPerm) {
+			return c.Status(fiber.StatusForbidden).JSON(fiber.Map{
+				"error": "Insufficient permissions",
+			})
+		}
+
+		return c.Next()
+	}
+}

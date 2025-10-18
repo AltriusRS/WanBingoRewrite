@@ -12,6 +12,7 @@ type Player struct {
 	Avatar      *string                 `json:"avatar" db:"avatar"`
 	Settings    *map[string]interface{} `json:"settings" db:"settings"`
 	Score       int                     `json:"score" db:"score"`
+	Permissions Permission              `json:"permissions" db:"permissions"`
 	CreatedAt   time.Time               `json:"created_at" db:"created_at"`
 	UpdatedAt   time.Time               `json:"updated_at" db:"updated_at"`
 	DeletedAt   *time.Time              `json:"deleted_at" db:"deleted_at"`
@@ -114,6 +115,22 @@ type Message struct {
 	CreatedAt time.Time  `json:"created_at" db:"created_at"`
 	UpdatedAt time.Time  `json:"updated_at" db:"updated_at"`
 	DeletedAt *time.Time `json:"deleted_at" db:"deleted_at"`
+}
+
+// Timer represents a countdown timer for shows
+type Timer struct {
+	ID        string                 `json:"id" db:"id"`
+	Title     string                 `json:"title" db:"title"`
+	Duration  int                    `json:"duration" db:"duration"`
+	CreatedBy *string                `json:"created_by" db:"created_by"`
+	ShowID    *string                `json:"show_id" db:"show_id"`
+	StartsAt  *time.Time             `json:"starts_at" db:"starts_at"`
+	ExpiresAt *time.Time             `json:"expires_at" db:"expires_at"`
+	IsActive  bool                   `json:"is_active" db:"is_active"`
+	Settings  map[string]interface{} `json:"settings" db:"settings"`
+	CreatedAt time.Time              `json:"created_at" db:"created_at"`
+	UpdatedAt time.Time              `json:"updated_at" db:"updated_at"`
+	DeletedAt *time.Time             `json:"deleted_at" db:"deleted_at"`
 }
 
 // MessageRequest is used in the API to parse successfully
