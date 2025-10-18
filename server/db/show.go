@@ -6,6 +6,7 @@ import (
 	"wanshow-bingo/db/models"
 
 	"github.com/jackc/pgx/v5"
+	"github.com/matoous/go-nanoid/v2"
 )
 
 // PersistShow saves or updates a Show in the database
@@ -14,7 +15,7 @@ func PersistShow(ctx context.Context, show *models.Show, tx ...pgx.Tx) error {
 		// Use transaction
 		if show.ID == "" {
 			// New show, generate ID and insert
-			show.ID = generateID(10)
+			show.ID, _ = gonanoid.New(10)
 			_, err := tx[0].Exec(ctx, `
 				INSERT INTO shows (id, youtube_id, scheduled_time, actual_start_time, thumbnail, metadata)
 				VALUES ($1, $2, $3, $4, $5, $6)
@@ -38,7 +39,7 @@ func PersistShow(ctx context.Context, show *models.Show, tx ...pgx.Tx) error {
 
 		if show.ID == "" {
 			// New show, generate ID and insert
-			show.ID = generateID(10)
+			show.ID, _ = gonanoid.New(10)
 			_, err := pool.Exec(ctx, `
 				INSERT INTO shows (id, youtube_id, scheduled_time, actual_start_time, thumbnail, metadata)
 				VALUES ($1, $2, $3, $4, $5, $6)

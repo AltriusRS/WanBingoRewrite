@@ -2,6 +2,9 @@ package callback
 
 import (
 	"context"
+	"fmt"
+	"os"
+	"time"
 	"wanshow-bingo/db"
 	"wanshow-bingo/middleware"
 	"wanshow-bingo/utils"
@@ -18,8 +21,22 @@ func Get(c *fiber.Ctx) error {
 
 	// Get the stored state from cookie
 	storedState := c.Cookies("oauth_state")
+	utils.Debugf("OAuth callback - state from URL: %s", state)
+	utils.Debugf("OAuth callback - stored state from cookie: %s", storedState)
+
 	if storedState == "" {
-		return c.Status(fiber.StatusBadRequest).JSON(utils.NewApiError("Missing state cookie", 400))
+		// Debug: Log all cookies to help troubleshoot
+		cookies := c.GetReqHeaders()["Cookie"]
+		utils.Debugf("Available cookies: %v", cookies)
+		utils.Debugf("oauth_state cookie: %s", c.Cookies("oauth_state"))
+
+		// In development, allow bypassing state validation if explicitly requested
+		if os.Getenv("SKIP_OAUTH_STATE_VALIDATION") == "true" {
+			utils.Debugf("Skipping OAuth state validation (development mode)")
+			storedState = state // Use the state from the URL parameter
+		} else {
+			return c.Status(fiber.StatusBadRequest).JSON(utils.NewApiError("Missing state cookie - please try logging in again", 400))
+		}
 	}
 
 	// Verify state parameter matches stored state
@@ -27,8 +44,17 @@ func Get(c *fiber.Ctx) error {
 		return c.Status(fiber.StatusBadRequest).JSON(utils.NewApiError("Invalid state parameter", 400))
 	}
 
-	// Clear the state cookie
-	c.ClearCookie("oauth_state")
+	// Clear the state cookie by setting it to expire immediately
+	c.Cookie(&fiber.Cookie{
+		Name:     "oauth_state",
+		Value:    "",
+		Path:     "/",
+		Domain:   "", // Use current domain
+		MaxAge:   -1, // Expire immediately
+		HTTPOnly: true,
+		Secure:   true,
+		SameSite: "Lax",
+	})
 
 	// Get the authorization code
 	code := c.Query("code")
@@ -62,14 +88,16 @@ func Get(c *fiber.Ctx) error {
 	}
 
 	// Set session cookie
+	utils.Debugf("Setting session cookie for player %s with session ID: %s", player.ID, sessionID)
 	c.Cookie(&fiber.Cookie{
 		Name:     "session_id",
 		Value:    sessionID,
 		Path:     "/",
-		Expires:  c.Context().Time().Add(24 * 60 * 60), // 24 hours
+		Domain:   "api.bingo.local",                  // Specific domain for better browser compatibility
+		Expires:  time.Now().Add(7 * 24 * time.Hour), // 7 days
 		HTTPOnly: true,
-		Secure:   false, // Set to true in production with HTTPS
-		SameSite: "Lax",
+		Secure:   true,   // HTTPS enabled via Caddy proxy
+		SameSite: "None", // Allow cross-site cookies with HTTPS
 	})
 
 	// Redirect to frontend application
@@ -78,5 +106,24 @@ func Get(c *fiber.Ctx) error {
 		return c.Status(fiber.StatusInternalServerError).JSON(utils.NewApiError("Frontend URL not configured", 500))
 	}
 
-	return c.Redirect(frontendURL, fiber.StatusTemporaryRedirect)
+	// Return HTML page that redirects after cookies are set
+	// This gives the browser time to process the cookies before redirecting
+	html := fmt.Sprintf(`<!DOCTYPE html>
+<html>
+<head>
+    <title>Authentication Successful</title>
+</head>
+<body>
+    <p>Authentication successful! Redirecting...</p>
+    <script>
+        // Redirect after a delay to ensure cookies are fully set
+        setTimeout(function() {
+            window.location.href = '%s';
+        }, 500);
+    </script>
+</body>
+</html>`, frontendURL)
+
+	c.Set("Content-Type", "text/html")
+	return c.SendString(html)
 }

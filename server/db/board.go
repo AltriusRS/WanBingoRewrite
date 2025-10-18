@@ -7,6 +7,7 @@ import (
 	"wanshow-bingo/db/models"
 
 	"github.com/jackc/pgx/v5"
+	"github.com/matoous/go-nanoid/v2"
 )
 
 // GetBoardByPlayerAndShow retrieves a Board for a specific player and show
@@ -92,7 +93,7 @@ func CreateBoardForPlayer(ctx context.Context, playerID, showID string, tx ...pg
 		selectedTiles[i] = availableTileIDs[availableIndices[i]]
 	}
 
-	boardID := generateID(10)
+	boardID, _ := gonanoid.New(10)
 
 	if len(tx) > 0 {
 		_, err = tx[0].Exec(ctx, `

@@ -14,7 +14,7 @@ func init() {
 	app = fiber.New()
 
 	app.Use(cors.New(cors.Config{
-		AllowOrigins:     "https://app.bingo.local,https://discord.com", // your frontend origin and Discord
+		AllowOrigins:     "https://app.bingo.local,https://api.bingo.local,https://discord.com,http://localhost:3000,http://localhost:3001,http://127.0.0.1:3000,http://127.0.0.1:3001", // your frontend origin, API origin, Discord, plus common dev ports
 		AllowHeaders:     "Origin, Content-Type, Accept, Authorization",
 		AllowCredentials: true, // REQUIRED for cookies or Auth headers
 	}))

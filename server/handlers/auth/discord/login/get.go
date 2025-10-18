@@ -22,10 +22,11 @@ func Get(c *fiber.Ctx) error {
 		Name:     "oauth_state",
 		Value:    state,
 		Path:     "/",
-		Expires:  c.Context().Time().Add(10 * 60), // 10 minutes
+		Domain:   "api.bingo.local", // Explicit domain for consistency
+		MaxAge:   600,               // 10 minutes in seconds
 		HTTPOnly: true,
-		Secure:   false, // Set to true in production with HTTPS
-		SameSite: "Lax",
+		Secure:   true,   // HTTPS enabled via Caddy proxy
+		SameSite: "None", // Allow cross-site with HTTPS
 	})
 
 	// Get Discord OAuth URL
@@ -33,6 +34,10 @@ func Get(c *fiber.Ctx) error {
 	if authURL == "" {
 		return c.Status(fiber.StatusInternalServerError).JSON(utils.NewApiError("Discord OAuth not configured", 500))
 	}
+
+	// Debug logging
+	utils.Debugf("Generated state: %s", state)
+	utils.Debugf("Redirecting to: %s", authURL)
 
 	// Redirect to Discord OAuth
 	return c.Redirect(authURL, fiber.StatusTemporaryRedirect)
