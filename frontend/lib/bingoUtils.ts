@@ -5,6 +5,7 @@ export interface BingoTile {
     weight?: number
     score?: number,
     category?: string
+    settings?: unknown
 }
 
 export interface BingoBoardProps {
@@ -41,7 +42,7 @@ export async function fetchBoardFromAPI(): Promise<BoardData> {
     } catch (error) {
         console.error("Error fetching board:", error)
         // Return empty array on error - component will handle fallback
-        return { tiles: [], regenerationDiminisher: 1 }
+        return {tiles: [], regenerationDiminisher: 1}
     }
 }
 
