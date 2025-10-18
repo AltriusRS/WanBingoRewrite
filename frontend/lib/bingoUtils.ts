@@ -21,9 +21,17 @@ export interface BoardData {
 
 export async function fetchBoardFromAPI(): Promise<BoardData> {
     try {
-        const response = await fetch(`${getApiRoot()}/tiles/me`, {
+        let response = await fetch(`${getApiRoot()}/tiles/me`, {
             credentials: "include"
         })
+        if (!response.ok) {
+            if (response.status === 401) {
+                // Try anonymous
+                response = await fetch(`${getApiRoot()}/tiles/anonymous`)
+            } else {
+                throw new Error("Failed to fetch board")
+            }
+        }
         if (!response.ok) {
             throw new Error("Failed to fetch board")
         }
@@ -50,10 +58,21 @@ export async function fetchBoardFromAPI(): Promise<BoardData> {
 
 export async function regenerateBoardAPI(): Promise<BoardData> {
     try {
-        const response = await fetch(`${getApiRoot()}/tiles/me/regenerate`, {
+        let response = await fetch(`${getApiRoot()}/tiles/me/regenerate`, {
             method: 'POST',
             credentials: "include"
         })
+        if (!response.ok) {
+            if (response.status === 401) {
+                // Try anonymous regenerate
+                response = await fetch(`${getApiRoot()}/tiles/anonymous/regenerate`, {
+                    method: 'POST'
+                })
+            } else {
+                const errorData = await response.json()
+                throw new Error(errorData.message || "Failed to regenerate board")
+            }
+        }
         if (!response.ok) {
             const errorData = await response.json()
             throw new Error(errorData.message || "Failed to regenerate board")

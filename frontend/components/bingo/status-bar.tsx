@@ -4,6 +4,7 @@ import {ChatContextValue} from "@/components/chat/chat-context";
 import {BingoTile} from "@/lib/bingoUtils";
 import {AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle, AlertDialogTrigger} from "@/components/ui/alert-dialog";
 import {useState} from "react";
+import {useAuth} from "@/components/auth";
 
 
 interface BingoStatusBarProps {
@@ -16,6 +17,7 @@ interface BingoStatusBarProps {
 }
 
 export function BingoStatusBar({tiles, hasWon, resetBoard, regenerateBoard, regenerationCount, ctx}: BingoStatusBarProps) {
+    const { user } = useAuth()
     const [showRegenerateDialog, setShowRegenerateDialog] = useState(false)
 
     const canRegenerate = regenerationCount < 3
@@ -45,7 +47,11 @@ export function BingoStatusBar({tiles, hasWon, resetBoard, regenerateBoard, rege
 
                 <Button
                     onClick={() => {
-                        setShowRegenerateDialog(true);
+                        if (user) {
+                            setShowRegenerateDialog(true);
+                        } else {
+                            regenerateBoard();
+                        }
                     }}
                     variant="outline"
                     size="sm"
@@ -57,25 +63,27 @@ export function BingoStatusBar({tiles, hasWon, resetBoard, regenerateBoard, rege
                     <span className="sm:hidden">New</span>
                 </Button>
 
-                <AlertDialog open={showRegenerateDialog} onOpenChange={setShowRegenerateDialog}>
-                    <AlertDialogContent>
-                        <AlertDialogHeader>
-                            <AlertDialogTitle>Regenerate Board?</AlertDialogTitle>
-                            <AlertDialogDescription>
-                                Regenerating your board will incur a -{penaltyPercent}% penalty on your final score. Are you sure you want to proceed?
-                            </AlertDialogDescription>
-                        </AlertDialogHeader>
-                        <AlertDialogFooter>
-                            <AlertDialogCancel>Cancel</AlertDialogCancel>
-                            <AlertDialogAction onClick={() => {
-                                regenerateBoard();
-                                setShowRegenerateDialog(false);
-                            }}>
-                                Regenerate
-                            </AlertDialogAction>
-                        </AlertDialogFooter>
-                    </AlertDialogContent>
-                </AlertDialog>
+                {user && (
+                    <AlertDialog open={showRegenerateDialog} onOpenChange={setShowRegenerateDialog}>
+                        <AlertDialogContent>
+                            <AlertDialogHeader>
+                                <AlertDialogTitle>Regenerate Board?</AlertDialogTitle>
+                                <AlertDialogDescription>
+                                    Regenerating your board will incur a -{penaltyPercent}% penalty on your final score. Are you sure you want to proceed?
+                                </AlertDialogDescription>
+                            </AlertDialogHeader>
+                            <AlertDialogFooter>
+                                <AlertDialogCancel>Cancel</AlertDialogCancel>
+                                <AlertDialogAction onClick={() => {
+                                    regenerateBoard();
+                                    setShowRegenerateDialog(false);
+                                }}>
+                                    Regenerate
+                                </AlertDialogAction>
+                            </AlertDialogFooter>
+                        </AlertDialogContent>
+                    </AlertDialog>
+                )}
             </div>
         </div>
     )

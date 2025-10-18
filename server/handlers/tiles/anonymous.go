@@ -115,14 +115,21 @@ func GetAnonymousBoard(c *fiber.Ctx) error {
 	}
 
 	return c.JSON(fiber.Map{
-		"board_id":        board.ID,
-		"show_id":         board.ShowID,
-		"player_id":       board.PlayerID,
-		"tiles":           tileDetails,
-		"winner":          board.Winner,
-		"total_score":     board.TotalScore,
-		"potential_score": board.PotentialScore,
-		"created_at":      board.CreatedAt,
-		"is_anonymous":    true,
+		"board_id":                board.ID,
+		"show_id":                 board.ShowID,
+		"player_id":               board.PlayerID,
+		"tiles":                   tileDetails,
+		"winner":                  board.Winner,
+		"total_score":             board.TotalScore,
+		"potential_score":         board.PotentialScore,
+		"regeneration_diminisher": board.RegenerationDiminisher,
+		"created_at":              board.CreatedAt,
+		"is_anonymous":            true,
 	})
+}
+
+// RegenerateAnonymousBoard generates a new bingo board for anonymous users without penalty
+func RegenerateAnonymousBoard(c *fiber.Ctx) error {
+	// Same as GetAnonymousBoard
+	return GetAnonymousBoard(c)
 }
