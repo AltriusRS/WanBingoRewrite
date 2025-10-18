@@ -6,6 +6,7 @@ import { Button } from "@/components/ui/button"
 import { ScrollArea } from "@/components/ui/scroll-area"
 import { Badge } from "@/components/ui/badge"
 import { Check, X, Clock } from "lucide-react"
+import {getApiRoot} from "@/lib/auth";
 
 interface TileSuggestion {
   id: number
@@ -27,7 +28,7 @@ export function SuggestionManagementPanel() {
 
   const fetchSuggestions = async () => {
     try {
-      const response = await fetch("http://localhost:8080/api/host/suggestions")
+      const response = await fetch("${getApiRoot()}/host/suggestions")
       const data = await response.json()
       setSuggestions(data)
     } catch (error) {
@@ -39,7 +40,7 @@ export function SuggestionManagementPanel() {
 
   const handleApprove = async (id: number) => {
     try {
-      await fetch(`http://localhost:8080/api/host/suggestions/${id}`, {
+      await fetch(`${getApiRoot()}/host/suggestions/${id}`, {
         method: "PATCH",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ status: "approved" }),
@@ -52,7 +53,7 @@ export function SuggestionManagementPanel() {
 
   const handleDeny = async (id: number) => {
     try {
-      await fetch(`http://localhost:8080/api/host/suggestions/${id}`, {
+      await fetch(`${getApiRoot()}/host/suggestions/${id}`, {
         method: "PATCH",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ status: "denied" }),

@@ -8,6 +8,7 @@ import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
 import { Textarea } from "@/components/ui/textarea"
+import {getApiRoot} from "@/lib/auth";
 
 interface SuggestTileModalProps {
   open: boolean
@@ -27,7 +28,7 @@ export function SuggestTileModal({ open, onOpenChange, onSubmit }: SuggestTileMo
       setSubmitting(true)
 
       try {
-        await fetch("http://localhost:8080/api/suggestions", {
+        await fetch(`${getApiRoot()}/api/suggestions`, {
           method: "POST",
           headers: { "Content-Type": "application/json" },
           body: JSON.stringify({ name, tileName, reason }),

@@ -1,3 +1,5 @@
+import {getApiRoot} from "@/lib/auth";
+
 export interface BingoTile {
     id: string
     title: string
@@ -19,7 +21,7 @@ export interface BoardData {
 
 export async function fetchBoardFromAPI(): Promise<BoardData> {
     try {
-        const response = await fetch("https://api.bingo.local/tiles/me", {
+        const response = await fetch(`${getApiRoot()}/tiles/me`, {
             credentials: "include"
         })
         if (!response.ok) {
@@ -48,7 +50,7 @@ export async function fetchBoardFromAPI(): Promise<BoardData> {
 
 export async function regenerateBoardAPI(): Promise<BoardData> {
     try {
-        const response = await fetch("https://api.bingo.local/tiles/me/regenerate", {
+        const response = await fetch(`${getApiRoot()}/tiles/me/regenerate`, {
             method: 'POST',
             credentials: "include"
         })

@@ -6,6 +6,7 @@ import { Button } from "@/components/ui/button"
 import { Textarea } from "@/components/ui/textarea"
 import { Label } from "@/components/ui/label"
 import { Send } from "lucide-react"
+import {getApiRoot} from "@/lib/auth";
 
 export function TestMessagePanel() {
   const [message, setMessage] = useState("")
@@ -16,7 +17,7 @@ export function TestMessagePanel() {
 
     setSending(true)
     try {
-      await fetch("http://localhost:8080/api/host/test-message", {
+      await fetch(`${getApiRoot()}/host/test-message`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ message }),

@@ -264,14 +264,14 @@ function TileFormDialog({
 
     try {
       if (tile) {
-        await fetch(`${getApiRoot()}/api/host/tiles/${tile.id}`, {
+        await fetch(`${getApiRoot()}/host/tiles/${tile.id}`, {
           method: "PATCH",
           headers: { "Content-Type": "application/json" },
           credentials: "include",
           body: JSON.stringify(data),
         })
       } else {
-        await fetch(`${getApiRoot()}/api/host/tiles`, {
+        await fetch(`${getApiRoot()}/host/tiles`, {
           method: "POST",
           headers: { "Content-Type": "application/json" },
           credentials: "include",

@@ -8,6 +8,7 @@ import {Trash2, Shield} from "lucide-react"
 import {MemoizedMarkdown} from "@/components/ui/markdown";
 import {Dialog, DialogContent, DialogFooter, DialogHeader, DialogTitle} from "@/components/ui/dialog";
 import React, {useState} from "react";
+import {getApiRoot} from "@/lib/auth";
 
 interface StandardMessageProps {
     msg: ChatMessage
@@ -27,7 +28,7 @@ export function StandardMessage({msg, currentUserId, isCurrentUserHost}: Standar
         if (!confirm("Delete this message?")) return
 
         try {
-            await fetch(`http://localhost:8080/api/chat/message/${msg.id}`, {
+            await fetch(`${getApiRoot()}/chat/message/${msg.id}`, {
                 method: "DELETE",
             })
         } catch (error) {
