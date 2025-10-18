@@ -35,6 +35,7 @@ export interface Player {
     avatar?: string;
     settings?: { [key: string]: any };
     score: number;
+    permissions: number;
     created_at: string;
     updated_at: string;
     deleted_at?: string;
@@ -169,35 +170,35 @@ export interface SSEMessage {
 
 
 export function handleSocketProtocol(protoMessage: SSEMessage, ctx: ChatContextValue) {
-    console.log("Received SSE message:", protoMessage);
     switch (protoMessage.opcode) {
         case "chat.members.count":
-            console.log("Received member count update:", protoMessage.data.count);
             ctx.setMemberCount(() => protoMessage.data.count);
+            break;
+
+        case "chat.players":
+            ctx.setMemberList(() => protoMessage.data.players as Player[]);
+            ctx.setMemberListLoading(false);
             break;
 
         case 'chat.message':
             return handleChatMessage(protoMessage.data as ChatMessage, ctx);
 
         case 'whenplane.aggregate':
-            console.log("Received aggregate update:", protoMessage.data);
             const aggregate = protoMessage.data as Show;
-
             ctx.setEpisode((_) => aggregate)
-
             break;
         default:
-            console.warn("Unknown SSE opcode", protoMessage.opcode)
+            // Unknown opcode - silently ignore
+            break;
     }
 }
 
 
 async function handleChatMessage(msg: ChatMessage, ctx: ChatContextValue) {
-    console.log("Received chat message:", msg);
     // Truncate the list to 100 messages
 
     if (ctx.messages.filter((s) => s.id === msg.id).length > 0) {
-        console.warn("Duplicate message ID returned - skipping");
+        // Duplicate message - skip
         return;
     }
     ctx.setMessages((prev) => {

@@ -140,7 +140,14 @@ func (h *Hub) GetConnectedUserList() []string {
 }
 
 func (h *Hub) BuildConnectionCount() string {
-	countEvent := BuildEvent("hub.connections.count", MemberCount{Count: len(h.clients)})
+	// Count only authenticated players, deduplicated by player ID
+	playerIDs := make(map[string]bool)
+	for _, client := range h.clients {
+		if client.IsAuthenticated && client.Player != nil {
+			playerIDs[client.Player.ID] = true
+		}
+	}
+	countEvent := BuildEvent("chat.members.count", MemberCount{Count: len(playerIDs)})
 	return countEvent.String()
 }
 

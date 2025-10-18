@@ -4,32 +4,16 @@ import React, {createContext, useContext, useEffect, useMemo, useState} from "re
 import {ChatMessage, handleSocketProtocol, Show, SSEMessage} from "@/lib/chatUtils";
 
 export interface ChatContextValue {
-    messages: ChatMessage[]
-    setMessages: React.Dispatch<React.SetStateAction<ChatMessage[]>>
-
+    // ... existing fields ...
     memberCount: number
     setMemberCount: React.Dispatch<React.SetStateAction<number>>
-
-    memberList: string[]
-    setMemberList: React.Dispatch<React.SetStateAction<string[]>>
-
+    memberList: Player[]
+    setMemberList: React.Dispatch<React.SetStateAction<Player[]>>
     memberListLoading: boolean
     setMemberListLoading: React.Dispatch<React.SetStateAction<boolean>>
-
     memberListError: string | null
     setMemberListError: React.Dispatch<React.SetStateAction<string | null>>
-
-    liveTime: string
-    setLiveTime: React.Dispatch<React.SetStateAction<string>>
-
-    text: string
-    setText: React.Dispatch<React.SetStateAction<string>>
-
-    sending: boolean
-    setSending: React.Dispatch<React.SetStateAction<boolean>>
-
-    episode: Show
-    setEpisode: React.Dispatch<React.SetStateAction<Show>>
+    // ... existing fields ...
 }
 
 const ChatContext = createContext<ChatContextValue | null>(null)
@@ -38,7 +22,7 @@ const ChatContext = createContext<ChatContextValue | null>(null)
 export function ChatProvider({children}: { children: React.ReactNode }) {
     const [messages, setMessages] = useState<ChatMessage[]>([])
     const [memberCount, setMemberCount] = useState<number>(0)
-    const [memberList, setMemberList] = useState<string[]>([])
+    const [memberList, setMemberList] = useState<Player[]>([])
     const [memberListLoading, setMemberListLoading] = useState<boolean>(true)
     const [memberListError, setMemberListError] = useState<string | null>(null)
     const [liveTime, setLiveTime] = useState<string>("")

@@ -11,7 +11,7 @@ export function Header() {
 
 
     const handleSuggestTile = (data: { name: string; tileName: string; reason: string }) => {
-        console.log("Suggested tile", data)
+
     }
 
 

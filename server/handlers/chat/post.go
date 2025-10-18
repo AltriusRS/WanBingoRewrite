@@ -95,7 +95,20 @@ func Post(ctx *fiber.Ctx) error {
 	// Broadcast message to chat hub
 	chatHub := sse.GetChatHub()
 	if chatHub != nil {
-		chatHub.BroadcastEvent("chat.message", message)
+		// Create message with player data for frontend
+		messageWithPlayer := fiber.Map{
+			"id":         message.ID,
+			"show_id":    message.ShowID,
+			"player_id":  message.PlayerID,
+			"contents":   message.Contents,
+			"system":     message.System,
+			"replying":   message.Replying,
+			"created_at": message.CreatedAt,
+			"updated_at": message.UpdatedAt,
+			"deleted_at": message.DeletedAt,
+			"player":     player,
+		}
+		chatHub.BroadcastEvent("chat.message", messageWithPlayer)
 	} else {
 		log.Printf("Warning: Chat hub not available for broadcasting")
 	}

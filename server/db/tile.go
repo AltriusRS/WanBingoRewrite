@@ -161,6 +161,117 @@ func GetOrCreateShowIsLateTile(ctx context.Context, tx ...pgx.Tx) (*models.Tile,
 	return GetTileByID(ctx, tileID, tx...)
 }
 
+// PersistTile saves or updates a Tile in the database
+func PersistTile(ctx context.Context, tile *models.Tile, tx ...pgx.Tx) error {
+	if len(tx) > 0 {
+		_, err := tx[0].Exec(ctx, `
+			INSERT INTO tiles (id, title, category, weight, score, created_by, settings, created_at, updated_at)
+			VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9)
+			ON CONFLICT (id) DO UPDATE SET
+				title = EXCLUDED.title,
+				category = EXCLUDED.category,
+				weight = EXCLUDED.weight,
+				score = EXCLUDED.score,
+				updated_at = EXCLUDED.updated_at
+		`, tile.ID, tile.Title, tile.Category, tile.Weight, tile.Score, tile.CreatedBy, tile.Settings, tile.CreatedAt, tile.UpdatedAt)
+		return err
+	} else {
+		pool := Pool()
+		if pool == nil {
+			return errors.New("database not available")
+		}
+		_, err := pool.Exec(ctx, `
+			INSERT INTO tiles (id, title, category, weight, score, created_by, settings, created_at, updated_at)
+			VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9)
+			ON CONFLICT (id) DO UPDATE SET
+				title = EXCLUDED.title,
+				category = EXCLUDED.category,
+				weight = EXCLUDED.weight,
+				score = EXCLUDED.score,
+				updated_at = EXCLUDED.updated_at
+		`, tile.ID, tile.Title, tile.Category, tile.Weight, tile.Score, tile.CreatedBy, tile.Settings, tile.CreatedAt, tile.UpdatedAt)
+		return err
+	}
+}
+
+// DeleteTile soft deletes a tile by setting deleted_at
+func DeleteTile(ctx context.Context, id string, tx ...pgx.Tx) error {
+	if len(tx) > 0 {
+		_, err := tx[0].Exec(ctx, `
+			UPDATE tiles SET deleted_at = CURRENT_TIMESTAMP WHERE id = $1
+		`, id)
+		return err
+	} else {
+		pool := Pool()
+		if pool == nil {
+			return errors.New("database not available")
+		}
+		_, err := pool.Exec(ctx, `
+			UPDATE tiles SET deleted_at = CURRENT_TIMESTAMP WHERE id = $1
+		`, id)
+		return err
+	}
+}
+
+// DeleteTileConfirmation removes a tile confirmation for a specific show and tile
+func DeleteTileConfirmation(ctx context.Context, showID, tileID string, tx ...pgx.Tx) error {
+	if len(tx) > 0 {
+		_, err := tx[0].Exec(ctx, `
+			UPDATE tile_confirmations SET deleted_at = CURRENT_TIMESTAMP
+			WHERE show_id = $1 AND tile_id = $2 AND deleted_at IS NULL
+		`, showID, tileID)
+		return err
+	} else {
+		pool := Pool()
+		if pool == nil {
+			return errors.New("database not available")
+		}
+		_, err := pool.Exec(ctx, `
+			UPDATE tile_confirmations SET deleted_at = CURRENT_TIMESTAMP
+			WHERE show_id = $1 AND tile_id = $2 AND deleted_at IS NULL
+		`, showID, tileID)
+		return err
+	}
+}
+
+// GetTileConfirmationsForShow retrieves all tile confirmations for a specific show
+func GetTileConfirmationsForShow(ctx context.Context, showID string, tx ...pgx.Tx) ([]models.TileConfirmation, error) {
+	var rows pgx.Rows
+	var err error
+
+	if len(tx) > 0 {
+		rows, err = tx[0].Query(ctx, `
+			SELECT id, show_id, tile_id, confirmed_by, context, confirmation_time, created_at, updated_at, deleted_at
+			FROM tile_confirmations
+			WHERE show_id = $1 AND deleted_at IS NULL
+			ORDER BY confirmation_time
+		`, showID)
+	} else {
+		pool := Pool()
+		if pool == nil {
+			return nil, errors.New("database not available")
+		}
+		rows, err = pool.Query(ctx, `
+			SELECT id, show_id, tile_id, confirmed_by, context, confirmation_time, created_at, updated_at, deleted_at
+			FROM tile_confirmations
+			WHERE show_id = $1 AND deleted_at IS NULL
+			ORDER BY confirmation_time
+		`, showID)
+	}
+
+	if err != nil {
+		return nil, err
+	}
+	defer rows.Close()
+
+	confirmations, err := pgx.CollectRows(rows, pgx.RowToStructByName[models.TileConfirmation])
+	if err != nil {
+		return nil, err
+	}
+
+	return confirmations, nil
+}
+
 // PersistTileConfirmation saves a tile confirmation to the database
 func PersistTileConfirmation(ctx context.Context, confirmation *models.TileConfirmation, tx ...pgx.Tx) error {
 	if len(tx) > 0 {

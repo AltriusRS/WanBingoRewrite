@@ -1,7 +1,10 @@
 "use client"
 import type {ChatMessage} from "@/lib/chatUtils"
 import {Button} from "@/components/ui/button"
-import {Trash2} from "lucide-react"
+import {Badge} from "@/components/ui/badge"
+import {Avatar, AvatarFallback, AvatarImage} from "@/components/ui/avatar"
+import {HoverCard, HoverCardContent, HoverCardTrigger} from "@/components/ui/hover-card"
+import {Trash2, Shield} from "lucide-react"
 import {MemoizedMarkdown} from "@/components/ui/markdown";
 import {Dialog, DialogContent, DialogFooter, DialogHeader, DialogTitle} from "@/components/ui/dialog";
 import React, {useState} from "react";
@@ -12,16 +15,14 @@ interface StandardMessageProps {
     isCurrentUserHost?: boolean
 }
 
-interface StandardMessageProps {
-    msg: ChatMessage
-}
-
-export function StandardMessage({msg}: StandardMessageProps) {
+export function StandardMessage({msg, currentUserId, isCurrentUserHost}: StandardMessageProps) {
     const [open, setOpen] = useState(false);
     const [clickedUrl, setClickedUrl] = useState("");
 
-    const isOwnMessage = false // msg.player_id === currentUserId
-    const canDelete = false // isOwnMessage || isCurrentUserHost
+    const isOwnMessage = msg.player_id === currentUserId
+    const canModerate = (msg.player?.permissions || 0) & 1024 // PermCanModerate = 1024
+    const canDelete = isOwnMessage || isCurrentUserHost || canModerate
+
     const handleDelete = async () => {
         if (!confirm("Delete this message?")) return
 
@@ -34,9 +35,9 @@ export function StandardMessage({msg}: StandardMessageProps) {
         }
     }
 
-    const getInitials = (username?: string) => {
-        if (!username) return "?"
-        return username
+    const getInitials = (name?: string) => {
+        if (!name) return "?"
+        return name
             .split(" ")
             .map((n) => n[0])
             .join("")
@@ -44,43 +45,92 @@ export function StandardMessage({msg}: StandardMessageProps) {
             .slice(0, 2)
     }
 
+    const chatColor = msg.player?.settings?.chat_color || "#3b82f6"
+    const accountCreated = msg.player?.created_at
+        ? new Date(msg.player.created_at).toLocaleDateString('en-US', {
+            year: 'numeric',
+            month: 'long',
+            day: 'numeric'
+        })
+        : "Unknown"
+
 
     return (
         <div className="group flex gap-3">
-            {/*<HoverCard>*/}
-            {/*    <HoverCardTrigger asChild>*/}
-            {/*        <Avatar className="h-8 w-8 cursor-pointer">*/}
-            {/*            <AvatarImage src={msg.avatar || "/placeholder.svg"} alt={msg.username}/>*/}
-            {/*            <AvatarFallback className="bg-primary/10 text-xs">{getInitials(msg.username)}</AvatarFallback>*/}
-            {/*        </Avatar>*/}
-            {/*    </HoverCardTrigger>*/}
-            {/*    <HoverCardContent className="w-64">*/}
-            {/*        <div className="flex gap-3">*/}
-            {/*            <Avatar className="h-12 w-12">*/}
-            {/*                <AvatarImage src={msg.avatar || "/placeholder.svg"} alt={msg.username}/>*/}
-            {/*                <AvatarFallback className="bg-primary/10">{getInitials(msg.username)}</AvatarFallback>*/}
-            {/*            </Avatar>*/}
-            {/*            <div className="flex-1 space-y-1">*/}
-            {/*                <div className="flex items-center gap-2">*/}
-            {/*                    <h4 className="text-sm font-semibold">{msg.player_id}</h4>*/}
-            {/*                    /!*{isMessageFromHost && (*!/*/}
-            {/*                    /!*    <Badge variant="default" className="gap-1 text-xs">*!/*/}
-            {/*                    /!*        <Shield className="h-3 w-3"/>*!/*/}
-            {/*                    /!*        Host*!/*/}
-            {/*                    /!*    </Badge>*!/*/}
-            {/*                    /!*)}*!/*/}
-            {/*                </div>*/}
-            {/*                <p className="text-xs text-muted-foreground">Member*/}
-            {/*                    since {new Date().toLocaleDateString()}</p>*/}
-            {/*            </div>*/}
-            {/*        </div>*/}
-            {/*    </HoverCardContent>*/}
-            {/*</HoverCard>*/}
+            <HoverCard>
+                <HoverCardTrigger asChild>
+                    <Avatar className="h-8 w-8 cursor-pointer">
+                        <AvatarImage src={msg.player?.avatar || "/placeholder.svg"} alt={msg.player?.display_name}/>
+                        <AvatarFallback className="bg-primary/10 text-xs">{getInitials(msg.player?.display_name)}</AvatarFallback>
+                    </Avatar>
+                </HoverCardTrigger>
+                <HoverCardContent className="w-64">
+                    <div className="flex gap-3">
+                        <Avatar className="h-12 w-12">
+                            <AvatarImage src={msg.player?.avatar || "/placeholder.svg"} alt={msg.player?.display_name}/>
+                            <AvatarFallback className="bg-primary/10">{getInitials(msg.player?.display_name)}</AvatarFallback>
+                        </Avatar>
+                        <div className="flex-1 space-y-1">
+                            <div className="flex items-center gap-2">
+                                <h4 className="text-sm font-semibold">{msg.player?.display_name || msg.player_id}</h4>
+                                {canModerate && (
+                                    <Badge variant="default" className="gap-1 text-xs">
+                                        <Shield className="h-3 w-3"/>
+                                        Mod
+                                    </Badge>
+                                )}
+                            </div>
+                            <p className="text-xs text-muted-foreground">
+                                Chat Color: <span style={{color: chatColor}}>{chatColor}</span>
+                            </p>
+                            {msg.player?.settings?.bio && (
+                                <p className="text-xs text-muted-foreground">{msg.player.settings.bio}</p>
+                            )}
+                            <p className="text-xs text-muted-foreground">Account Created {accountCreated}</p>
+                        </div>
+                    </div>
+                </HoverCardContent>
+            </HoverCard>
 
             <div className="flex-1 space-y-1">
                 <div className="flex items-baseline gap-2">
-                    <span className="text-sm font-medium text-primary">{msg.player_id}</span>
-                    {/*{false && <Shield className="h-3 w-3 text-primary"/>}*/}
+                    <HoverCard>
+                        <HoverCardTrigger asChild>
+                            <span
+                                className="text-sm font-medium cursor-pointer"
+                                style={{color: chatColor}}
+                            >
+                                {msg.player?.display_name || msg.player_id}
+                            </span>
+                        </HoverCardTrigger>
+                        <HoverCardContent className="w-64">
+                            <div className="flex gap-3">
+                                <Avatar className="h-12 w-12">
+                                    <AvatarImage src={msg.player?.avatar || "/placeholder.svg"} alt={msg.player?.display_name}/>
+                                    <AvatarFallback className="bg-primary/10">{getInitials(msg.player?.display_name)}</AvatarFallback>
+                                </Avatar>
+                                <div className="flex-1 space-y-1">
+                                    <div className="flex items-center gap-2">
+                                        <h4 className="text-sm font-semibold">{msg.player?.display_name || msg.player_id}</h4>
+                                        {canModerate && (
+                                            <Badge variant="default" className="gap-1 text-xs">
+                                                <Shield className="h-3 w-3"/>
+                                                Mod
+                                            </Badge>
+                                        )}
+                                    </div>
+                                    <p className="text-xs text-muted-foreground">
+                                        Chat Color: <span style={{color: chatColor}}>{chatColor}</span>
+                                    </p>
+                                    {msg.player?.settings?.bio && (
+                                        <p className="text-xs text-muted-foreground">{msg.player.settings.bio}</p>
+                                    )}
+                                    <p className="text-xs text-muted-foreground">Account Created {accountCreated}</p>
+                                </div>
+                            </div>
+                        </HoverCardContent>
+                    </HoverCard>
+                    {canModerate && <Shield className="h-3 w-3 text-primary"/>}
                     <span
                         className="text-xs text-muted-foreground">{new Date(msg.created_at).toLocaleTimeString()}</span>
                 </div>
