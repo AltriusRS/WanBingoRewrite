@@ -24,29 +24,29 @@ func GetAnonymousBoard(c *fiber.Ctx) error {
 		return utils.NewApiError("Failed to get latest show", 0x0501).AsResponse(c)
 	}
 
-	// Get all available tiles for this show, or fall back to all tiles
+	// Ensure show has enough tiles
 	showTiles, err := db.GetShowTiles(ctx, latestShow.ID)
-	var availableTileIDs []string
-
-	if err != nil || len(showTiles) < 25 {
-		// Fall back to all tiles if show-specific tiles are insufficient
-		allTiles, err := db.GetAllTiles(ctx)
+	if err != nil {
+		log.Printf("failed to get show tiles: %v", err)
+		return utils.NewApiError("Failed to get show tiles", 0x0502).AsResponse(c)
+	}
+	if len(showTiles) < db.GetTilesPerShow() {
+		err = db.PopulateShowTilesWithRandom(ctx, latestShow.ID)
 		if err != nil {
-			log.Printf("failed to get all tiles: %v", err)
-			return utils.NewApiError("Failed to get tiles", 0x0502).AsResponse(c)
+			log.Printf("failed to populate show tiles: %v", err)
+			return utils.NewApiError("Failed to populate show tiles", 0x0505).AsResponse(c)
 		}
-		if len(allTiles) < 25 {
-			return utils.NewApiError("Insufficient tiles available for board generation", 0x0503).AsResponse(c)
+		showTiles, err = db.GetShowTiles(ctx, latestShow.ID)
+		if err != nil {
+			log.Printf("failed to get show tiles after population: %v", err)
+			return utils.NewApiError("Failed to get show tiles", 0x0502).AsResponse(c)
 		}
-		availableTileIDs = make([]string, len(allTiles))
-		for i, tile := range allTiles {
-			availableTileIDs[i] = tile.ID
-		}
-	} else {
-		availableTileIDs = make([]string, len(showTiles))
-		for i, showTile := range showTiles {
-			availableTileIDs[i] = showTile.TileID
-		}
+	}
+
+	var availableTileIDs []string
+	availableTileIDs = make([]string, len(showTiles))
+	for i, showTile := range showTiles {
+		availableTileIDs[i] = showTile.TileID
 	}
 
 	if len(availableTileIDs) < 25 {
@@ -64,6 +64,18 @@ func GetAnonymousBoard(c *fiber.Ctx) error {
 		j := rand.Intn(len(availableIndices)-i) + i
 		availableIndices[i], availableIndices[j] = availableIndices[j], availableIndices[i]
 		selectedTiles[i] = availableTileIDs[availableIndices[i]]
+	}
+
+	// Calculate potential score
+	showTileMap := make(map[string]models.ShowTile)
+	for _, st := range showTiles {
+		showTileMap[st.TileID] = st
+	}
+	var potentialScore float64
+	for _, tileID := range selectedTiles {
+		if st, ok := showTileMap[tileID]; ok {
+			potentialScore += st.Score * st.Weight
+		}
 	}
 
 	// Get tile details for the selected tiles
@@ -96,8 +108,8 @@ func GetAnonymousBoard(c *fiber.Ctx) error {
 		Tiles:                  selectedTiles,
 		Winner:                 false,
 		TotalScore:             0,
-		PotentialScore:         0,
-		RegenerationDiminisher: 0,
+		PotentialScore:         potentialScore,
+		RegenerationDiminisher: 1.0,
 		CreatedAt:              time.Now(),
 		UpdatedAt:              time.Now(),
 	}

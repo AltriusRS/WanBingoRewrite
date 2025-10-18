@@ -21,10 +21,14 @@ func init() {
 
 	app.Use(middleware.RequestLogger)
 
-	// Example protected route
-	app.Get("/whoami", middleware.RequiredAuthMiddleware, func(c *fiber.Ctx) error {
-		claims := c.Locals("claims")
-		return c.JSON(claims)
+	// Whoami endpoint to check current user
+	app.Get("/whoami", middleware.OptionalPlayerAuthMiddleware, func(c *fiber.Ctx) error {
+		player := c.Locals("player")
+		if player != nil {
+			return c.JSON(fiber.Map{"user": player})
+		} else {
+			return c.JSON(fiber.Map{"user": nil})
+		}
 	})
 
 }

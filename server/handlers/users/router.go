@@ -18,6 +18,7 @@ func BuildRouter(router fiber.Router) {
 	protected.Use(middleware.AuthMiddleware)
 
 	protected.Get("/me", me.Get)
+	protected.Put("/me", me.Put)
 
 	// Public routes - no authentication required
 	router.Get("/", GetAll)

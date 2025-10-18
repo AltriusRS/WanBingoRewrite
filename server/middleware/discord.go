@@ -6,7 +6,6 @@ import (
 	"fmt"
 	"net/http"
 	"os"
-	"time"
 	"wanshow-bingo/db"
 	"wanshow-bingo/db/models"
 
@@ -52,7 +51,6 @@ func InitDiscordOAuth() {
 		RedirectURL:  redirectURL,
 		Scopes: []string{
 			"identify",
-			"guilds",
 		},
 		Endpoint: oauth2.Endpoint{
 			AuthURL:  "https://discord.com/oauth2/authorize",
@@ -193,48 +191,9 @@ func GetPlayerFromContext(c *fiber.Ctx) (*models.Player, error) {
 	return player, nil
 }
 
-// GetDiscordUserFromContext retrieves the Discord user from the context
-func GetDiscordUserFromContext(c *fiber.Ctx) (*models.DiscordUser, error) {
-	raw := c.Locals("discord_user")
-	if raw == nil {
-		return nil, fmt.Errorf("no Discord user in context")
-	}
-
-	user, ok := raw.(*models.DiscordUser)
-	if !ok {
-		return nil, fmt.Errorf("invalid Discord user type in context")
-	}
-
-	return user, nil
-}
-
-// SetDiscordSessionCookie sets a secure Discord session cookie
-func SetDiscordSessionCookie(c *fiber.Ctx, token *oauth2.Token) {
-	cookie := &fiber.Cookie{
-		Name:     "discord-token",
-		Value:    token.AccessToken,
-		Path:     "/",
-		Domain:   "api.bingo.local",              // Match other cookies
-		Expires:  time.Now().Add(24 * time.Hour), // Discord tokens typically last 24 hours
-		HTTPOnly: true,
-		Secure:   true,   // HTTPS enabled via Caddy proxy
-		SameSite: "None", // Allow cross-site with HTTPS
-	}
-	c.Cookie(cookie)
-}
-
-// ClearDiscordSessionCookie clears the Discord session cookie
-func ClearDiscordSessionCookie(c *fiber.Ctx) {
-	c.Cookie(&fiber.Cookie{
-		Name:     "discord-token",
-		Value:    "",
-		Path:     "/",
-		Domain:   "api.bingo.local",
-		MaxAge:   -1, // Expire immediately
-		HTTPOnly: true,
-		Secure:   true,
-		SameSite: "None",
-	})
+// UpdatePlayer updates the player in the database
+func UpdatePlayer(ctx context.Context, player *models.Player) error {
+	return db.PersistPlayer(ctx, player)
 }
 
 // RequirePermissionMiddleware checks if the authenticated user has a specific permission

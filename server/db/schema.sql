@@ -110,7 +110,7 @@ CREATE TABLE boards
     winner                  BOOLEAN                  DEFAULT FALSE,
     total_score             float8                   DEFAULT 0,
     potential_score         float8                   DEFAULT 0,
-    regeneration_diminisher float8                   DEFAULT 0,
+    regeneration_diminisher float8                   DEFAULT 1.0,
     created_at              TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP,
     updated_at              TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP,
     deleted_at              TIMESTAMP WITH TIME ZONE,
