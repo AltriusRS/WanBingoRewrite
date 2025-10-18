@@ -1,85 +1,58 @@
-"use server"
+// Discord user type
 
-export async function getCurrentUser() {
-  try {
-    const { user } = await getUser()
-    return user
-  } catch (error) {
-    return null
-  }
+export interface DiscordUser {
+    id: string
+    username: string
+    discriminator: string
+    email: string
+    avatar: string
+    verified: boolean
 }
 
-export async function getSessionId(): Promise<string | null> {
-  try {
-    const { sessionId } = await getUser()
-    return sessionId || null
-  } catch (error) {
-    return null
-  }
+// Auth context type
+interface AuthContextType {
+    user: DiscordUser | null
+    loading: boolean
+    error: string | null
+    login: () => void
+    logout: () => Promise<void>
+    refetch: () => Promise<void>
 }
 
-export async function isHost(): Promise<boolean> {
-  try {
-    const { user } = await getUser()
-    if (!user) return false
 
-    // Check if user email is from LMG domain or is in host list
-    const hostEmails = (process.env.HOST_EMAIL || "").split(",").map((e) => e.trim())
-    const isLMGDomain = user.email?.endsWith("@linusmediagroup.com")
-    const isInHostList = hostEmails.includes(user.email || "")
+// Build API path helper
+export function buildApiPath(path: string): string {
+    const apiRoot = getApiRoot()
 
-    return isLMGDomain || isInHostList
-  } catch (error) {
-    return false
-  }
-}
-
-export async function isChatBanned(): Promise<{ banned: boolean; reason?: string; expiry?: Date }> {
-  try {
-    const { user } = await getUser()
-    if (!user) return { banned: false }
-
-    // Check user metadata for chat ban
-    const metadata = user.rawAttributes as any
-    const chatBanned = metadata?.chatBanned === true
-    const reason = metadata?.chatBanReason
-    const expiry = metadata?.chatBanExpiry ? new Date(metadata.chatBanExpiry) : undefined
-
-    // Check if ban has expired
-    if (chatBanned && expiry && expiry < new Date()) {
-      return { banned: false }
+    if (apiRoot.endsWith("/")) {
+        if (path.startsWith("/")) path = path.substring(1)
+    } else {
+        if (!path.startsWith("/")) path = "/" + path
     }
 
-    return { banned: chatBanned, reason, expiry }
-  } catch (error) {
-    return { banned: false }
-  }
+    return apiRoot + path
 }
 
+export async function getCurrentUser(): Promise<DiscordUser | null> {
+    try {
+        const response = await fetch(`${getApiRoot()}/auth/discord/user`, {
+            credentials: "include", // Include cookies
+        })
 
-
-async function getUser(): Promise<UserProfile> {
-  let response = await fetch(buildApiPath('/me'));
-
-  let body = await response.json();
-
-  console.log(body);
-  return body;
+        if (response.ok) {
+            const data = await response.json()
+            return data as DiscordUser
+        } else if (response.status === 401) {
+            return null
+        } else {
+            throw new Error("Failed to fetch user")
+        }
+    } catch (err) {
+        console.error("Auth error:", err)
+        return null
+    }
 }
 
-
-/**
- * Build a correctly formatted api path based on the contextually known api 
- * base path and the provided route path
- * @param path {string} - The path to be built
- * @returns {string} - The constructed path
- */
-export function buildApiPath(path: string): string {
-  if(process.env.API_URL!.endsWith('/')) {
-    if (path.startsWith('/')) path = path.substring(1,path.length-1)
-  } else {
-    if (!path.startsWith('/')) path = '/' + path;
-  }
-
-  return process.env.API_URL + path;
+export function getApiRoot(): string {
+    return process.env.NEXT_PUBLIC_API_ROOT || "http://localhost:8000"
 }

@@ -1,8 +1,7 @@
 "use client"
 
 import React, {createContext, useContext, useEffect, useMemo, useState} from "react"
-import {ChatMessage, EpisodeInfo, getNextWan, handleSocketProtocol, SSEMessage} from "@/lib/chatUtils";
-import {fromZonedTime} from "date-fns-tz";
+import {ChatMessage, handleSocketProtocol, Show, SSEMessage} from "@/lib/chatUtils";
 
 export interface ChatContextValue {
     messages: ChatMessage[]
@@ -29,8 +28,8 @@ export interface ChatContextValue {
     sending: boolean
     setSending: React.Dispatch<React.SetStateAction<boolean>>
 
-    episode: EpisodeInfo
-    setEpisode: React.Dispatch<React.SetStateAction<EpisodeInfo>>
+    episode: Show
+    setEpisode: React.Dispatch<React.SetStateAction<Show>>
 }
 
 const ChatContext = createContext<ChatContextValue | null>(null)
@@ -45,12 +44,18 @@ export function ChatProvider({children}: { children: React.ReactNode }) {
     const [liveTime, setLiveTime] = useState<string>("")
     const [text, setText] = useState<string>("")
     const [sending, setSending] = useState<boolean>(false)
-    const [episode, setEpisode] = useState<EpisodeInfo>({
-        title: "Unknown",
-        date: "",
-        thumbnail: null,
-        isLive: false,
-        startTime: getNextWan()
+    const [episode, setEpisode] = useState<Show>({
+        "id": "Y2kz75uBC8",
+        "youtube_id": "YVHXYqMPyzc",
+        "scheduled_time": "2025-10-11T00:30:00Z",
+        "actual_start_time": "2025-10-11T00:05:06Z",
+        "thumbnail": "https://pbs.floatplane.com/stream_thumbnails/5c13f3c006f1be15e08e05c0/733054221374526_1760139634263.jpeg",
+        "metadata": {
+            "fp_vod": "w3A5fKcfTi",
+            "title": "Piracy Is Dangerous And Harmful"
+        },
+        "created_at": "2025-10-10T23:46:40Z",
+        "updated_at": "2025-10-16T19:12:58.692094Z",
     })
 
     const value = useMemo(() => ({
@@ -66,7 +71,8 @@ export function ChatProvider({children}: { children: React.ReactNode }) {
     }), [messages, memberCount, memberList, memberListLoading, memberListError, liveTime, text, sending, episode]) as ChatContextValue;
 
     useEffect(() => {
-        const es = new EventSource("https://api.bingo.local/chat/stream")
+        const apiRoot = process.env.NEXT_PUBLIC_API_ROOT || "http://localhost:8000"
+        const es = new EventSource(`${apiRoot}/chat/stream`)
 
         es.onmessage = (ev) => {
             try {

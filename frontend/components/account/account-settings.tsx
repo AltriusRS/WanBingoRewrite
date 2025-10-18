@@ -9,26 +9,24 @@ import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
 import { ArrowLeft, Upload } from "lucide-react"
 import Link from "next/link"
 import { Switch } from "@/components/ui/switch"
-import type { User } from "@workos-inc/node"
+import { useAuth, type DiscordUser } from "@/lib/auth"
 
-interface AccountSettingsProps {
-  user: User
-}
-
-export function AccountSettings({ user }: AccountSettingsProps) {
-  const [displayName, setDisplayName] = useState(user.firstName || "")
+export function AccountSettings() {
+  const { user } = useAuth()
+  const [displayName, setDisplayName] = useState("")
   const [avatarUrl, setAvatarUrl] = useState("")
   const [chatColor, setChatColor] = useState("#FF6900")
   const [backgroundImageEnabled, setBackgroundImageEnabled] = useState(false)
   const [saving, setSaving] = useState(false)
 
   useEffect(() => {
-    // Load user preferences from WorkOS metadata
-    const metadata = user.rawAttributes as any
-    setDisplayName(metadata?.displayName || user.firstName || "")
-    setAvatarUrl(metadata?.avatarUrl || "")
-    setChatColor(metadata?.chatColor || "#FF6900")
-    setBackgroundImageEnabled(metadata?.backgroundImageEnabled || false)
+    if (user) {
+      setDisplayName(user.username)
+      // Discord avatar URL format
+      if (user.avatar) {
+        setAvatarUrl(`https://cdn.discordapp.com/avatars/${user.id}/${user.avatar}.png`)
+      }
+    }
   }, [user])
 
   const handleSave = async () => {
@@ -50,6 +48,10 @@ export function AccountSettings({ user }: AccountSettingsProps) {
     } finally {
       setSaving(false)
     }
+  }
+
+  if (!user) {
+    return <div>Loading...</div>
   }
 
   return (
@@ -114,6 +116,12 @@ export function AccountSettings({ user }: AccountSettingsProps) {
               <Label htmlFor="email">Email</Label>
               <Input id="email" value={user.email || ""} disabled />
               <p className="text-xs text-muted-foreground">Email cannot be changed</p>
+            </div>
+
+            <div className="space-y-2">
+              <Label htmlFor="discord-id">Discord ID</Label>
+              <Input id="discord-id" value={user.id} disabled />
+              <p className="text-xs text-muted-foreground">Your unique Discord identifier</p>
             </div>
           </div>
         </Card>

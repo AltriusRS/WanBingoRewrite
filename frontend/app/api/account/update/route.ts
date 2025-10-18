@@ -1,30 +1,38 @@
-import { getUser } from "@workos-inc/authkit-nextjs"
 import { NextResponse } from "next/server"
+import { buildApiPath } from "@/lib/auth"
 
 export async function POST(request: Request) {
   try {
-    const { user } = await getUser()
-    if (!user) {
+    // Get the Discord token from cookies
+    const cookies = request.headers.get("cookie")
+    if (!cookies || !cookies.includes("discord-token")) {
       return NextResponse.json({ error: "Unauthorized" }, { status: 401 })
     }
 
     const body = await request.json()
     const { displayName, avatarUrl, chatColor, backgroundImageEnabled } = body
 
-    // Update user metadata in WorkOS
-    // Note: This requires WorkOS API integration
-    // For now, we'll store in a separate database table via the Go backend
-    await fetch("http://localhost:8080/api/user/preferences", {
+    // Forward to Go backend API
+    const response = await fetch(buildApiPath("/api/user/preferences"), {
       method: "POST",
-      headers: { "Content-Type": "application/json" },
+      headers: {
+        "Content-Type": "application/json",
+        Cookie: cookies, // Forward cookies to backend
+      },
       body: JSON.stringify({
-        userId: user.id,
         displayName,
         avatarUrl,
         chatColor,
         backgroundImageEnabled,
       }),
     })
+
+    if (!response.ok) {
+      return NextResponse.json(
+        { error: "Failed to update preferences" },
+        { status: response.status }
+      )
+    }
 
     return NextResponse.json({ success: true })
   } catch (error) {

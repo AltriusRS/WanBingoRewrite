@@ -2,7 +2,7 @@ import type {Metadata} from "next";
 import {Geist, Geist_Mono} from "next/font/google";
 import "./globals.css";
 import {ChatProvider} from "@/components/chat/chat-context";
-import {AuthKitProvider} from "@workos-inc/authkit-nextjs/components";
+import {AuthProvider} from "@/components/auth";
 
 const geistSans = Geist({
     variable: "--font-geist-sans",
@@ -30,11 +30,11 @@ export default function RootLayout({
         <body
             className={`${geistSans.variable} ${geistMono.variable} antialiased`}
         >
-        <AuthKitProvider>
+        <AuthProvider>
             <ChatProvider>
                 {children}
             </ChatProvider>
-        </AuthKitProvider>
+        </AuthProvider>
         </body>
         </html>
     );
