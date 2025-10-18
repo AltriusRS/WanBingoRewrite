@@ -2,6 +2,7 @@ import Link from "next/link";
 import {Button} from "@/components/ui/button";
 import {Info, Lightbulb, Menu, Settings, Trophy, User} from "lucide-react";
 import {SuggestTileModal} from "@/components/suggest-tile-modal";
+import {ThemeSelector} from "@/components/theme-selector";
 import {useState} from "react";
 import {useAuth} from "@/components/auth";
 
@@ -54,15 +55,16 @@ export function Header() {
                              </Button>
                          </Link>
                      )}
+                     <ThemeSelector />
                      <Button
-                         variant="outline"
-                         size="sm"
-                         className="gap-2 bg-transparent"
-                         onClick={() => setIsSuggestModalOpen(true)}
-                     >
-                         <Lightbulb className="h-4 w-4"/>
-                         <span className="hidden sm:inline">Suggest Tiles</span>
-                     </Button>
+                          variant="outline"
+                          size="sm"
+                          className="gap-2 bg-transparent"
+                          onClick={() => setIsSuggestModalOpen(true)}
+                      >
+                          <Lightbulb className="h-4 w-4"/>
+                          <span className="hidden sm:inline">Suggest Tiles</span>
+                      </Button>
                     {/*<Button variant="ghost" size="sm" onClick={() => setIsChatOpen(!isChatOpen)}*/}
                     {/*        className="gap-2 md:hidden">*/}
                     {/*    <Menu className="h-4 w-4"/>*/}
