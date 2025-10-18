@@ -10,11 +10,11 @@ import {ReactNode} from "react";
 export async function postMessage(message: string): Promise<boolean> {
     try {
         const apiRoot = process.env.NEXT_PUBLIC_API_ROOT || "http://localhost:8000"
-        await fetch(`${apiRoot}/chat/message`, {
+        await fetch(`${apiRoot}/chat`, {
             method: "POST",
             headers: {"Content-Type": "application/json"},
             credentials: "include", // Include cookies for authentication
-            body: JSON.stringify({message}),
+            body: JSON.stringify({contents:message}),
         })
         return true;
     } catch (err) {
