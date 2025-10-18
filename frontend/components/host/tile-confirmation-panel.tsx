@@ -16,7 +16,7 @@ import { useHost } from "./host-context"
 export function TileConfirmationPanel() {
   const { confirmedTiles, locks } = useHost()
   const [tiles, setTiles] = useState<BingoTile[]>([])
-  const [stats, setStats] = useState<Map<string, TileStats>>(new Map())
+  // const [stats, setStats] = useState<Map<string, TileStats>>(new Map())
   const [loading, setLoading] = useState(true)
   const [selectedTile, setSelectedTile] = useState<BingoTile | null>(null)
   const [showTileIds, setShowTileIds] = useState<Set<string>>(new Set())

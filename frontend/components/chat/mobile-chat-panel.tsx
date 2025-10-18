@@ -48,12 +48,11 @@ export function MobileChatPanel({onClose}: ChatPanelProps) {
                 <div className="flex items-start justify-between gap-3">
                     <div className="min-w-0 flex-1">
                         <div className="flex flex-col">
-                            <h3 className="truncate text-md font-semibold text-foreground">{chatContext.episode.title}</h3>
-                            <h3 className="truncate text-sm font-semibold text-foreground">{chatContext.episode.date}</h3>
+                            <h3 className="truncate text-md font-semibold text-foreground">{chatContext.episode.metadata?.title}</h3>
                         </div>
                         <div className="mt-1.5 flex items-center gap-2 text-xs text-muted-foreground">
-                            <div className="flex items-center gap-1.5">
-                                {chatContext.episode.isLive ? (
+                            <div className="flex items-center gap-2">
+                                {chatContext.episode.actual_start_time ? (
                                     <>
                                         <div className="relative flex h-2 w-2">
                                             <span
@@ -65,14 +64,14 @@ export function MobileChatPanel({onClose}: ChatPanelProps) {
                                     </>
                                 ) : (
                                     <>
-                                        <Radio className="h-3 w-3"/>
+                                        <Radio className="h-4 w-4"/>
                                         <span>Scheduled</span>
                                     </>
                                 )}
                             </div>
-                            <div className="h-3 w-px bg-border"/>
+                            <div className="h-4 w-px bg-border"/>
                             <div className="truncate">
-                                {chatContext.episode.isLive ? `Live for ${chatContext.liveTime}` : `Starts ${chatContext.liveTime}`}
+                                {chatContext.episode.actual_start_time ? `Live for ${chatContext.liveTime}` : `Starts ${chatContext.liveTime}`}
                             </div>
                         </div>
                     </div>
@@ -83,14 +82,14 @@ export function MobileChatPanel({onClose}: ChatPanelProps) {
                 <div className="space-y-3">
                     {chatContext.messages.map((msg) => (
                         <div key={msg.id}>
-                            {msg.type === "user" ? (
+                            {msg.system ? (
+                                <SystemMessage msg={msg}/>
+                            ) : (
                                 <StandardMessage
                                     msg={msg}
                                     currentUserId={user?.id}
                                     isCurrentUserHost={false}
                                 />
-                            ) : (
-                                <SystemMessage msg={msg}/>
                             )}
                         </div>
                     ))}

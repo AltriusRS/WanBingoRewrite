@@ -1,4 +1,4 @@
-import React, {memo} from "react";
+import React, {memo, useMemo} from "react";
 import ReactMarkdown from "react-markdown";
 import {marked} from "marked";
 
@@ -22,7 +22,9 @@ const MemoizedMarkdownBlock = memo(
                             href={href}
                             onClick={(e) => {
                                 e.preventDefault();
-                                onLinkClick?.(href);
+                                if (onLinkClick) {
+                                    onLinkClick(href ?? "");
+                                }
                             }}
                             className="text-blue-600 underline hover:text-blue-800"
                         >
@@ -44,8 +46,6 @@ const MemoizedMarkdownBlock = memo(
 
 MemoizedMarkdownBlock.displayName = "MemoizedMarkdownBlock";
 
-import { useMemo } from "react";
-
 interface MemoizedMarkdownProps {
     content: string;
     id: string;
@@ -53,7 +53,7 @@ interface MemoizedMarkdownProps {
 }
 
 export const MemoizedMarkdown = memo(
-    ({ content, id, onLinkClick }: MemoizedMarkdownProps) => {
+    ({content, id, onLinkClick}: MemoizedMarkdownProps) => {
         const blocks = useMemo(() => parseMarkdownIntoBlocks(content), [content]);
 
         return (
