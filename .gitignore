@@ -18,6 +18,9 @@ target/
 .next/
 out/
 
+# Server
+tmp
+
 # production
 build/
 
