@@ -21,7 +21,8 @@ CREATE INDEX IF NOT EXISTS idx_timers_created_by ON timers (created_by);
 CREATE INDEX IF NOT EXISTS idx_timers_expires_at ON timers (expires_at);
 CREATE INDEX IF NOT EXISTS idx_timers_is_active ON timers (is_active);
 
-CREATE OR REPLACE TRIGGER update_timers_updated_at
+DROP TRIGGER IF EXISTS update_timers_updated_at ON timers;
+CREATE TRIGGER update_timers_updated_at
     BEFORE UPDATE
     ON timers
     FOR EACH ROW

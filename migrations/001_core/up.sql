@@ -109,31 +109,36 @@ END;
 $$ language 'plpgsql';
 
 -- Create triggers to auto-update updated_at timestamps
-CREATE OR REPLACE TRIGGER update_players_updated_at
+DROP TRIGGER IF EXISTS update_players_updated_at ON players;
+CREATE TRIGGER update_players_updated_at
     BEFORE UPDATE
     ON players
     FOR EACH ROW
 EXECUTE FUNCTION update_updated_at_column();
 
-CREATE OR REPLACE TRIGGER update_sessions_updated_at
+DROP TRIGGER IF EXISTS update_sessions_updated_at ON sessions;
+CREATE TRIGGER update_sessions_updated_at
     BEFORE UPDATE
     ON sessions
     FOR EACH ROW
 EXECUTE FUNCTION update_updated_at_column();
 
-CREATE OR REPLACE TRIGGER update_shows_updated_at
+DROP TRIGGER IF EXISTS update_shows_updated_at ON shows;
+CREATE TRIGGER update_shows_updated_at
     BEFORE UPDATE
     ON shows
     FOR EACH ROW
 EXECUTE FUNCTION update_updated_at_column();
 
-CREATE OR REPLACE TRIGGER update_tiles_updated_at
+DROP TRIGGER IF EXISTS update_tiles_updated_at ON tiles;
+CREATE TRIGGER update_tiles_updated_at
     BEFORE UPDATE
     ON tiles
     FOR EACH ROW
 EXECUTE FUNCTION update_updated_at_column();
 
-CREATE OR REPLACE TRIGGER update_show_tiles_updated_at
+DROP TRIGGER IF EXISTS update_show_tiles_updated_at ON show_tiles;
+CREATE TRIGGER update_show_tiles_updated_at
     BEFORE UPDATE
     ON show_tiles
     FOR EACH ROW

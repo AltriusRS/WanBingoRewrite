@@ -17,7 +17,8 @@ CREATE TABLE IF NOT EXISTS tile_suggestions
 CREATE INDEX IF NOT EXISTS idx_tile_suggestions_status ON tile_suggestions (status);
 CREATE INDEX IF NOT EXISTS idx_tile_suggestions_created_at ON tile_suggestions (created_at);
 
-CREATE OR REPLACE TRIGGER update_tile_suggestions_updated_at
+DROP TRIGGER IF EXISTS update_tile_suggestions_updated_at ON tile_suggestions;
+CREATE TRIGGER update_tile_suggestions_updated_at
     BEFORE UPDATE
     ON tile_suggestions
     FOR EACH ROW

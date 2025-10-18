@@ -43,12 +43,14 @@ CREATE INDEX IF NOT EXISTS idx_tile_confirmations_confirmed_by ON tile_confirmat
 CREATE INDEX IF NOT EXISTS idx_tile_confirmations_time ON tile_confirmations (confirmation_time);
 
 -- Create triggers
+DROP TRIGGER IF EXISTS update_boards_updated_at ON boards;
 CREATE TRIGGER update_boards_updated_at
     BEFORE UPDATE
     ON boards
     FOR EACH ROW
 EXECUTE FUNCTION update_updated_at_column();
 
+DROP TRIGGER IF EXISTS update_tile_confirmations_updated_at ON tile_confirmations;
 CREATE TRIGGER update_tile_confirmations_updated_at
     BEFORE UPDATE
     ON tile_confirmations

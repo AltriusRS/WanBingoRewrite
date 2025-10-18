@@ -16,7 +16,8 @@ CREATE TABLE IF NOT EXISTS messages
 CREATE INDEX IF NOT EXISTS idx_messages_show_id ON messages (show_id);
 CREATE INDEX IF NOT EXISTS idx_messages_player_id ON messages (player_id);
 
-CREATE OR REPLACE TRIGGER update_messages_updated_at
+DROP TRIGGER IF EXISTS update_messages_updated_at ON messages;
+CREATE TRIGGER update_messages_updated_at
     BEFORE UPDATE
     ON messages
     FOR EACH ROW
