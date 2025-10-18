@@ -105,19 +105,21 @@ func applyMigration(ctx context.Context, migrationDir string) error {
 	version := filepath.Base(migrationDir)
 
 	// Check if already applied
-	// Special case: 001_core creates the schema_migrations table, so skip the check for it
-	if version != "001_core" {
-		var count int
-		err := pool.QueryRow(ctx, "SELECT COUNT(*) FROM schema_migrations WHERE version = $1", version).Scan(&count)
-		if err != nil {
-			return fmt.Errorf("failed to check migration status: %w", err)
-		}
-		if count > 0 {
-			log.Printf("Migration %s already applied, skipping", version)
-			return nil
-		}
+	var count int
+	var err error
+	if version == "001_core" {
+		// For the core migration, check if the players table exists (first table created)
+		err = pool.QueryRow(ctx, "SELECT COUNT(*) FROM information_schema.tables WHERE table_name = 'players'").Scan(&count)
 	} else {
-		log.Printf("Applying core migration %s (creates schema_migrations table)", version)
+		// For other migrations, check the schema_migrations table
+		err = pool.QueryRow(ctx, "SELECT COUNT(*) FROM schema_migrations WHERE version = $1", version).Scan(&count)
+	}
+	if err != nil {
+		return fmt.Errorf("failed to check migration status: %w", err)
+	}
+	if count > 0 {
+		log.Printf("Migration %s already applied, skipping", version)
+		return nil
 	}
 
 	// Begin transaction for atomic migration
