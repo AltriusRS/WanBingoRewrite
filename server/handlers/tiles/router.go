@@ -17,6 +17,7 @@ func BuildRouter(router fiber.Router) {
 	router.Get("/me", middleware.AuthMiddleware, GetMyBoard)
 	router.Post("/me/regenerate", middleware.AuthMiddleware, RegenerateMyBoard)
 	router.Get("/anonymous", GetAnonymousBoard)
+	router.Post("/anonymous/regenerate", RegenerateAnonymousBoard)
 	router.Get("/:tile_id", GetTileByID)
 	router.Post("/confirmations", middleware.AuthMiddleware, ConfirmTile)
 }
