@@ -1,6 +1,6 @@
 -- Timers schema
 
-CREATE TABLE timers
+CREATE TABLE IF NOT EXISTS timers
 (
     id         VARCHAR(10) PRIMARY KEY,
     title      VARCHAR(200) NOT NULL,
@@ -16,12 +16,12 @@ CREATE TABLE timers
     deleted_at TIMESTAMP WITH TIME ZONE
 );
 
-CREATE INDEX idx_timers_show_id ON timers (show_id);
-CREATE INDEX idx_timers_created_by ON timers (created_by);
-CREATE INDEX idx_timers_expires_at ON timers (expires_at);
-CREATE INDEX idx_timers_is_active ON timers (is_active);
+CREATE INDEX IF NOT EXISTS idx_timers_show_id ON timers (show_id);
+CREATE INDEX IF NOT EXISTS idx_timers_created_by ON timers (created_by);
+CREATE INDEX IF NOT EXISTS idx_timers_expires_at ON timers (expires_at);
+CREATE INDEX IF NOT EXISTS idx_timers_is_active ON timers (is_active);
 
-CREATE TRIGGER update_timers_updated_at
+CREATE OR REPLACE TRIGGER update_timers_updated_at
     BEFORE UPDATE
     ON timers
     FOR EACH ROW

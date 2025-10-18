@@ -1,6 +1,6 @@
 -- Tile Suggestions schema
 
-CREATE TABLE tile_suggestions
+CREATE TABLE IF NOT EXISTS tile_suggestions
 (
     id           VARCHAR(10) PRIMARY KEY,
     name         VARCHAR(100) NOT NULL,
@@ -14,10 +14,10 @@ CREATE TABLE tile_suggestions
     deleted_at   TIMESTAMP WITH TIME ZONE
 );
 
-CREATE INDEX idx_tile_suggestions_status ON tile_suggestions (status);
-CREATE INDEX idx_tile_suggestions_created_at ON tile_suggestions (created_at);
+CREATE INDEX IF NOT EXISTS idx_tile_suggestions_status ON tile_suggestions (status);
+CREATE INDEX IF NOT EXISTS idx_tile_suggestions_created_at ON tile_suggestions (created_at);
 
-CREATE TRIGGER update_tile_suggestions_updated_at
+CREATE OR REPLACE TRIGGER update_tile_suggestions_updated_at
     BEFORE UPDATE
     ON tile_suggestions
     FOR EACH ROW

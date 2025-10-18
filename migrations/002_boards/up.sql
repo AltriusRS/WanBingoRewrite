@@ -1,7 +1,7 @@
 -- Boards and confirmations schema
 
 -- Boards table
-CREATE TABLE boards
+CREATE TABLE IF NOT EXISTS boards
 (
     id                      VARCHAR(10) PRIMARY KEY,
     player_id               VARCHAR(10) REFERENCES players (id) ON DELETE CASCADE,
@@ -18,12 +18,12 @@ CREATE TABLE boards
 );
 
 -- Create indexes for common queries
-CREATE INDEX idx_boards_player_id ON boards (player_id);
-CREATE INDEX idx_boards_show_id ON boards (show_id);
-CREATE INDEX idx_boards_winner ON boards (winner);
+CREATE INDEX IF NOT EXISTS idx_boards_player_id ON boards (player_id);
+CREATE INDEX IF NOT EXISTS idx_boards_show_id ON boards (show_id);
+CREATE INDEX IF NOT EXISTS idx_boards_winner ON boards (winner);
 
 -- Tile Confirmations table
-CREATE TABLE tile_confirmations
+CREATE TABLE IF NOT EXISTS tile_confirmations
 (
     id                VARCHAR(10) PRIMARY KEY,
     show_id           VARCHAR(10) REFERENCES shows (id) ON DELETE CASCADE,
@@ -37,10 +37,10 @@ CREATE TABLE tile_confirmations
 );
 
 -- Create indexes for common queries
-CREATE INDEX idx_tile_confirmations_show_id ON tile_confirmations (show_id);
-CREATE INDEX idx_tile_confirmations_tile_id ON tile_confirmations (tile_id);
-CREATE INDEX idx_tile_confirmations_confirmed_by ON tile_confirmations (confirmed_by);
-CREATE INDEX idx_tile_confirmations_time ON tile_confirmations (confirmation_time);
+CREATE INDEX IF NOT EXISTS idx_tile_confirmations_show_id ON tile_confirmations (show_id);
+CREATE INDEX IF NOT EXISTS idx_tile_confirmations_tile_id ON tile_confirmations (tile_id);
+CREATE INDEX IF NOT EXISTS idx_tile_confirmations_confirmed_by ON tile_confirmations (confirmed_by);
+CREATE INDEX IF NOT EXISTS idx_tile_confirmations_time ON tile_confirmations (confirmation_time);
 
 -- Create triggers
 CREATE TRIGGER update_boards_updated_at

@@ -1,6 +1,6 @@
 -- Messages schema
 
-CREATE TABLE messages
+CREATE TABLE IF NOT EXISTS messages
 (
     id         VARCHAR(10) PRIMARY KEY,
     show_id    VARCHAR(10) REFERENCES shows (id) ON DELETE CASCADE       NOT NULL,
@@ -13,10 +13,10 @@ CREATE TABLE messages
     deleted_at TIMESTAMP WITH TIME ZONE
 );
 
-CREATE INDEX idx_messages_show_id ON messages (show_id);
-CREATE INDEX idx_messages_player_id ON messages (player_id);
+CREATE INDEX IF NOT EXISTS idx_messages_show_id ON messages (show_id);
+CREATE INDEX IF NOT EXISTS idx_messages_player_id ON messages (player_id);
 
-CREATE TRIGGER update_messages_updated_at
+CREATE OR REPLACE TRIGGER update_messages_updated_at
     BEFORE UPDATE
     ON messages
     FOR EACH ROW
