@@ -1,10 +1,11 @@
 "use client"
 
 import React, {createContext, useContext, useEffect, useMemo, useState} from "react"
-import {ChatMessage, handleSocketProtocol, Show, SSEMessage} from "@/lib/chatUtils";
+import {ChatMessage, handleSocketProtocol, Show, SSEMessage, Player} from "@/lib/chatUtils";
 
 export interface ChatContextValue {
-    // ... existing fields ...
+    messages: ChatMessage[]
+    setMessages: React.Dispatch<React.SetStateAction<ChatMessage[]>>>
     memberCount: number
     setMemberCount: React.Dispatch<React.SetStateAction<number>>
     memberList: Player[]
@@ -13,7 +14,14 @@ export interface ChatContextValue {
     setMemberListLoading: React.Dispatch<React.SetStateAction<boolean>>
     memberListError: string | null
     setMemberListError: React.Dispatch<React.SetStateAction<string | null>>
-    // ... existing fields ...
+    liveTime: string
+    setLiveTime: React.Dispatch<React.SetStateAction<string>>
+    text: string
+    setText: React.Dispatch<React.SetStateAction<string>>
+    sending: boolean
+    setSending: React.Dispatch<React.SetStateAction<boolean>>
+    episode: Show
+    setEpisode: React.Dispatch<React.SetStateAction<Show>>
 }
 
 const ChatContext = createContext<ChatContextValue | null>(null)
