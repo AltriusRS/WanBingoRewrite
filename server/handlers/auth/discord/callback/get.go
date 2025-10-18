@@ -89,11 +89,18 @@ func Get(c *fiber.Ctx) error {
 
 	// Set session cookie
 	utils.Debugf("Setting session cookie for player %s with session ID: %s", player.ID, sessionID)
+	domain := os.Getenv("COOKIE_DOMAIN")
+	if domain == "" {
+		domain = ".bingo.local" // Default to parent domain for production
+	}
+
+	utils.Debugf("Using cookie domain '%s' for session cookie", domain)
+
 	c.Cookie(&fiber.Cookie{
 		Name:     "session_id",
 		Value:    sessionID,
 		Path:     "/",
-		Domain:   "api.bingo.local",                  // Specific domain for better browser compatibility
+		Domain:   domain,
 		Expires:  time.Now().Add(7 * 24 * time.Hour), // 7 days
 		HTTPOnly: true,
 		Secure:   true,   // HTTPS enabled via Caddy proxy

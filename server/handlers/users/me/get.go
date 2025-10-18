@@ -21,6 +21,7 @@ func Get(c *fiber.Ctx) error {
 			"display_name": player.DisplayName,
 			"avatar":       player.Avatar,
 			"settings":     player.Settings,
+			"permissions":  player.Permissions,
 			"score":        player.Score,
 			"created_at":   player.CreatedAt,
 			"updated_at":   player.UpdatedAt,

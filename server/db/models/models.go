@@ -83,9 +83,9 @@ type Board struct {
 	ShowID                 string     `json:"show_id" db:"show_id"`
 	Tiles                  []string   `json:"tiles" db:"tiles"`
 	Winner                 bool       `json:"winner" db:"winner"`
-	TotalScore             int        `json:"total_score" db:"total_score"`
-	PotentialScore         int        `json:"potential_score" db:"potential_score"`
-	RegenerationDiminisher int        `json:"regeneration_diminisher" db:"regeneration_diminisher"`
+	TotalScore             float64    `json:"total_score" db:"total_score"`
+	PotentialScore         float64    `json:"potential_score" db:"potential_score"`
+	RegenerationDiminisher float64    `json:"regeneration_diminisher" db:"regeneration_diminisher"`
 	CreatedAt              time.Time  `json:"created_at" db:"created_at"`
 	UpdatedAt              time.Time  `json:"updated_at" db:"updated_at"`
 	DeletedAt              *time.Time `json:"deleted_at" db:"deleted_at"`
