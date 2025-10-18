@@ -5,7 +5,7 @@ meta {
 }
 
 post {
-  url: http://localhost:8080/chat/system
+  url: https://api.bingo.local/chat/s
   body: json
   auth: bearer
 }
@@ -15,7 +15,9 @@ auth:bearer {
 }
 
 body:json {
-  {"message":"The WAN Show is scheduled to start in 20 minutes","username":"Hosts"}
+  {
+    "contents": "# A new show is starting soon.\n- Tiles have been selected for play\n- Chat has been reset\n- Leaderboard has been recalculated"
+    }
 }
 
 settings {
