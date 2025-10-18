@@ -3,7 +3,6 @@ package db
 import (
 	"context"
 	"fmt"
-	"io/ioutil"
 	"log"
 	"os"
 	"path/filepath"
@@ -78,7 +77,7 @@ func RunMigrations(ctx context.Context) error {
 
 	// Get list of migration directories
 	migrationsDir := "migrations"
-	entries, err := ioutil.ReadDir(migrationsDir)
+	entries, err := os.ReadDir(migrationsDir)
 	if err != nil {
 		return fmt.Errorf("failed to read migrations directory: %w", err)
 	}
@@ -109,35 +108,51 @@ func applyMigration(ctx context.Context, migrationDir string) error {
 	var count int
 	err := pool.QueryRow(ctx, "SELECT COUNT(*) FROM schema_migrations WHERE version = $1", version).Scan(&count)
 	if err != nil {
-		return fmt.Errorf("failed to check migration status: %w", err)
-	}
-	if count > 0 {
+		// If the schema_migrations table doesn't exist, assume this is the first run
+		// and proceed with applying migrations (the table will be created by 001_core)
+		if strings.Contains(err.Error(), "does not exist") {
+			log.Printf("schema_migrations table does not exist, assuming first run")
+		} else {
+			return fmt.Errorf("failed to check migration status: %w", err)
+		}
+	} else if count > 0 {
 		log.Printf("Migration %s already applied, skipping", version)
 		return nil
 	}
 
+	// Begin transaction for atomic migration
+	tx, err := pool.BeginTx(ctx, pgx.TxOptions{})
+	if err != nil {
+		return fmt.Errorf("failed to begin transaction: %w", err)
+	}
+	defer func() {
+		if err != nil {
+			tx.Rollback(ctx)
+		}
+	}()
+
 	// Apply up.sql
 	upPath := filepath.Join(migrationDir, "up.sql")
-	upSQL, err := ioutil.ReadFile(upPath)
+	upSQL, err := os.ReadFile(upPath)
 	if err != nil {
 		return fmt.Errorf("failed to read up.sql: %w", err)
 	}
 
-	// Split by semicolon and execute each statement
+	// Split by semicolon and execute each statement in transaction
 	statements := strings.Split(string(upSQL), ";")
 	for _, stmt := range statements {
 		stmt = strings.TrimSpace(stmt)
 		if stmt == "" {
 			continue
 		}
-		if _, err := pool.Exec(ctx, stmt); err != nil {
+		if _, err = tx.Exec(ctx, stmt); err != nil {
 			return fmt.Errorf("failed to execute statement: %w", err)
 		}
 	}
 
 	// Apply seed.sql
 	seedPath := filepath.Join(migrationDir, "seed.sql")
-	seedSQL, err := ioutil.ReadFile(seedPath)
+	seedSQL, err := os.ReadFile(seedPath)
 	if err != nil {
 		return fmt.Errorf("failed to read seed.sql: %w", err)
 	}
@@ -148,16 +163,21 @@ func applyMigration(ctx context.Context, migrationDir string) error {
 		if stmt == "" {
 			continue
 		}
-		if _, err := pool.Exec(ctx, stmt); err != nil {
+		if _, err = tx.Exec(ctx, stmt); err != nil {
 			return fmt.Errorf("failed to execute seed statement: %w", err)
 		}
 	}
 
 	// Record migration as applied
 	description := fmt.Sprintf("Applied migration %s", version)
-	_, err = pool.Exec(ctx, "INSERT INTO schema_migrations (version, description) VALUES ($1, $2)", version, description)
+	_, err = tx.Exec(ctx, "INSERT INTO schema_migrations (version, description) VALUES ($1, $2)", version, description)
 	if err != nil {
 		return fmt.Errorf("failed to record migration: %w", err)
+	}
+
+	// Commit transaction
+	if err = tx.Commit(ctx); err != nil {
+		return fmt.Errorf("failed to commit migration: %w", err)
 	}
 
 	log.Printf("Applied migration %s", version)
@@ -180,29 +200,45 @@ func RollbackMigration(ctx context.Context) error {
 		return fmt.Errorf("failed to get last migration: %w", err)
 	}
 
+	// Begin transaction for atomic rollback
+	tx, err := pool.BeginTx(ctx, pgx.TxOptions{})
+	if err != nil {
+		return fmt.Errorf("failed to begin rollback transaction: %w", err)
+	}
+	defer func() {
+		if err != nil {
+			tx.Rollback(ctx)
+		}
+	}()
+
 	migrationDir := filepath.Join("migrations", version)
 	downPath := filepath.Join(migrationDir, "down.sql")
-	downSQL, err := ioutil.ReadFile(downPath)
+	downSQL, err := os.ReadFile(downPath)
 	if err != nil {
 		return fmt.Errorf("failed to read down.sql: %w", err)
 	}
 
-	// Execute down.sql
+	// Execute down.sql in transaction
 	statements := strings.Split(string(downSQL), ";")
 	for _, stmt := range statements {
 		stmt = strings.TrimSpace(stmt)
 		if stmt == "" {
 			continue
 		}
-		if _, err := pool.Exec(ctx, stmt); err != nil {
+		if _, err = tx.Exec(ctx, stmt); err != nil {
 			return fmt.Errorf("failed to execute rollback statement: %w", err)
 		}
 	}
 
 	// Remove from migrations table
-	_, err = pool.Exec(ctx, "DELETE FROM schema_migrations WHERE version = $1", version)
+	_, err = tx.Exec(ctx, "DELETE FROM schema_migrations WHERE version = $1", version)
 	if err != nil {
 		return fmt.Errorf("failed to remove migration record: %w", err)
+	}
+
+	// Commit transaction
+	if err = tx.Commit(ctx); err != nil {
+		return fmt.Errorf("failed to commit rollback: %w", err)
 	}
 
 	log.Printf("Rolled back migration %s", version)

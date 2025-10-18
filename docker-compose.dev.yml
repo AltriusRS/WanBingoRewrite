@@ -26,6 +26,7 @@ services:
     image: wanbingoapi:dev
     volumes:
       - ./server:/go/src/app
+      - ./migrations:/go/src/app/migrations
     ports:
       - "8000:8000"
     env_file:
