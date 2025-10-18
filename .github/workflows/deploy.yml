@@ -43,6 +43,8 @@ jobs:
         with:
           context: ./frontend
           push: true
+          build-args: |
+            NEXT_PUBLIC_API_ROOT=${{ secrets.NEXT_PUBLIC_API_ROOT }}
           tags: |
             ghcr.io/${{ env.OWNER_LC }}/wanbingo-frontend:latest
             ghcr.io/${{ env.OWNER_LC }}/wanbingo-frontend:${{ github.sha }}
