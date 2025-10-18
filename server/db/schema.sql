@@ -4,6 +4,7 @@
 -- Drop tables if they exist (in reverse dependency order)
 DROP TABLE IF EXISTS messages CASCADE;
 DROP TABLE IF EXISTS tile_confirmations CASCADE;
+DROP TABLE IF EXISTS tile_suggestions CASCADE;
 DROP TABLE IF EXISTS boards CASCADE;
 DROP TABLE IF EXISTS show_tiles CASCADE;
 DROP TABLE IF EXISTS tiles CASCADE;
@@ -182,6 +183,25 @@ CREATE INDEX idx_timers_created_by ON timers (created_by);
 CREATE INDEX idx_timers_expires_at ON timers (expires_at);
 CREATE INDEX idx_timers_is_active ON timers (is_active);
 
+-- Tile Suggestions table
+CREATE TABLE tile_suggestions
+(
+    id           VARCHAR(10) PRIMARY KEY,
+    name         VARCHAR(100) NOT NULL,
+    tile_name    VARCHAR(50)  NOT NULL,
+    reason       TEXT         NOT NULL,
+    status       VARCHAR(20)  NOT NULL DEFAULT 'pending',
+    reviewed_by  VARCHAR(10)  REFERENCES players (id) ON DELETE SET NULL,
+    reviewed_at  TIMESTAMP WITH TIME ZONE,
+    created_at   TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP,
+    updated_at   TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP,
+    deleted_at   TIMESTAMP WITH TIME ZONE
+);
+
+-- Create indexes for common queries
+CREATE INDEX idx_tile_suggestions_status ON tile_suggestions (status);
+CREATE INDEX idx_tile_suggestions_created_at ON tile_suggestions (created_at);
+
 -- Create a function to update the updated_at timestamp
 CREATE OR REPLACE FUNCTION update_updated_at_column()
     RETURNS TRIGGER AS
@@ -241,6 +261,12 @@ CREATE TRIGGER update_messages_updated_at
     FOR EACH ROW
 EXECUTE FUNCTION update_updated_at_column();
 
+CREATE TRIGGER update_tile_suggestions_updated_at
+    BEFORE UPDATE
+    ON tile_suggestions
+    FOR EACH ROW
+EXECUTE FUNCTION update_updated_at_column();
+
 -- Add comments to document the schema
 COMMENT ON TABLE players IS 'Stores user account information';
 COMMENT ON TABLE sessions IS 'Stores user session tokens for authentication';
@@ -250,6 +276,7 @@ COMMENT ON TABLE show_tiles IS 'Junction table linking tiles to specific shows w
 COMMENT ON TABLE boards IS 'Stores player bingo boards for each show';
 COMMENT ON TABLE tile_confirmations IS 'Records when tiles are confirmed during a show';
 COMMENT ON TABLE messages IS 'Records all the messages sent during a given show cycle';
+COMMENT ON TABLE tile_suggestions IS 'Stores user-submitted tile suggestions for review';
 
 COMMENT ON COLUMN players.did IS 'Discord user ID from OAuth authentication';
 COMMENT ON COLUMN players.settings IS 'JSON object containing user preferences (chat_name_color, pronouns, sound_on_mention, interface_language, etc)';

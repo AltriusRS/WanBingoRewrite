@@ -137,3 +137,17 @@ type Timer struct {
 type MessageRequest struct {
 	Contents string `json:"contents" db:"contents"`
 }
+
+// TileSuggestion represents a user-submitted tile suggestion
+type TileSuggestion struct {
+	ID         string     `json:"id" db:"id"`
+	Name       string     `json:"name" db:"name"`
+	TileName   string     `json:"tile_name" db:"tile_name"`
+	Reason     string     `json:"reason" db:"reason"`
+	Status     string     `json:"status" db:"status"`
+	ReviewedBy *string    `json:"reviewed_by" db:"reviewed_by"`
+	ReviewedAt *time.Time `json:"reviewed_at" db:"reviewed_at"`
+	CreatedAt  time.Time  `json:"created_at" db:"created_at"`
+	UpdatedAt  time.Time  `json:"updated_at" db:"updated_at"`
+	DeletedAt  *time.Time `json:"deleted_at" db:"deleted_at"`
+}

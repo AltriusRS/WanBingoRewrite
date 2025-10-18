@@ -20,7 +20,7 @@ interface Suggestion {
   created_at: string
 }
 
-export function SuggestionManagementPanel() {
+export function SuggestionsPanel() {
   const [suggestions, setSuggestions] = useState<Suggestion[]>([])
   const [loading, setLoading] = useState(true)
   const [acceptingSuggestion, setAcceptingSuggestion] = useState<Suggestion | null>(null)
