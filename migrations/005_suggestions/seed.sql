@@ -1,0 +1,1 @@
+-- No seed data for tile suggestions
