@@ -9,6 +9,7 @@ import {Avatar, AvatarFallback, AvatarImage} from "@/components/ui/avatar"
 import {ArrowLeft} from "lucide-react"
 import Link from "next/link"
 import {Switch} from "@/components/ui/switch"
+import {Select, SelectContent, SelectItem, SelectTrigger, SelectValue} from "@/components/ui/select"
 import {useAuth} from "@/components/auth"
 import {getApiRoot} from "@/lib/auth";
 
@@ -19,7 +20,18 @@ export function AccountSettings() {
     const [avatarUrl, setAvatarUrl] = useState("")
     const [chatColor, setChatColor] = useState("#FF6900")
     const [backgroundImageEnabled, setBackgroundImageEnabled] = useState(false)
+    const [preferredTheme, setPreferredTheme] = useState("dark")
     const [saving, setSaving] = useState(false)
+
+    const themeOptions = [
+        { name: 'Light', value: 'light' },
+        { name: 'Dark', value: 'dark' },
+        { name: 'Winter', value: 'winter' },
+        { name: 'Halloween', value: 'halloween' },
+        { name: 'Easter', value: 'easter' },
+        { name: 'Summer', value: 'summer' },
+        { name: 'Pitch Black', value: 'pitch-black' },
+    ]
 
     useEffect(() => {
         if (user) {
@@ -30,6 +42,7 @@ export function AccountSettings() {
                 const settings = user.settings as any
                 setChatColor(settings.chatColor || "#FF6900")
                 setBackgroundImageEnabled(settings.backgroundImageEnabled || false)
+                setPreferredTheme(settings.preferredTheme || "dark")
             }
         }
     }, [user])
@@ -48,6 +61,7 @@ export function AccountSettings() {
                     settings: {
                         chatColor,
                         backgroundImageEnabled,
+                        preferredTheme,
                     },
                 }),
             })
@@ -152,16 +166,35 @@ export function AccountSettings() {
                 <Card className="p-6">
                     <h2 className="mb-4 text-lg font-semibold text-foreground">Appearance</h2>
 
-                    <div className="flex items-center justify-between">
-                        <div className="space-y-0.5">
-                            <Label htmlFor="background-toggle">Background Image</Label>
-                            <p className="text-sm text-muted-foreground">Show episode thumbnail behind bingo tiles</p>
+                    <div className="space-y-6">
+                        <div className="space-y-2">
+                            <Label htmlFor="theme-select">Preferred Theme</Label>
+                            <Select value={preferredTheme} onValueChange={setPreferredTheme}>
+                                <SelectTrigger>
+                                    <SelectValue placeholder="Select a theme" />
+                                </SelectTrigger>
+                                <SelectContent>
+                                    {themeOptions.map((theme) => (
+                                        <SelectItem key={theme.value} value={theme.value}>
+                                            {theme.name}
+                                        </SelectItem>
+                                    ))}
+                                </SelectContent>
+                            </Select>
+                            <p className="text-sm text-muted-foreground">Choose your preferred theme for the application</p>
                         </div>
-                        <Switch
-                            id="background-toggle"
-                            checked={backgroundImageEnabled}
-                            onCheckedChange={setBackgroundImageEnabled}
-                        />
+
+                        <div className="flex items-center justify-between">
+                            <div className="space-y-0.5">
+                                <Label htmlFor="background-toggle">Background Image</Label>
+                                <p className="text-sm text-muted-foreground">Show episode thumbnail behind bingo tiles</p>
+                            </div>
+                            <Switch
+                                id="background-toggle"
+                                checked={backgroundImageEnabled}
+                                onCheckedChange={setBackgroundImageEnabled}
+                            />
+                        </div>
                     </div>
                 </Card>
 

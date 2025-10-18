@@ -4,6 +4,7 @@ import "./globals.css";
 import {ChatProvider} from "@/components/chat/chat-context";
 import {AuthProvider} from "@/components/auth";
 import {ThemeProvider} from "@/components/theme-provider";
+import {UserThemeProvider} from "@/components/user-theme-provider";
 
 const geistSans = Geist({
     variable: "--font-geist-sans",
@@ -37,9 +38,11 @@ export default function RootLayout({
             disableTransitionOnChange
         >
             <AuthProvider>
-                <ChatProvider>
-                    {children}
-                </ChatProvider>
+                <UserThemeProvider>
+                    <ChatProvider>
+                        {children}
+                    </ChatProvider>
+                </UserThemeProvider>
             </AuthProvider>
         </ThemeProvider>
         </body>
