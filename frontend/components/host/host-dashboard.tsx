@@ -8,7 +8,7 @@ import { TestMessagePanel } from "./test-message-panel"
 import { TileManagementPanel } from "./tile-management-panel"
 import { SuggestionManagementPanel } from "./suggestion-management-panel"
 import { LogOut } from "lucide-react"
-import { useAuth } from "@/lib/auth"
+import { useAuth } from "@/components/auth"
 
 export function HostDashboard() {
   const { user, logout } = useAuth()
@@ -33,7 +33,7 @@ export function HostDashboard() {
             </div>
             <div>
               <h1 className="text-xl font-semibold text-foreground">Host Dashboard</h1>
-              <p className="text-sm text-muted-foreground">Logged in as {user.email}</p>
+               <p className="text-sm text-muted-foreground">Logged in as {user.display_name}</p>
             </div>
           </div>
           <Button variant="outline" size="sm" onClick={handleSignOut} className="gap-2 bg-transparent">

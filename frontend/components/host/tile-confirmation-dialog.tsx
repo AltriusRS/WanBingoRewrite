@@ -38,7 +38,7 @@ export function TileConfirmationDialog({ tile, open, onConfirm, onCancel }: Tile
 
         <div className="space-y-4 py-4">
           <div className="rounded-lg border border-border bg-muted p-4">
-            <p className="font-medium text-foreground">{tile.text}</p>
+            <p className="font-medium text-foreground">{tile.title}</p>
           </div>
 
           <div className="space-y-2">

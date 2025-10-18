@@ -14,7 +14,7 @@ import { Edit2, Trash2, Plus } from "lucide-react"
 import type { BingoTile } from "@/lib/bingoUtils"
 
 interface TileStats {
-  tileId: number
+  tileId: string
   winRate: number
   confirmRate: number
   timesConfirmed: number
@@ -23,7 +23,7 @@ interface TileStats {
 
 export function TileManagementPanel() {
   const [tiles, setTiles] = useState<BingoTile[]>([])
-  const [stats, setStats] = useState<Map<number, TileStats>>(new Map())
+  const [stats, setStats] = useState<Map<string, TileStats>>(new Map())
   const [loading, setLoading] = useState(true)
   const [editingTile, setEditingTile] = useState<BingoTile | null>(null)
   const [showAddForm, setShowAddForm] = useState(false)

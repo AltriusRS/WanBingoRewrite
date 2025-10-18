@@ -1,24 +1,15 @@
-// Discord user type
-
-export interface DiscordUser {
+// Player type
+export interface Player {
     id: string
-    username: string
-    discriminator: string
-    email: string
-    avatar: string
-    verified: boolean
+    did: string
+    display_name: string
+    avatar?: string
+    settings?: any
+    score: number
+    permissions: number
+    created_at: string
+    updated_at: string
 }
-
-// Auth context type
-interface AuthContextType {
-    user: DiscordUser | null
-    loading: boolean
-    error: string | null
-    login: () => void
-    logout: () => Promise<void>
-    refetch: () => Promise<void>
-}
-
 
 // Build API path helper
 export function buildApiPath(path: string): string {
@@ -33,19 +24,17 @@ export function buildApiPath(path: string): string {
     return apiRoot + path
 }
 
-export async function getCurrentUser(): Promise<DiscordUser | null> {
+export async function getCurrentUser(): Promise<Player | null> {
     try {
-        const response = await fetch(`${getApiRoot()}/auth/discord/user`, {
+        const response = await fetch(`${getApiRoot()}/users/me`, {
             credentials: "include", // Include cookies
         })
 
         if (response.ok) {
             const data = await response.json()
-            return data as DiscordUser
-        } else if (response.status === 401) {
-            return null
+            return data.user as Player
         } else {
-            throw new Error("Failed to fetch user")
+            return null
         }
     } catch (err) {
         console.error("Auth error:", err)
@@ -56,3 +45,23 @@ export async function getCurrentUser(): Promise<DiscordUser | null> {
 export function getApiRoot(): string {
     return process.env.NEXT_PUBLIC_API_ROOT || "http://localhost:8000"
 }
+
+export async function isHost(): Promise<boolean> {
+    try {
+        const response = await fetch(`${getApiRoot()}/users/me`, {
+            credentials: "include",
+        })
+
+        if (response.ok) {
+            const data = await response.json()
+            const user = data.user
+            // Check if user has host permission (PermCanHost = 512)
+            return (user.permissions & 512) !== 0
+        }
+        return false
+    } catch (err) {
+        console.error("Auth error:", err)
+        return false
+    }
+}
+

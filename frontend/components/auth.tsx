@@ -1,20 +1,11 @@
 "use client"
 
 import {createContext, ReactNode, useContext, useEffect, useState} from "react"
-
-// Discord user type
-export interface DiscordUser {
-    id: string
-    username: string
-    discriminator: string
-    email: string
-    avatar: string
-    verified: boolean
-}
+import { Player } from "@/lib/auth"
 
 // Auth context type
 interface AuthContextType {
-    user: DiscordUser | null
+    user: Player | null
     loading: boolean
     error: string | null
     login: () => void
@@ -31,7 +22,7 @@ function getApiRoot(): string {
 
 // Auth provider component
 export function AuthProvider({children}: { children: ReactNode }) {
-    const [user, setUser] = useState<DiscordUser | null>(null)
+    const [user, setUser] = useState<Player | null>(null)
     const [loading, setLoading] = useState(true)
     const [error, setError] = useState<string | null>(null)
 
@@ -46,10 +37,7 @@ export function AuthProvider({children}: { children: ReactNode }) {
 
             if (response.ok) {
                 const data = await response.json()
-                setUser(data.user)
-            } else if (response.status === 401) {
-                // Not authenticated
-                setUser(null)
+                setUser(data.user as Player)
             } else {
                 console.error(await response.json())
                 throw new Error("Failed to fetch user")
@@ -107,19 +95,3 @@ export function useAuth() {
     }
     return context
 }
-
-// Build API path helper
-export function buildApiPath(path: string): string {
-    const apiRoot = getApiRoot()
-
-    if (apiRoot.endsWith("/")) {
-        if (path.startsWith("/")) path = path.substring(1)
-    } else {
-        if (!path.startsWith("/")) path = "/" + path
-    }
-
-    return apiRoot + path
-}
-
-// Export API root getter
-export {getApiRoot}
