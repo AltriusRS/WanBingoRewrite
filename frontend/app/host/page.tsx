@@ -1,12 +1,13 @@
 import {getCurrentUserServer} from "@/lib/auth-server"
 import {redirect} from "next/navigation"
 import {HostDashboard} from "@/components/host/host-dashboard"
+import {getApiRoot} from "@/lib/auth";
 
 export default async function HostPage() {
     const user = await getCurrentUserServer()
 
     if (!user) {
-        redirect("/api/auth/signin")
+        redirect(`${getApiRoot()}/auth/discord/login`)
     }
 
     const isUserHost = (user.permissions & 512) !== 0
