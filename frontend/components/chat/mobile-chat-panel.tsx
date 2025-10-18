@@ -35,18 +35,15 @@ export function MobileChatPanel({onClose}: ChatPanelProps) {
     return (
         <Card className="flex h-[60vh] max-h-[60vh] flex-col rounded-b-none border-b-0">
             {/* Header */}
-            <div className="flex shrink-0 items-center justify-between border-b border-border p-3">
-                <div className="flex items-center gap-2">
+            <div className="flex flex-col shrink-0 border-b border-border p-3">
+                <h3 className="text-sm font-semibold text-foreground">WAN Show Bingo</h3>
+                <div className="flex flex-col md:flex-row items-center justify-between mt-2">
                     <ChevronDown className="h-4 w-4 text-muted-foreground"/>
-                    <div>
-                        <h3 className="text-sm font-semibold text-foreground">WAN Show Chat</h3>
-                    </div>
+                    <Button variant="ghost" size="icon" onClick={onClose} className="h-8 w-8">
+                        <X className="h-4 w-4"/>
+                    </Button>
                 </div>
-                <Button variant="ghost" size="icon" onClick={onClose} className="h-8 w-8">
-                    <X className="h-4 w-4"/>
-                </Button>
             </div>
-
             <div className="shrink-0 border-b border-border bg-card p-3">
                 <div className="flex items-start justify-between gap-3">
                     <div className="min-w-0 flex-1">
