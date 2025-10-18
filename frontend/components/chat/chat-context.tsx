@@ -2,6 +2,7 @@
 
 import React, {createContext, useContext, useEffect, useMemo, useState} from "react"
 import {ChatMessage, handleSocketProtocol, Show, SSEMessage, Player} from "@/lib/chatUtils";
+import {useAuth} from "@/components/auth";
 
 export interface ChatContextValue {
     messages: ChatMessage[]
@@ -27,6 +28,7 @@ export interface ChatContextValue {
 const ChatContext = createContext<ChatContextValue | null>(null)
 
 export function ChatProvider({children}: { children: React.ReactNode }) {
+    const {user} = useAuth()
     const [messages, setMessages] = useState<ChatMessage[]>([])
     const [memberCount, setMemberCount] = useState<number>(0)
     const [memberList, setMemberList] = useState<Player[]>([])
@@ -71,7 +73,7 @@ export function ChatProvider({children}: { children: React.ReactNode }) {
                 // Ignore keep-alives like "{}"
                 if (ev.data.trim() === "{}") return
                 const parsed = JSON.parse(ev.data) as SSEMessage;
-                handleSocketProtocol(parsed, value)
+                handleSocketProtocol(parsed, value, user)
             } catch (e) {
                 // ignore malformed events
                 console.warn("Failed to parse SSE chat event", e)
@@ -86,7 +88,8 @@ export function ChatProvider({children}: { children: React.ReactNode }) {
         return () => {
             es.close()
         }
-    }, [])
+        // eslint-disable-next-line react-hooks/exhaustive-deps
+    }, [user])
 
     return <ChatContext.Provider value={value}>{children}</ChatContext.Provider>
 }

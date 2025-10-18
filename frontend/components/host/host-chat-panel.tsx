@@ -39,7 +39,7 @@ export function HostChatPanel({onClose}: {onClose?: () => void}) {
         const interval = setInterval(updateLiveTime, 60_000, chatContext.episode, chatContext)
 
         return () => clearInterval(interval)
-    }, [chatContext.episode])
+    }, [chatContext.episode, chatContext])
 
     useEffect(() => {
         fetchLateTile()

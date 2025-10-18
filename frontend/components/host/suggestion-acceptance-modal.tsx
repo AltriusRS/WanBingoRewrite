@@ -58,7 +58,7 @@ export function SuggestionAcceptanceModal({ suggestion, onClose, onAccept }: Sug
     if (requiresTimer && !timerName) {
       setTimerName(text)
     }
-  }, [text, requiresTimer])
+  }, [text, requiresTimer, timerName])
 
   const handleSave = async () => {
     setSaving(true)

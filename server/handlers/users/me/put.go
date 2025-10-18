@@ -14,9 +14,9 @@ func Put(c *fiber.Ctx) error {
 	}
 
 	var body struct {
-		DisplayName string                 `json:"display_name"`
-		Avatar      *string                `json:"avatar"`
-		Settings    map[string]interface{} `json:"settings"`
+		DisplayName string         `json:"display_name"`
+		Avatar      *string        `json:"avatar"`
+		Settings    map[string]any `json:"settings"`
 	}
 
 	if err := c.BodyParser(&body); err != nil {

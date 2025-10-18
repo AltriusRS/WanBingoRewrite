@@ -1,8 +1,9 @@
 "use client"
 
 import {Card} from "@/components/ui/card"
-import {ChevronDown, Radio, X} from "lucide-react"
+import {ChevronDown, Radio, X, Settings} from "lucide-react"
 import {Button} from "@/components/ui/button"
+import Link from "next/link"
 import {ScrollArea} from "@/components/ui/scroll-area"
 import {Input} from "@/components/ui/input"
 import {useEffect, useRef} from "react"
@@ -37,11 +38,18 @@ export function MobileChatPanel({onClose}: ChatPanelProps) {
             {/* Header */}
             <div className="flex flex-col shrink-0 border-b border-border p-3">
                 <h3 className="text-sm font-semibold text-foreground">WAN Show Bingo</h3>
-                <div className="flex flex-col md:flex-row items-center justify-between mt-2">
+                <div className="flex items-center justify-between mt-2">
                     <ChevronDown className="h-4 w-4 text-muted-foreground"/>
-                    <Button variant="ghost" size="icon" onClick={onClose} className="h-8 w-8">
-                        <X className="h-4 w-4"/>
-                    </Button>
+                    <div className="flex items-center gap-2">
+                        <Link href="/account">
+                            <Button variant="ghost" size="icon" className="h-8 w-8">
+                                <Settings className="h-4 w-4"/>
+                            </Button>
+                        </Link>
+                        <Button variant="ghost" size="icon" onClick={onClose} className="h-8 w-8">
+                            <X className="h-4 w-4"/>
+                        </Button>
+                    </div>
                 </div>
             </div>
             <div className="shrink-0 border-b border-border bg-card p-3">

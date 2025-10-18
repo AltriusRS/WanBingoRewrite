@@ -238,7 +238,7 @@ function TileFormDialog({
     if (requiresTimer && !timerName) {
       setTimerName(text)
     }
-  }, [text, requiresTimer])
+  }, [text, requiresTimer, timerName])
 
   const handleSave = async () => {
     const newSettings: TileSettings = {

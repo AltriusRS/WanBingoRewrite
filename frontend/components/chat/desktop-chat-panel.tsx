@@ -2,7 +2,7 @@
 
 import {Card} from "@/components/ui/card"
 import Image from "next/image"
-import {MessagesSquare, Radio, Users, X} from "lucide-react"
+import {MessagesSquare, Radio, Users, Settings, X} from "lucide-react"
 import {Button} from "@/components/ui/button"
 import {ScrollArea} from "@/components/ui/scroll-area"
 import {StandardMessage} from "@/components/chat/messages/standard-message"
@@ -13,6 +13,7 @@ import {useChat} from "@/components/chat/chat-context"
 import {buildSubmitHandler, type ChatPanelProps, updateLiveTime} from "@/lib/chatUtils"
 import {useAuth} from "@/components/auth"
 import {MemberList} from "./member-list"
+import {ChatSettings} from "./chat-settings"
 import {Tabs, TabsContent, TabsList, TabsTrigger} from "@/components/ui/tabs"
 
 export function DesktopChatPanel({onClose}: ChatPanelProps) {
@@ -33,7 +34,7 @@ export function DesktopChatPanel({onClose}: ChatPanelProps) {
         const interval = setInterval(updateLiveTime, 60_000, chatContext.episode, chatContext)
 
         return () => clearInterval(interval)
-    }, [chatContext.episode])
+    }, [chatContext.episode, chatContext])
 
     return (
         <Card className="flex h-full max-h-full flex-col overflow-hidden">
@@ -44,7 +45,7 @@ export function DesktopChatPanel({onClose}: ChatPanelProps) {
                             <div className="relative -mt-6 w-full overflow-hidden rounded-md pb-[56.25%]">
                                 <iframe
                                     className="absolute left-0 top-0 h-full w-full rounded-md"
-                                    src={`https://www.youtube.com/embed/${chatContext.episode.youtube_id}?autoplay=1&mute=0&modestbranding=1&rel=0`}
+                                    src={`https://www.youtube.com/embed/${chatContext.episode.youtube_id}?autoplay=${user?.settings?.video?.autoYoutubePlayback || user?.settings?.autoYoutubePlayback ? '1' : '0'}&mute=0&modestbranding=1&rel=0`}
                                     title={`WAN Show Stream - ${chatContext.episode.metadata?.title}`}
                                     allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share"
                                     allowFullScreen
@@ -98,6 +99,10 @@ export function DesktopChatPanel({onClose}: ChatPanelProps) {
                         <TabsTrigger value="members" className="text-xs">
                             <Users className="mr-1 h-3 w-3"/>
                             Members
+                        </TabsTrigger>
+                        <TabsTrigger value="settings" className="text-xs">
+                            <Settings className="mr-1 h-3 w-3"/>
+                            Settings
                         </TabsTrigger>
                     </TabsList>
                     <Button variant="ghost" size="icon" onClick={onClose} className="h-8 w-8 md:hidden">
@@ -155,6 +160,10 @@ export function DesktopChatPanel({onClose}: ChatPanelProps) {
 
                 <TabsContent value="members" className="mt-0 flex-1 overflow-hidden">
                     <MemberList/>
+                </TabsContent>
+
+                <TabsContent value="settings" className="mt-0 flex-1 overflow-hidden">
+                    <ChatSettings/>
                 </TabsContent>
             </Tabs>
         </Card>

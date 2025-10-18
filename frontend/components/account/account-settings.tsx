@@ -26,8 +26,8 @@ export function AccountSettings() {
     const [saving, setSaving] = useState(false)
 
     const themeOptions = [
+        { name: 'WAN Show', value: 'dark' },
         { name: 'Light', value: 'light' },
-        { name: 'Dark', value: 'dark' },
         { name: 'Winter', value: 'winter' },
         { name: 'Halloween', value: 'halloween' },
         { name: 'Easter', value: 'easter' },

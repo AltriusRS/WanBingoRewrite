@@ -170,7 +170,7 @@ export interface SSEMessage {
 }
 
 
-export function handleSocketProtocol(protoMessage: SSEMessage, ctx: ChatContextValue) {
+export function handleSocketProtocol(protoMessage: SSEMessage, ctx: ChatContextValue, user?: any) {
     switch (protoMessage.opcode) {
         case "chat.members.count":
             ctx.setMemberCount(() => protoMessage.data.count);
@@ -182,7 +182,7 @@ export function handleSocketProtocol(protoMessage: SSEMessage, ctx: ChatContextV
             break;
 
         case 'chat.message':
-            return handleChatMessage(protoMessage.data as ChatMessage, ctx);
+            return handleChatMessage(protoMessage.data as ChatMessage, ctx, user);
 
         case 'whenplane.aggregate':
             const aggregate = protoMessage.data as Show;
@@ -195,13 +195,31 @@ export function handleSocketProtocol(protoMessage: SSEMessage, ctx: ChatContextV
 }
 
 
-async function handleChatMessage(msg: ChatMessage, ctx: ChatContextValue) {
+async function handleChatMessage(msg: ChatMessage, ctx: ChatContextValue, user?: any) {
     // Truncate the list to 100 messages
 
     if (ctx.messages.filter((s) => s.id === msg.id).length > 0) {
         // Duplicate message - skip
         return;
     }
+
+    // Check for mentions and play sound if enabled
+    if (user && msg.player_id !== user.id) { // Don't notify for own messages
+        const userName = user.display_name || user.id;
+        const messageText = msg.message || '';
+        const isMentioned = messageText.toLowerCase().includes(`@${userName.toLowerCase()}`) ||
+                           messageText.toLowerCase().includes(`@${user.id}`) ||
+                           (userName !== user.id && messageText.toLowerCase().includes(userName.toLowerCase()));
+
+        if (isMentioned) {
+            const soundEnabled = user.settings?.chat?.soundOnMention !== false &&
+                               user.settings?.soundOnMention !== false;
+            if (soundEnabled) {
+                playMentionSound();
+            }
+        }
+    }
+
     ctx.setMessages((prev) => {
         if (prev.length > 99) {
             return [...prev.slice(1, 100), msg]
@@ -211,6 +229,30 @@ async function handleChatMessage(msg: ChatMessage, ctx: ChatContextValue) {
     });
 }
 
+
+function playMentionSound() {
+    try {
+        // Create a simple beep sound using Web Audio API
+        const audioContext = new (window.AudioContext || (window as any).webkitAudioContext)();
+        const oscillator = audioContext.createOscillator();
+        const gainNode = audioContext.createGain();
+
+        oscillator.connect(gainNode);
+        gainNode.connect(audioContext.destination);
+
+        oscillator.frequency.setValueAtTime(800, audioContext.currentTime);
+        oscillator.frequency.setValueAtTime(600, audioContext.currentTime + 0.1);
+
+        gainNode.gain.setValueAtTime(0.3, audioContext.currentTime);
+        gainNode.gain.exponentialRampToValueAtTime(0.01, audioContext.currentTime + 0.3);
+
+        oscillator.start(audioContext.currentTime);
+        oscillator.stop(audioContext.currentTime + 0.3);
+    } catch (error) {
+        // Fallback: try to play a system sound or just log
+        console.log('Mention notification');
+    }
+}
 
 const timeZone = "America/Vancouver";
 

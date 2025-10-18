@@ -1,6 +1,6 @@
 "use client"
 
-import {useEffect, useState} from "react"
+import {useCallback, useEffect, useState} from "react"
 import {Card} from "@/components/ui/card"
 import {BingoBoardProps, BingoTile as IBingoTile, fetchBoardFromAPI, regenerateBoardAPI, BoardData} from "@/lib/bingoUtils";
 import {useChat} from "@/components/chat/chat-context";
@@ -14,12 +14,12 @@ export function BingoBoard({onWin}: BingoBoardProps) {
     const [hasWon, setHasWon] = useState(false)
     const [regenerationCount, setRegenerationCount] = useState(0)
 
-    const resetBoard = async (e: unknown) => {
+    const resetBoard = useCallback(async (e: unknown) => {
         const boardData = await fetchBoardFromAPI()
         setTiles(boardData.tiles)
         setRegenerationCount(getRegenerationCount(boardData.regenerationDiminisher))
         setHasWon(false)
-    }
+    }, [])
 
     const getRegenerationCount = (diminisher: number): number => {
         if (diminisher === 1) return 0
@@ -51,7 +51,7 @@ export function BingoBoard({onWin}: BingoBoardProps) {
     useEffect(() => {
         resetBoard(undefined).then(r => {
         })
-    }, [])
+    }, [resetBoard])
 
     return (
         <div className="flex h-full flex-col grow justify-start items-center">

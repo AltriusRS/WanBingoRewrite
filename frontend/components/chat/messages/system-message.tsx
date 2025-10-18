@@ -39,7 +39,7 @@ export function SystemMessage({msg}: StandardMessageProps) {
                         <DialogHeader>
                             <DialogTitle>External Link</DialogTitle>
                         </DialogHeader>
-                        <div className="py-2">You're about to open: {clickedUrl}</div>
+                        <div className="py-2">You&apos;re about to open: {clickedUrl}</div>
                         <DialogFooter className="flex gap-2 justify-end">
                             <Button
                                 onClick={() => {

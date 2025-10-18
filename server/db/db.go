@@ -147,11 +147,6 @@ func applyMigration(ctx context.Context, migrationDir string) error {
 		return fmt.Errorf("failed to execute up.sql: %w", err)
 	}
 
-	// Execute the entire up.sql file in a single transaction
-	if _, err = tx.Exec(ctx, string(upSQL)); err != nil {
-		return fmt.Errorf("failed to execute up.sql: %w", err)
-	}
-
 	// Apply seed.sql
 	seedPath := filepath.Join(migrationDir, "seed.sql")
 	seedSQL, err := os.ReadFile(seedPath)
