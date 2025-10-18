@@ -20,6 +20,9 @@ out/
 
 # Server
 tmp
+server/wanshow-bingo
+server/server
+server/samples
 
 # production
 build/

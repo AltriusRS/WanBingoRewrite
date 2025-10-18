@@ -19,6 +19,7 @@ CREATE TABLE players
     avatar       TEXT,
     settings     JSONB                    DEFAULT '{}'::jsonb,
     score        INTEGER                  DEFAULT 0,
+    permissions  BIGINT                   DEFAULT 0,
     created_at   TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP,
     updated_at   TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP,
     deleted_at   TIMESTAMP WITH TIME ZONE
@@ -157,6 +158,29 @@ CREATE TABLE messages
 CREATE INDEX idx_messages_show_id ON messages (show_id);
 CREATE INDEX idx_messages_player_id ON messages (player_id);
 
+-- Timers table
+CREATE TABLE timers
+(
+    id         VARCHAR(10) PRIMARY KEY,
+    title      VARCHAR(200) NOT NULL,
+    duration   INTEGER      NOT NULL, -- Duration in seconds
+    created_by VARCHAR(10)  REFERENCES players (id) ON DELETE SET NULL,
+    show_id    VARCHAR(10) REFERENCES shows (id) ON DELETE CASCADE,
+    starts_at  TIMESTAMP WITH TIME ZONE,
+    expires_at TIMESTAMP WITH TIME ZONE,
+    is_active  BOOLEAN                  DEFAULT FALSE,
+    settings   JSONB                    DEFAULT '{}'::jsonb,
+    created_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP,
+    updated_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP,
+    deleted_at TIMESTAMP WITH TIME ZONE
+);
+
+-- Create indexes for common queries
+CREATE INDEX idx_timers_show_id ON timers (show_id);
+CREATE INDEX idx_timers_created_by ON timers (created_by);
+CREATE INDEX idx_timers_expires_at ON timers (expires_at);
+CREATE INDEX idx_timers_is_active ON timers (is_active);
+
 -- Create a function to update the updated_at timestamp
 CREATE OR REPLACE FUNCTION update_updated_at_column()
     RETURNS TRIGGER AS
@@ -233,19 +257,47 @@ COMMENT ON COLUMN shows.metadata IS 'JSON object containing additional show data
 COMMENT ON COLUMN boards.tiles IS 'Array of tile IDs representing the player''s bingo board layout';
 
 
-INSERT INTO public.shows (id, youtube_id, scheduled_time, actual_start_time, thumbnail, metadata, created_at,
+insert into public.shows (id, youtube_id, scheduled_time, actual_start_time, thumbnail, metadata, created_at,
                           updated_at, deleted_at)
-VALUES ('Y2kz75uBC8', 'YVHXYqMPyzc', '2025-10-11 00:30:00.000000 +00:00', '2025-10-11 00:05:06.000000 +00:00',
+values ('OmipPXoq22', null, '2025-10-24 23:30:00.000000 +00:00', null,
+        'https://pbs.floatplane.com/stream_thumbnails/5c13f3c006f1be15e08e05c0/519128595136666_1760744141891.jpeg', '{
+    "title": "Pixel Phones Finally Blowing Up",
+    "youtube": {
+      "title": "Pixel Phones Finally Blowing Up - WAN Show October 17, 2025",
+      "is_live": false,
+      "upcoming": false,
+      "video_id": null
+    },
+    "floatplane": {
+      "title": "Pixel Phones Finally Blowing Up - WAN Show October 17, 2025",
+      "is_wan": true,
+      "is_live": false,
+      "thumbnail": "https://pbs.floatplane.com/stream_thumbnails/5c13f3c006f1be15e08e05c0/519128595136666_1760744141891.jpeg",
+      "is_thumbnail_new": false
+    }
+  }', '2025-10-10 23:46:40.000000 +00:00', '2025-10-18 09:19:41.312790 +00:00', null),
+       ('Y2kz75uBC8', null, '2025-10-10 23:30:00.000000 +00:00', null,
         'https://pbs.floatplane.com/stream_thumbnails/5c13f3c006f1be15e08e05c0/733054221374526_1760139634263.jpeg', '{
-    "title": "Piracy Is Dangerous And Harmful",
-    "fp_vod": "w3A5fKcfTi"
-  }', '2025-10-10 23:46:40.000000 +00:00', '2025-10-16 19:12:58.692094 +00:00', null);
-
+         "title": "Hello Floatplane! - WAN Show October 17, 2025",
+         "youtube": {
+           "title": "Hello Floatplane! - WAN Show October 17, 2025",
+           "is_live": false,
+           "upcoming": false,
+           "video_id": null
+         },
+         "floatplane": {
+           "title": "Hello Floatplane! - WAN Show October 17, 2025",
+           "is_wan": false,
+           "is_live": false,
+           "thumbnail": "https://pbs.floatplane.com/stream_thumbnails/5c13f3c006f1be15e08e05c0/733054221374526_1760139634263.jpeg",
+           "is_thumbnail_new": false
+         }
+       }', '2025-10-10 23:46:40.000000 +00:00', '2025-10-17 22:20:28.791709 +00:00', null);
 
 
 -- Insert the "deleted user" placeholder account
 -- This account is used to attribute data from deleted users
-INSERT INTO players (id, did, display_name, avatar, settings, score, created_at, updated_at)
+INSERT INTO players (id, did, display_name, avatar, settings, score, permissions, created_at, updated_at)
 VALUES ('DELETED',
         '0',
         '[Deleted User]',
@@ -253,6 +305,7 @@ VALUES ('DELETED',
         '{
           "system_account": true
         }'::jsonb,
+        0,
         0,
         CURRENT_TIMESTAMP,
         CURRENT_TIMESTAMP),
@@ -263,6 +316,7 @@ VALUES ('DELETED',
         '{
           "system_account": true
         }'::jsonb,
+        0,
         0,
         CURRENT_TIMESTAMP,
         CURRENT_TIMESTAMP)
@@ -370,3 +424,4 @@ VALUES ('pYhro7iTSQ', 'Linus or Luke or Dan sighs', 'Events', NOW()),
        ('Xkq3e-6Efn', 'Linus Theft/Legal Tips', 'Events', NOW()),
        ('juZ0aAds-9', 'Linus talks about an upcoming product/video', 'Linus', NOW()),
        ('Ws6Y4nd9KB', 'Special Guest on Stream (Anyone but DLL)', 'Set/Production', NOW());
+
