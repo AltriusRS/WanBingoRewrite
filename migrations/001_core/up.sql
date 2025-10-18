@@ -1,7 +1,7 @@
 -- Core schema: players, sessions, shows, tiles, show_tiles
 
 -- Players table
-CREATE TABLE players
+CREATE TABLE IF NOT EXISTS players
 (
     id           VARCHAR(10) PRIMARY KEY,
     did          VARCHAR(20) UNIQUE NOT NULL,
@@ -16,10 +16,10 @@ CREATE TABLE players
 );
 
 -- Create index on Discord ID for faster lookups
-CREATE INDEX idx_players_did ON players (did);
+CREATE INDEX IF NOT EXISTS idx_players_did ON players (did);
 
 -- Sessions table
-CREATE TABLE sessions
+CREATE TABLE IF NOT EXISTS sessions
 (
     id         VARCHAR(32) PRIMARY KEY,
     player_id  VARCHAR(10) REFERENCES players (id) ON DELETE CASCADE,
@@ -30,12 +30,12 @@ CREATE TABLE sessions
 );
 
 -- Create index on player_id for faster lookups
-CREATE INDEX idx_sessions_player_id ON sessions (player_id);
+CREATE INDEX IF NOT EXISTS idx_sessions_player_id ON sessions (player_id);
 -- Create index on expires_at for cleanup queries
-CREATE INDEX idx_sessions_expires_at ON sessions (expires_at);
+CREATE INDEX IF NOT EXISTS idx_sessions_expires_at ON sessions (expires_at);
 
 -- Shows table
-CREATE TABLE shows
+CREATE TABLE IF NOT EXISTS shows
 (
     id                VARCHAR(10) PRIMARY KEY,
     youtube_id        VARCHAR(20) UNIQUE,
@@ -49,11 +49,11 @@ CREATE TABLE shows
 );
 
 -- Create index on scheduled_time for querying upcoming/past shows
-CREATE INDEX idx_shows_scheduled_time ON shows (scheduled_time);
-CREATE INDEX idx_shows_youtube_id ON shows (youtube_id);
+CREATE INDEX IF NOT EXISTS idx_shows_scheduled_time ON shows (scheduled_time);
+CREATE INDEX IF NOT EXISTS idx_shows_youtube_id ON shows (youtube_id);
 
 -- Tiles table
-CREATE TABLE tiles
+CREATE TABLE IF NOT EXISTS tiles
 (
     id         VARCHAR(10) PRIMARY KEY,
     title      VARCHAR(200) NOT NULL,
@@ -69,12 +69,12 @@ CREATE TABLE tiles
 );
 
 -- Create indexes for common queries
-CREATE INDEX idx_tiles_category ON tiles (category);
-CREATE INDEX idx_tiles_created_by ON tiles (created_by);
-CREATE INDEX idx_tiles_last_drawn ON tiles (last_drawn);
+CREATE INDEX IF NOT EXISTS idx_tiles_category ON tiles (category);
+CREATE INDEX IF NOT EXISTS idx_tiles_created_by ON tiles (created_by);
+CREATE INDEX IF NOT EXISTS idx_tiles_last_drawn ON tiles (last_drawn);
 
 -- Show Tiles junction table
-CREATE TABLE show_tiles
+CREATE TABLE IF NOT EXISTS show_tiles
 (
     show_id    VARCHAR(10) REFERENCES shows (id) ON DELETE CASCADE,
     tile_id    VARCHAR(10) REFERENCES tiles (id) ON DELETE CASCADE,
@@ -87,11 +87,11 @@ CREATE TABLE show_tiles
 );
 
 -- Create indexes for common queries
-CREATE INDEX idx_show_tiles_show_id ON show_tiles (show_id);
-CREATE INDEX idx_show_tiles_tile_id ON show_tiles (tile_id);
+CREATE INDEX IF NOT EXISTS idx_show_tiles_show_id ON show_tiles (show_id);
+CREATE INDEX IF NOT EXISTS idx_show_tiles_tile_id ON show_tiles (tile_id);
 
 -- Migrations table for tracking applied migrations
-CREATE TABLE schema_migrations
+CREATE TABLE IF NOT EXISTS schema_migrations
 (
     version     VARCHAR(20) PRIMARY KEY,
     applied_at  TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP,
@@ -109,31 +109,31 @@ END;
 $$ language 'plpgsql';
 
 -- Create triggers to auto-update updated_at timestamps
-CREATE TRIGGER update_players_updated_at
+CREATE OR REPLACE TRIGGER update_players_updated_at
     BEFORE UPDATE
     ON players
     FOR EACH ROW
 EXECUTE FUNCTION update_updated_at_column();
 
-CREATE TRIGGER update_sessions_updated_at
+CREATE OR REPLACE TRIGGER update_sessions_updated_at
     BEFORE UPDATE
     ON sessions
     FOR EACH ROW
 EXECUTE FUNCTION update_updated_at_column();
 
-CREATE TRIGGER update_shows_updated_at
+CREATE OR REPLACE TRIGGER update_shows_updated_at
     BEFORE UPDATE
     ON shows
     FOR EACH ROW
 EXECUTE FUNCTION update_updated_at_column();
 
-CREATE TRIGGER update_tiles_updated_at
+CREATE OR REPLACE TRIGGER update_tiles_updated_at
     BEFORE UPDATE
     ON tiles
     FOR EACH ROW
 EXECUTE FUNCTION update_updated_at_column();
 
-CREATE TRIGGER update_show_tiles_updated_at
+CREATE OR REPLACE TRIGGER update_show_tiles_updated_at
     BEFORE UPDATE
     ON show_tiles
     FOR EACH ROW
