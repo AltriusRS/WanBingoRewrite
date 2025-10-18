@@ -11,7 +11,7 @@ export default function Home() {
     const [isChatOpen, setIsChatOpen] = useState(true)
 
     const handleWin = () => {
-        console.log("Bingo!")
+        // Handle bingo win
     }
 
     return (

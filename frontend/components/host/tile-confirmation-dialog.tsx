@@ -10,11 +10,12 @@ import type { BingoTile } from "@/lib/bingoUtils"
 interface TileConfirmationDialogProps {
   tile: BingoTile | null
   open: boolean
+  revokeMode: boolean
   onConfirm: (context: string) => void
   onCancel: () => void
 }
 
-export function TileConfirmationDialog({ tile, open, onConfirm, onCancel }: TileConfirmationDialogProps) {
+export function TileConfirmationDialog({ tile, open, revokeMode, onConfirm, onCancel }: TileConfirmationDialogProps) {
   const [context, setContext] = useState("")
 
   const handleConfirm = () => {
@@ -33,7 +34,7 @@ export function TileConfirmationDialog({ tile, open, onConfirm, onCancel }: Tile
     <Dialog open={open} onOpenChange={(open) => !open && handleCancel()}>
       <DialogContent>
         <DialogHeader>
-          <DialogTitle>Confirm Tile</DialogTitle>
+          <DialogTitle>{revokeMode ? "Revoke Confirmation" : "Confirm Tile"}</DialogTitle>
         </DialogHeader>
 
         <div className="space-y-4 py-4">
@@ -41,24 +42,34 @@ export function TileConfirmationDialog({ tile, open, onConfirm, onCancel }: Tile
             <p className="font-medium text-foreground">{tile.title}</p>
           </div>
 
-          <div className="space-y-2">
-            <Label htmlFor="context">Context (optional)</Label>
-            <Input
-              id="context"
-              placeholder="e.g., during sponsor segment"
-              value={context}
-              onChange={(e) => setContext(e.target.value)}
-              maxLength={100}
-            />
-            <p className="text-xs text-muted-foreground">Add optional context about when this occurred</p>
-          </div>
+          {!revokeMode && (
+            <div className="space-y-2">
+              <Label htmlFor="context">Context (optional)</Label>
+              <Input
+                id="context"
+                placeholder="e.g., during sponsor segment"
+                value={context}
+                onChange={(e) => setContext(e.target.value)}
+                maxLength={100}
+              />
+              <p className="text-xs text-muted-foreground">Add optional context about when this occurred</p>
+            </div>
+          )}
+
+          {revokeMode && (
+            <p className="text-sm text-muted-foreground">
+              Are you sure you want to revoke the confirmation for this tile?
+            </p>
+          )}
         </div>
 
         <DialogFooter>
           <Button variant="outline" onClick={handleCancel}>
             Cancel
           </Button>
-          <Button onClick={handleConfirm}>Confirm Tile</Button>
+          <Button variant={revokeMode ? "destructive" : "default"} onClick={handleConfirm}>
+            {revokeMode ? "Revoke Confirmation" : "Confirm Tile"}
+          </Button>
         </DialogFooter>
       </DialogContent>
     </Dialog>

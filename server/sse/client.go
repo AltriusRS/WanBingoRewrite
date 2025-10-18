@@ -7,7 +7,6 @@ import (
 	"time"
 	"wanshow-bingo/db"
 	"wanshow-bingo/db/models"
-	"wanshow-bingo/utils"
 	"wanshow-bingo/whenplane"
 
 	"github.com/gofiber/fiber/v2"
@@ -131,8 +130,6 @@ func (c *Client) Stop() {
 
 // write sends a single SSE data frame and flushes the Writer.
 func (c *Client) write(msg string) error {
-	utils.Debugln("[SSE ClientChannel] - Sending message:", msg)
-
 	if c.Writer == nil {
 		return nil
 	}
@@ -146,7 +143,6 @@ func (c *Client) write(msg string) error {
 		return err
 	}
 
-	utils.Debugln("[SSE ClientChannel] - Sent message:", msg)
 	return nil
 }
 
@@ -195,21 +191,21 @@ func SendChatHistory(c *Client) {
 		return
 	}
 
-	// Get all players for the chat history to include player info
-	players, err := db.GetAllPlayers(context.Background())
-	if err != nil {
-		log.Printf("[SSE ClientChannel] - Failed to retrieve players for chat history - %v", err)
-		// Continue without player info
-		players = []models.Player{}
-	}
-
-	// Create a map of player IDs to player info for quick lookup
+	// Get online players from the hub
 	playerMap := make(map[string]map[string]interface{})
-	for _, player := range players {
-		playerMap[player.ID] = map[string]interface{}{
-			"id":           player.ID,
-			"display_name": player.DisplayName,
-			"avatar":       player.Avatar,
+	if c.Hub != nil {
+		for _, client := range c.Hub.GetClients() {
+			if client.IsAuthenticated && client.Player != nil {
+				player := client.Player
+				playerMap[player.ID] = map[string]interface{}{
+					"id":           player.ID,
+					"display_name": player.DisplayName,
+					"avatar":       player.Avatar,
+					"permissions":  player.Permissions,
+					"settings":     player.Settings,
+					"created_at":   player.CreatedAt,
+				}
+			}
 		}
 	}
 
@@ -219,7 +215,20 @@ func SendChatHistory(c *Client) {
 
 	// Send chat history
 	for _, msg := range history {
-		msgEvent := BuildEvent("chat.message", msg)
+		// Attach player info to message
+		messageWithPlayer := map[string]interface{}{
+			"id":         msg.ID,
+			"show_id":    msg.ShowID,
+			"player_id":  msg.PlayerID,
+			"contents":   msg.Contents,
+			"system":     msg.System,
+			"replying":   msg.Replying,
+			"created_at": msg.CreatedAt,
+			"updated_at": msg.UpdatedAt,
+			"deleted_at": msg.DeletedAt,
+			"player":     playerMap[msg.PlayerID],
+		}
+		msgEvent := BuildEvent("chat.message", messageWithPlayer)
 		c.Send(msgEvent.String())
 	}
 

@@ -12,6 +12,7 @@ import (
 
 	"github.com/gofiber/fiber/v2"
 	"github.com/google/uuid"
+	gonanoid "github.com/matoous/go-nanoid/v2"
 )
 
 type ConfirmTileRequest struct {
@@ -47,9 +48,11 @@ func ConfirmTile(c *fiber.Ctx) error {
 		return c.Status(fiber.StatusInternalServerError).JSON(utils.NewApiError("Failed to get current show", 500))
 	}
 
+	id, _ := gonanoid.New(10)
+
 	// Create tile confirmation
 	confirmation := &models.TileConfirmation{
-		ID:               uuid.New().String(),
+		ID:               id,
 		ShowID:           latestShow.ID,
 		TileID:           req.TileID,
 		ConfirmedBy:      &player.ID,
@@ -66,19 +69,21 @@ func ConfirmTile(c *fiber.Ctx) error {
 	// Save to database
 	err = db.PersistTileConfirmation(ctx, confirmation)
 	if err != nil {
+		utils.Debugf("Failed to save confirmation - %v", err)
 		return c.Status(fiber.StatusInternalServerError).JSON(utils.NewApiError("Failed to save confirmation", 500))
 	}
 
 	// Get the tile details for the message
 	tile, err := db.GetTileByID(ctx, req.TileID)
 	if err != nil {
+		utils.Debugf("Failed to get tile details - %v", err)
 		return c.Status(fiber.StatusInternalServerError).JSON(utils.NewApiError("Failed to get tile details", 500))
 	}
 
 	// Create system message
 	messageContent := "**TILE CONFIRMED** " + tile.Title
 	if req.Context != "" {
-		messageContent = "**TILE CONFIRMED**\n" + tile.Title + "\n> Context: " + req.Context
+		messageContent = "**TILE CONFIRMED**\n\n" + tile.Title + "\n\n> Context: " + req.Context
 	}
 
 	systemMessage := &models.Message{
@@ -103,6 +108,18 @@ func ConfirmTile(c *fiber.Ctx) error {
 		chatHub.BroadcastEvent("chat.message", systemMessage)
 	} else {
 		log.Printf("Warning: Chat hub not available for broadcasting")
+	}
+
+	// Broadcast tile confirmation to host hub
+	utils.Debugf("[TileConfirm] Broadcasting tile confirmation for tile %s", req.TileID)
+	hostHub := sse.GetHostHub()
+	if hostHub != nil {
+		hostHub.BroadcastEvent("tile.confirm", fiber.Map{
+			"tileId": req.TileID,
+		})
+		utils.Debugf("[TileConfirm] Broadcasted tile.confirm event for tile %s", req.TileID)
+	} else {
+		utils.Debugf("[TileConfirm] Host hub not available for broadcasting tile confirmation")
 	}
 
 	return c.JSON(fiber.Map{

@@ -4,6 +4,7 @@ import (
 	"context"
 	"errors"
 	"log"
+	"wanshow-bingo/avatar"
 	"wanshow-bingo/db/models"
 
 	"github.com/jackc/pgx/v5"
@@ -118,14 +119,20 @@ func FindOrCreatePlayer(ctx context.Context, discordUser *models.DiscordUser, tx
 		)
 
 		if err == nil {
-			// Player exists, update their info if needed
-			_, err = tx[0].Exec(ctx, `
-				UPDATE players
-				SET display_name = $1, avatar = $2, updated_at = CURRENT_TIMESTAMP
-				WHERE id = $3
-			`, discordUser.Username+"#"+discordUser.Discriminator, discordUser.Avatar, player.ID)
+			// Player exists, update avatar if needed
+			avatarURL, err := avatar.UploadDiscordAvatar(discordUser.ID, discordUser.Avatar, player.ID)
 			if err != nil {
-				log.Printf("database: failed to update player: %v", err)
+				log.Printf("database: failed to upload avatar: %v", err)
+				// Continue without updating avatar
+			} else if avatarURL != "" {
+				_, err = tx[0].Exec(ctx, `
+					UPDATE players
+					SET avatar = $1, updated_at = CURRENT_TIMESTAMP
+					WHERE id = $2
+				`, avatarURL, player.ID)
+				if err != nil {
+					log.Printf("database: failed to update player avatar: %v", err)
+				}
 			}
 			return &player, nil
 		}
@@ -137,10 +144,18 @@ func FindOrCreatePlayer(ctx context.Context, discordUser *models.DiscordUser, tx
 		// Player doesn't exist, create new one
 		playerID, _ := gonanoid.New(10)
 		defaultPerms := models.DefaultPermissions()
+
+		// Upload avatar
+		avatarURL, err := avatar.UploadDiscordAvatar(discordUser.ID, discordUser.Avatar, playerID)
+		if err != nil {
+			log.Printf("database: failed to upload avatar for new player: %v", err)
+			avatarURL = "" // Continue without avatar
+		}
+
 		_, err = tx[0].Exec(ctx, `
 			INSERT INTO players (id, did, display_name, avatar, settings, score, permissions)
 			VALUES ($1, $2, $3, $4, $5, $6, $7)
-		`, playerID, discordUser.ID, discordUser.Username+"#"+discordUser.Discriminator, discordUser.Avatar, "{}", 0, uint64(defaultPerms))
+		`, playerID, discordUser.ID, discordUser.Username+"#"+discordUser.Discriminator, avatarURL, "{}", 0, uint64(defaultPerms))
 
 		if err != nil {
 			return nil, err
@@ -168,14 +183,20 @@ func FindOrCreatePlayer(ctx context.Context, discordUser *models.DiscordUser, tx
 		)
 
 		if err == nil {
-			// Player exists, update their info if needed
-			_, err = pool.Exec(ctx, `
-				UPDATE players
-				SET display_name = $1, avatar = $2, updated_at = CURRENT_TIMESTAMP
-				WHERE id = $3
-			`, discordUser.Username+"#"+discordUser.Discriminator, discordUser.Avatar, player.ID)
+			// Player exists, update avatar if needed
+			avatarURL, err := avatar.UploadDiscordAvatar(discordUser.ID, discordUser.Avatar, player.ID)
 			if err != nil {
-				log.Printf("database: failed to update player: %v", err)
+				log.Printf("database: failed to upload avatar: %v", err)
+				// Continue without updating avatar
+			} else if avatarURL != "" {
+				_, err = pool.Exec(ctx, `
+					UPDATE players
+					SET avatar = $1, updated_at = CURRENT_TIMESTAMP
+					WHERE id = $2
+				`, avatarURL, player.ID)
+				if err != nil {
+					log.Printf("database: failed to update player avatar: %v", err)
+				}
 			}
 			return &player, nil
 		}
@@ -187,10 +208,18 @@ func FindOrCreatePlayer(ctx context.Context, discordUser *models.DiscordUser, tx
 		// Player doesn't exist, create new one
 		playerID, _ := gonanoid.New(10)
 		defaultPerms := models.DefaultPermissions()
+
+		// Upload avatar
+		avatarURL, err := avatar.UploadDiscordAvatar(discordUser.ID, discordUser.Avatar, playerID)
+		if err != nil {
+			log.Printf("database: failed to upload avatar for new player: %v", err)
+			avatarURL = "" // Continue without avatar
+		}
+
 		_, err = pool.Exec(ctx, `
 			INSERT INTO players (id, did, display_name, avatar, settings, score, permissions)
 			VALUES ($1, $2, $3, $4, $5, $6, $7)
-		`, playerID, discordUser.ID, discordUser.Username+"#"+discordUser.Discriminator, discordUser.Avatar, "{}", 0, uint64(defaultPerms))
+		`, playerID, discordUser.ID, discordUser.Username+"#"+discordUser.Discriminator, avatarURL, "{}", 0, uint64(defaultPerms))
 
 		if err != nil {
 			return nil, err

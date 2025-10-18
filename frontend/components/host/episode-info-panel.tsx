@@ -6,11 +6,13 @@ import { Button } from "@/components/ui/button"
 import { Clock } from "lucide-react"
 import { useChat } from "@/components/chat/chat-context"
 import { getApiRoot } from "@/lib/auth"
+import { toast } from "sonner"
 import type { BingoTile } from "@/lib/bingoUtils"
 
 export function EpisodeInfoPanel() {
   const { episode, liveTime } = useChat()
   const [lateTile, setLateTile] = useState<BingoTile | null>(null)
+
 
   useEffect(() => {
     fetchLateTile()
@@ -43,13 +45,14 @@ export function EpisodeInfoPanel() {
       })
 
       if (!response.ok) {
-        throw new Error("Failed to confirm tile")
+        const errorText = await response.text()
+        throw new Error(`Failed to confirm tile: ${response.status} ${errorText}`)
       }
 
-      alert("Show Is Late confirmed!")
+      toast.success("Show Is Late has been confirmed successfully.")
     } catch (error) {
       console.error("Failed to confirm late tile:", error)
-      alert("Failed to confirm Show Is Late")
+      toast.error(error instanceof Error ? error.message : "An error occurred")
     }
   }
 
