@@ -4,7 +4,7 @@
 FROM golang:1.25-alpine AS dev
 WORKDIR /go/src/app
 
-# Install air once – it’s a tiny binary (~5 MB)
+# Install air once – it’s a tiny binary (~5MB)
 RUN go install github.com/air-verse/air@latest
 
 # Copy deps so `air` can run `go build` without re‑downloading every time

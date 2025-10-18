@@ -1,16 +1,27 @@
 package whenplane
 
 import (
-	"sync/atomic"
+	"errors"
+	"sync"
+	"wanshow-bingo/db/models"
 )
 
-// aggregateCache stores the latest aggregate JSON payload as raw bytes.
-var aggregateCache atomic.Value // holds []byte
+var (
+	mu             sync.RWMutex
+	aggregateCache *models.Show
+)
 
-func GetAggregateCache() Aggregate {
-	return aggregateCache.Load().(Aggregate)
+func SetAggregateCache(a *models.Show) {
+	mu.Lock()
+	defer mu.Unlock()
+	aggregateCache = a
 }
 
-func UpdateAggregateCache(aggregate Aggregate) {
-	aggregateCache.Store(aggregate)
+func GetAggregateCache() (*models.Show, error) {
+	mu.RLock()
+	defer mu.RUnlock()
+	if aggregateCache == nil {
+		return nil, errors.New("aggregate cache empty")
+	}
+	return aggregateCache, nil
 }

@@ -25,7 +25,7 @@ services:
       dockerfile: Dockerfile.dev
     image: wanbingoapi:dev
     volumes:
-      - ./server:/app
+      - ./server:/go/src/app
     ports:
       - "8000:8000"
     env_file:

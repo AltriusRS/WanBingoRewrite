@@ -157,3 +157,16 @@ package handlers
 //
 //	return c.JSON(fiber.Map{"status": "ok"})
 //}
+
+//app.Post("/chat/system", func(c *fiber.Ctx) error {
+//	password := os.Getenv("HOST_PASSWORD")
+//	if c.Get("Authorization") != "Bearer "+password {
+//		return c.Status(fiber.StatusUnauthorized).JSON(fiber.Map{"error": "unauthorized"})
+//	}
+//	return handlers.SendSystemMessage(c, hub)
+//})
+//
+//app.Post("/chat/message", func(c *fiber.Ctx) error {
+//	// TODO: Make this endpoint require authorization of some variety.
+//	return handlers.SendChatMessage(c, hub)
+//})

@@ -14,7 +14,7 @@ func init() {
 	app = fiber.New()
 
 	app.Use(cors.New(cors.Config{
-		AllowOrigins:     "http://localhost:7999", // your frontend origin
+		AllowOrigins:     "https://app.bingo.local,https://discord.com", // your frontend origin and Discord
 		AllowHeaders:     "Origin, Content-Type, Accept, Authorization",
 		AllowCredentials: true, // REQUIRED for cookies or Auth headers
 	}))
@@ -43,15 +43,6 @@ func StartRouter(port string) {
 		port = "3000"
 	}
 
-	routes := app.GetRoutes()
-
-	log.Println("Registered routes:")
-	for _, route := range routes {
-		log.Println(route.Method, route.Path)
-	}
-	log.Println("")
-
-	log.Printf("🚀 Server running on http://localhost:%s", port)
 	log.Fatal(app.Listen(":" + port))
 }
 

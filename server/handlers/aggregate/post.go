@@ -3,7 +3,7 @@ package aggregaterouter
 import (
 	"os"
 	"wanshow-bingo/whenplane"
-	whensocket "wanshow-bingo/whenplane/socket"
+	"wanshow-bingo/whenplane/watcher"
 
 	"github.com/gofiber/fiber/v2"
 )
@@ -21,13 +21,6 @@ func Post(c *fiber.Ctx) error {
 		return err
 	}
 
-	whenplane.UpdateAggregateCache(payload)
-
-	err = whensocket.BroadcastToHubs()
-
-	if err != nil {
-		return c.Status(fiber.StatusInternalServerError).JSON(fiber.Map{"error": err})
-	}
-
+	watcher.AggregateChan <- &payload
 	return c.SendStatus(fiber.StatusOK)
 }
