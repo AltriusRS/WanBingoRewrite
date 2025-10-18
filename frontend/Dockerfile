@@ -11,12 +11,13 @@ RUN bun install --frozen-lockfile
 
 # Copy source code
 COPY . .
+RUN rm -rf .env .env.example
 
 # Build the application
 RUN bun run build
 
 # Production stage
-FROM node:18-alpine AS runner
+FROM node:24-alpine AS runner
 
 WORKDIR /app
 

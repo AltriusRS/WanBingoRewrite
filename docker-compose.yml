@@ -12,23 +12,23 @@ services:
       - postgres_data:/var/lib/postgresql/18/docker
 
   api:
-    image: ghcr.io/yourusername/wanbingo-api:latest
+    image: ghcr.io/altriusrs/wanbingo-api:latest
     restart: unless-stopped
     ports:
       - "8000:8000"
-    environment:
-      - DATABASE_URL=${DATABASE_URL}
+    env_file:
+      - .env.server
       # Add other env vars as needed
     depends_on:
       - database
 
   app:
-    image: ghcr.io/yourusername/wanbingo-frontend:latest
+    image: ghcr.io/altriusrs/wanbingo-frontend:latest
     restart: unless-stopped
     ports:
-      - "3000:3000"
-    environment:
-      - NEXT_PUBLIC_API_URL=${NEXT_PUBLIC_API_URL}
+      - "7999:7999"
+    env_file:
+      - .env.frontend
       # Add other env vars as needed
 
   caddy:

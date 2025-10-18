@@ -12,10 +12,10 @@
 
 # ────────────────────────────────────────
 # Front‑end domain – serves the SPA (app:7999)
-app.bingo.local {
+bingo-demo.totallyfake.dev {
     # TLS – either auto or use your own certs
-    # tls internal          # for a self‑signed cert (dev only)
-    # tls /etc/certs/fullchain.pem /etc/certs/privkey.pem  # for real certs
+    tls internal          # for a self‑signed cert (dev only)
+    # tls totallyfake.dev.crt totallyfake.dev.key  # for real certs
 
     reverse_proxy app:7999 {
         header_up X-Real-IP {remote}
@@ -32,9 +32,10 @@ app.bingo.local {
 
 # ────────────────────────────────────────
 # API domain – includes SSE endpoint (api:8000)
-api.bingo.local {
+api.bingo-demo.totallyfake.dev {
     # TLS – same options as above
-    # tls internal
+    tls internal          # for a self‑signed cert (dev only)
+    # tls totallyfake.dev.crt totallyfake.dev.key
 
     reverse_proxy api:8000 {
         header_up X-Real-IP {remote}

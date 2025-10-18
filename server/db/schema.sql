@@ -1,4 +1,5 @@
 -- WAN Bingo Database Schema
+-- CREATE DATABASE bingo;
 
 -- Drop tables if they exist (in reverse dependency order)
 DROP TABLE IF EXISTS messages CASCADE;
