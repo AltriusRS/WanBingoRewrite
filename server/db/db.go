@@ -108,19 +108,23 @@ func applyMigration(ctx context.Context, migrationDir string) error {
 	var count int
 	var err error
 	if version == "001_core" {
-		// For the core migration, check if the players table exists (first table created)
-		err = pool.QueryRow(ctx, "SELECT COUNT(*) FROM information_schema.tables WHERE table_name = 'players'").Scan(&count)
+		// For the core migration, check if schema_migrations table exists
+		// If it exists, then the core migration has been applied
+		err = pool.QueryRow(ctx, "SELECT COUNT(*) FROM information_schema.tables WHERE table_schema = 'public' AND table_name = 'schema_migrations'").Scan(&count)
 	} else {
 		// For other migrations, check the schema_migrations table
 		err = pool.QueryRow(ctx, "SELECT COUNT(*) FROM schema_migrations WHERE version = $1", version).Scan(&count)
 	}
 	if err != nil {
-		return fmt.Errorf("failed to check migration status: %w", err)
+		// If we can't query (table doesn't exist), assume migration not applied
+		log.Printf("Migration %s status check failed (%v), assuming not applied", version, err)
+		count = 0
 	}
 	if count > 0 {
 		log.Printf("Migration %s already applied, skipping", version)
 		return nil
 	}
+	log.Printf("Migration %s not applied yet, proceeding with application", version)
 
 	// Begin transaction for atomic migration
 	tx, err := pool.BeginTx(ctx, pgx.TxOptions{})
