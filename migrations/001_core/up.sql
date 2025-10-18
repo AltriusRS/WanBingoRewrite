@@ -90,6 +90,14 @@ CREATE TABLE show_tiles
 CREATE INDEX idx_show_tiles_show_id ON show_tiles (show_id);
 CREATE INDEX idx_show_tiles_tile_id ON show_tiles (tile_id);
 
+-- Migrations table for tracking applied migrations
+CREATE TABLE schema_migrations
+(
+    version     VARCHAR(20) PRIMARY KEY,
+    applied_at  TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP,
+    description TEXT
+);
+
 -- Create a function to update the updated_at timestamp
 CREATE OR REPLACE FUNCTION update_updated_at_column()
     RETURNS TRIGGER AS
