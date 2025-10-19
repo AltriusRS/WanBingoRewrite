@@ -50,7 +50,7 @@ services:
       - /var/run/docker.sock:/var/run/docker.sock
     environment:
       - WATCHTOWER_CLEANUP=true
-      - WATCHTOWER_SCHEDULE=0 2 * * 1-5
+      - WATCHTOWER_SCHEDULE=*/5 * * * 1-5
     restart: unless-stopped
 
 volumes:
