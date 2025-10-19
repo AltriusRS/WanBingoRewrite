@@ -28,7 +28,7 @@ export function SuggestTileModal({ open, onOpenChange, onSubmit }: SuggestTileMo
       setSubmitting(true)
 
       try {
-        await fetch(`${getApiRoot()}/api/suggestions`, {
+        await fetch(`${getApiRoot()}/suggestions`, {
           method: "POST",
           headers: { "Content-Type": "application/json" },
           body: JSON.stringify({ name, tileName, reason }),

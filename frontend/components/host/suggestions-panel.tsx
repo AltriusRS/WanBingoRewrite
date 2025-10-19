@@ -31,7 +31,7 @@ export function SuggestionsPanel() {
 
   const fetchSuggestions = async () => {
     try {
-      const response = await fetch(`${getApiRoot()}/api/suggestions`, {
+      const response = await fetch(`${getApiRoot()}/suggestions`, {
         credentials: "include",
       })
       if (!response.ok) {
@@ -51,7 +51,7 @@ export function SuggestionsPanel() {
 
   const updateSuggestionStatus = async (id: string, status: string) => {
     try {
-      const response = await fetch(`${getApiRoot()}/api/suggestions/${id}`, {
+      const response = await fetch(`${getApiRoot()}/suggestions/${id}`, {
         method: "PUT",
         headers: { "Content-Type": "application/json" },
         credentials: "include",

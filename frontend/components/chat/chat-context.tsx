@@ -66,7 +66,9 @@ export function ChatProvider({ children }: { children: React.ReactNode }) {
 
   useEffect(() => {
     const apiRoot = process.env.NEXT_PUBLIC_API_ROOT || "http://localhost:8000"
-    const es = new EventSource(`${apiRoot}/chat/stream`)
+    const es = new EventSource(`${apiRoot}/chat/stream`, {
+      withCredentials: true,
+    })
 
     es.onmessage = (ev) => {
       try {
