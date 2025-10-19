@@ -128,7 +128,6 @@ func UpdateTile(c *fiber.Ctx) error {
 		log.Printf("Failed to get tile %s: %v", tileID, err)
 		return c.Status(fiber.StatusNotFound).JSON(utils.NewApiError("Tile not found", 404))
 	}
-
 	log.Printf("Existing tile settings: %+v", tile.Settings)
 
 	// Update fields
