@@ -27,6 +27,13 @@ interface Timer {
     updated_at: string
 }
 
+interface Show {
+    id: string
+    state: string
+    scheduled_time?: string
+    actual_start_time?: string
+}
+
 interface TileConfirmationPanelProps {
   showLateButton?: boolean
   columns?: number
@@ -454,9 +461,9 @@ export function TileConfirmationPanel({ showLateButton, columns = 3 }: TileConfi
                             </div>
                         </div>
                     )}
-                 <div className="columns-2 gap-4" style={{columnFill: 'balance'}}>
-                     {categories.map((category) => (
-                         <div key={category} className="bg-muted p-4 rounded-lg mb-4 break-inside-avoid" style={{width: '100%'}}>
+                  <div style={{columnWidth: '550px', columnGap: '1rem'}}>
+                      {categories.map((category) => (
+                          <div key={category} className="bg-muted p-4 rounded-lg mb-4" style={{breakInside: 'avoid'}}>
                              <h3 className="mb-3 font-semibold text-foreground text-lg flex items-center gap-2">
                                  {category}
                                  <span className="text-sm text-muted-foreground flex items-center gap-1">
