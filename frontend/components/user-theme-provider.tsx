@@ -12,6 +12,7 @@ export function UserThemeProvider({ children }: { children: React.ReactNode }) {
         if (user?.settings) {
             const settings = user.settings as any
             let preferredTheme = "dark"
+            let font = "default"
 
             // Check nested structure first, then fallback to flat structure
             if (settings.themes?.preferred) {
@@ -20,9 +21,24 @@ export function UserThemeProvider({ children }: { children: React.ReactNode }) {
                 preferredTheme = settings.preferredTheme
             }
 
+            if (settings.appearance?.font) {
+                font = settings.appearance.font
+            }
+
             if (preferredTheme) {
                 setTheme(preferredTheme)
             }
+
+            // Apply font
+            let fontFamily = 'inherit'
+            if (settings.appearance?.dyslexicFriendlyFont) {
+                fontFamily = 'Arial, sans-serif' // Simple dyslexia friendly font
+            } else if (font === 'serif') {
+                fontFamily = 'serif'
+            } else if (font === 'sans-serif') {
+                fontFamily = 'sans-serif'
+            }
+            document.body.style.fontFamily = fontFamily
         }
     }, [user, setTheme])
 

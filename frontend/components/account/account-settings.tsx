@@ -30,6 +30,8 @@ export function AccountSettings() {
     const [showMultiplier, setShowMultiplier] = useState(true)
     const [boardTextSize, setBoardTextSize] = useState("medium")
     const [hostPanelTextSize, setHostPanelTextSize] = useState("medium")
+    const [font, setFont] = useState("default")
+    const [dyslexicFriendlyFont, setDyslexicFriendlyFont] = useState(false)
     const [saving, setSaving] = useState(false)
 
     const themeOptions = [
@@ -96,6 +98,12 @@ export function AccountSettings() {
                 if (settings.appearance?.hostPanel?.textSize) {
                     setHostPanelTextSize(settings.appearance.hostPanel.textSize)
                 }
+                if (settings.appearance?.font) {
+                    setFont(settings.appearance.font)
+                }
+                if (settings.appearance?.dyslexicFriendlyFont !== undefined) {
+                    setDyslexicFriendlyFont(settings.appearance.dyslexicFriendlyFont)
+                }
             }
         }
     }, [user])
@@ -137,6 +145,8 @@ export function AccountSettings() {
                               hostPanel: {
                                   textSize: hostPanelTextSize,
                               },
+                              font,
+                              dyslexicFriendlyFont,
                           },
                     },
                 }),
@@ -281,6 +291,33 @@ export function AccountSettings() {
                              </SelectContent>
                          </Select>
                          <p className="text-sm text-muted-foreground">Choose the size of text on host panel tiles</p>
+                     </div>
+
+                     <div className="space-y-2">
+                         <Label htmlFor="font">Font</Label>
+                         <Select value={font} onValueChange={setFont}>
+                             <SelectTrigger>
+                                 <SelectValue placeholder="Select font" />
+                             </SelectTrigger>
+                             <SelectContent>
+                                 <SelectItem value="default">Default</SelectItem>
+                                 <SelectItem value="serif">Serif</SelectItem>
+                                 <SelectItem value="sans-serif">Sans Serif</SelectItem>
+                             </SelectContent>
+                         </Select>
+                         <p className="text-sm text-muted-foreground">Choose the font for the website</p>
+                     </div>
+
+                     <div className="flex items-center justify-between">
+                         <div className="space-y-0.5">
+                             <Label htmlFor="dyslexic-friendly-font">Dyslexia Friendly Font</Label>
+                             <p className="text-sm text-muted-foreground">Use a font designed for people with dyslexia</p>
+                         </div>
+                         <Switch
+                             id="dyslexic-friendly-font"
+                             checked={dyslexicFriendlyFont}
+                             onCheckedChange={setDyslexicFriendlyFont}
+                         />
                      </div>
                  </Card>
 
