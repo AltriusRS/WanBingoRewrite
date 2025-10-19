@@ -22,6 +22,7 @@ type Player struct {
 type DiscordUser struct {
 	ID            string `json:"id"`
 	Username      string `json:"username"`
+	GlobalName    string `json:"global_name"`
 	Discriminator string `json:"discriminator"`
 	Email         string `json:"email"`
 	Avatar        string `json:"avatar"`

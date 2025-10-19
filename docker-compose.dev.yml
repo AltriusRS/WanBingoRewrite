@@ -34,7 +34,6 @@ services:
     depends_on:
       - database
 
-
   app:
     build:
       context: ./frontend
@@ -47,7 +46,6 @@ services:
     env_file:
       - ./frontend/.env
 
-
   caddy:
     image: caddy:2.4.6
     ports:
@@ -57,10 +55,10 @@ services:
       - app
       - api
     volumes:
-      - ./Caddyfile:/etc/caddy/Caddyfile
+      - ./Caddyfile.dev:/etc/caddy/Caddyfile
       - caddy_data:/data
-
 
 volumes:
   caddy_data:
   postgres_data:
+
