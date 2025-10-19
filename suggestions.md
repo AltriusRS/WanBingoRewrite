@@ -10,6 +10,7 @@
 - [x] Add dyslexia friendly font toggle
 - [x] Limit bingo board height
 - [x] Persist bingo board state in local storage
+- [x] Hide chat on mobile by default
 
 Below are some suggestions for improvements to the project.
 
@@ -68,3 +69,8 @@ Below are some suggestions for improvements to the project.
 > [!note]
 > Could even be persisted to the database too so that it can be restored across
 > sessions for the same user. Allowing multiple devices to be used at the same time.
+
+- Hide chat on mobile by default.
+
+> [!note]
+> This would be because it makes the available view very crowded and cramped, for a feature most people cannot use without being signed in, which we don't expect too many folks to be able to do.
