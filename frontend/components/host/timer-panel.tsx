@@ -5,7 +5,7 @@ import {Card} from "@/components/ui/card"
 import {Button} from "@/components/ui/button"
 import {Input} from "@/components/ui/input"
 import {Label} from "@/components/ui/label"
-import {Pause, Play, Plus, Trash2} from "lucide-react"
+import {Pause, Play, Plus, RotateCcw, Trash2} from "lucide-react"
 import {getApiRoot} from "@/lib/auth";
 
 interface Timer {
@@ -27,6 +27,7 @@ export function TimerPanel() {
     const [newTimerTitle, setNewTimerTitle] = useState("")
     const [newTimerDuration, setNewTimerDuration] = useState("")
     const [currentTime, setCurrentTime] = useState(new Date())
+    const [expiredTimers, setExpiredTimers] = useState<Set<string>>(new Set())
 
     useEffect(() => {
         fetchTimers()
@@ -36,6 +37,48 @@ export function TimerPanel() {
         }, 1000)
         return () => clearInterval(interval)
     }, [])
+
+    // Check for expired timers and play audio cue
+    useEffect(() => {
+        timers.forEach(timer => {
+            if (timer.is_active && timer.expires_at) {
+                const expires = new Date(timer.expires_at)
+                const timeLeft = expires.getTime() - currentTime.getTime()
+
+                if (timeLeft <= 0 && !expiredTimers.has(timer.id)) {
+                    // Timer just expired, play sound
+                    setExpiredTimers(prev => new Set(prev).add(timer.id))
+                    playExpirationSound()
+                } else if (timeLeft > 1000 && expiredTimers.has(timer.id)) {
+                    // Timer was reset, remove from expired set
+                    setExpiredTimers(prev => {
+                        const newSet = new Set(prev)
+                        newSet.delete(timer.id)
+                        return newSet
+                    })
+                }
+            }
+        })
+    }, [currentTime, timers, expiredTimers])
+
+    const playExpirationSound = () => {
+        // Create a simple beep sound
+        const audioContext = new (window.AudioContext || (window as any).webkitAudioContext)()
+        const oscillator = audioContext.createOscillator()
+        const gainNode = audioContext.createGain()
+
+        oscillator.connect(gainNode)
+        gainNode.connect(audioContext.destination)
+
+        oscillator.frequency.setValueAtTime(800, audioContext.currentTime)
+        oscillator.frequency.setValueAtTime(600, audioContext.currentTime + 0.1)
+
+        gainNode.gain.setValueAtTime(0.3, audioContext.currentTime)
+        gainNode.gain.exponentialRampToValueAtTime(0.01, audioContext.currentTime + 0.5)
+
+        oscillator.start(audioContext.currentTime)
+        oscillator.stop(audioContext.currentTime + 0.5)
+    }
 
     const fetchTimers = async () => {
         try {
@@ -101,6 +144,18 @@ export function TimerPanel() {
         }
     }
 
+    const resetTimer = async (id: string) => {
+        try {
+            await fetch(`${getApiRoot()}/timers/${id}/reset`, {
+                method: "POST",
+                credentials: "include",
+            })
+            fetchTimers()
+        } catch (error) {
+            console.error("Failed to reset timer:", error)
+        }
+    }
+
     const formatTime = (expiresAt?: string) => {
         if (!expiresAt) return "00:00"
         const expires = new Date(expiresAt)
@@ -160,17 +215,32 @@ export function TimerPanel() {
                                 {formatTime(timer.expires_at)} / {timer.duration}s
                             </div>
                         </div>
-                        <Button
-                            variant="ghost"
-                            size="icon"
-                            className="h-6 w-6 absolute top-1 right-1"
-                            onClick={(e) => {
-                                e.stopPropagation()
-                                deleteTimer(timer.id)
-                            }}
-                        >
-                            <Trash2 className="h-3 w-3"/>
-                        </Button>
+                        <div className="flex gap-1 absolute top-1 right-1">
+                            <Button
+                                variant="ghost"
+                                size="icon"
+                                className="h-5 w-5"
+                                onClick={(e) => {
+                                    e.stopPropagation()
+                                    resetTimer(timer.id)
+                                }}
+                                title="Reset timer"
+                            >
+                                <RotateCcw className="h-3 w-3"/>
+                            </Button>
+                            <Button
+                                variant="ghost"
+                                size="icon"
+                                className="h-5 w-5"
+                                onClick={(e) => {
+                                    e.stopPropagation()
+                                    deleteTimer(timer.id)
+                                }}
+                                title="Delete timer"
+                            >
+                                <Trash2 className="h-3 w-3"/>
+                            </Button>
+                        </div>
                         {timer.is_active ? (
                             <Pause className="ml-2 h-4 w-4 text-green-500 flex-shrink-0"/>
                         ) : (

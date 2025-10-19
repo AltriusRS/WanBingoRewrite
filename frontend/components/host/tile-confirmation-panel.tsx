@@ -6,7 +6,7 @@ import {Button} from "@/components/ui/button"
 import {ScrollArea} from "@/components/ui/scroll-area"
 import {TileConfirmationDialog} from "./tile-confirmation-dialog"
 import type {BingoTile} from "@/lib/bingoUtils"
-import {CheckCircle2, Clock, Hash, Lock, Play} from "lucide-react"
+import {CheckCircle2, Clock, Hash, Lock, Pause, Play, RotateCcw, Trash2} from "lucide-react"
 import {getApiRoot} from "@/lib/auth";
 import {toast} from "sonner"
 import {useHost} from "./host-context"
@@ -36,6 +36,7 @@ export function TileConfirmationPanel() {
     const [revokeMode, setRevokeMode] = useState(false)
     const [timers, setTimers] = useState<Timer[]>([])
     const [currentTime, setCurrentTime] = useState(new Date())
+    const [selectedTimer, setSelectedTimer] = useState<Timer | null>(null)
 
     useEffect(() => {
         fetchTiles()
@@ -55,6 +56,50 @@ export function TileConfirmationPanel() {
         const mins = Math.floor(diff / 60)
         const secs = diff % 60
         return `${mins}:${secs.toString().padStart(2, "0")}`
+    }
+
+    const handleTimerClick = (timer: Timer) => {
+        setSelectedTimer(timer)
+    }
+
+    const toggleTimer = async (id: string) => {
+        try {
+            const timer = timers.find(t => t.id === id)
+            if (!timer) return
+
+            const action = timer.is_active ? "stop" : "start"
+            await fetch(`${getApiRoot()}/timers/${id}/${action}`, {
+                method: "POST",
+                credentials: "include",
+            })
+            fetchTimers()
+        } catch (error) {
+            console.error("Failed to toggle timer:", error)
+        }
+    }
+
+    const resetTimer = async (id: string) => {
+        try {
+            await fetch(`${getApiRoot()}/timers/${id}/reset`, {
+                method: "POST",
+                credentials: "include",
+            })
+            fetchTimers()
+        } catch (error) {
+            console.error("Failed to reset timer:", error)
+        }
+    }
+
+    const deleteTimer = async (id: string) => {
+        try {
+            await fetch(`${getApiRoot()}/timers/${id}`, {
+                method: "DELETE",
+                credentials: "include",
+            })
+            fetchTimers()
+        } catch (error) {
+            console.error("Failed to delete timer:", error)
+        }
     }
 
     // Debug logging for state changes
@@ -308,7 +353,8 @@ export function TileConfirmationPanel() {
                             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-2">
                                  {timers.map((timer) => (
                                      <div key={timer.id}
-                                          className="flex items-center justify-between p-2 bg-muted rounded border">
+                                          className="flex items-center justify-between p-2 bg-muted rounded border cursor-pointer hover:bg-muted/80 transition-colors"
+                                          onClick={() => handleTimerClick(timer)}>
                                          <div className="flex-1">
                                              <span className="font-medium text-sm">{timer.title}</span>
                                              <div className="text-xs text-muted-foreground">
@@ -381,6 +427,166 @@ export function TileConfirmationPanel() {
                 onCancel={handleCancel}
                 onStartTimer={handleStartTimer}
             />
+
+            {/* Timer Control Dialog */}
+            {selectedTimer && (
+                <TimerControlDialog
+                    timer={selectedTimer}
+                    open={!!selectedTimer}
+                    onClose={() => setSelectedTimer(null)}
+                    onToggle={toggleTimer}
+                    onReset={resetTimer}
+                    onDelete={deleteTimer}
+                    currentTime={currentTime}
+                />
+            )}
         </>
+    )
+}
+
+// Timer Control Dialog Component
+interface TimerControlDialogProps {
+    timer: Timer
+    open: boolean
+    onClose: () => void
+    onToggle: (id: string) => void
+    onReset: (id: string) => void
+    onDelete: (id: string) => void
+    currentTime: Date
+}
+
+function TimerControlDialog({ timer, open, onClose, onToggle, onReset, onDelete, currentTime }: TimerControlDialogProps) {
+    const formatTime = (expiresAt?: string) => {
+        if (!expiresAt) return "00:00"
+        const expires = new Date(expiresAt)
+        const diff = Math.max(0, Math.floor((expires.getTime() - currentTime.getTime()) / 1000))
+        const mins = Math.floor(diff / 60)
+        const secs = diff % 60
+        return `${mins}:${secs.toString().padStart(2, "0")}`
+    }
+
+    const formatDateTime = (dateString: string) => {
+        return new Date(dateString).toLocaleString()
+    }
+
+    if (!open) return null
+
+    return (
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-background/80">
+            <Card className="w-full max-w-md p-6">
+                <div className="space-y-4">
+                    <div className="flex items-center justify-between">
+                        <h3 className="text-lg font-semibold">Timer Controls</h3>
+                        <Button variant="ghost" size="icon" onClick={onClose}>
+                            ×
+                        </Button>
+                    </div>
+
+                    <div className="space-y-3">
+                        <div className="rounded-lg border border-border bg-muted p-4">
+                            <div className="flex items-center gap-2 mb-2">
+                                <Clock className="h-5 w-5" />
+                                <span className="font-medium">{timer.title}</span>
+                            </div>
+
+                            <div className="grid grid-cols-2 gap-4 text-sm">
+                                <div>
+                                    <span className="text-muted-foreground">Status:</span>
+                                    <div className="flex items-center gap-2 mt-1">
+                                        {timer.is_active ? (
+                                            <>
+                                                <div className="w-2 h-2 bg-green-500 rounded-full"></div>
+                                                <span>Active</span>
+                                            </>
+                                        ) : (
+                                            <>
+                                                <div className="w-2 h-2 bg-gray-400 rounded-full"></div>
+                                                <span>Stopped</span>
+                                            </>
+                                        )}
+                                    </div>
+                                </div>
+
+                                <div>
+                                    <span className="text-muted-foreground">Time Left:</span>
+                                    <div className="font-mono text-lg mt-1">
+                                        {formatTime(timer.expires_at)}
+                                    </div>
+                                </div>
+
+                                <div>
+                                    <span className="text-muted-foreground">Duration:</span>
+                                    <div className="mt-1">{timer.duration}s</div>
+                                </div>
+
+                                <div>
+                                    <span className="text-muted-foreground">Created:</span>
+                                    <div className="text-xs mt-1">
+                                        {formatDateTime(timer.created_at)}
+                                    </div>
+                                </div>
+
+                                {timer.starts_at && (
+                                    <div>
+                                        <span className="text-muted-foreground">Started:</span>
+                                        <div className="text-xs mt-1">
+                                            {formatDateTime(timer.starts_at)}
+                                        </div>
+                                    </div>
+                                )}
+
+                                {timer.expires_at && (
+                                    <div>
+                                        <span className="text-muted-foreground">Expires:</span>
+                                        <div className="text-xs mt-1">
+                                            {formatDateTime(timer.expires_at)}
+                                        </div>
+                                    </div>
+                                )}
+                            </div>
+                        </div>
+
+                        <div className="flex gap-2">
+                            <Button
+                                variant="outline"
+                                onClick={() => onToggle(timer.id)}
+                                className="flex-1"
+                            >
+                                {timer.is_active ? (
+                                    <>
+                                        <Pause className="h-4 w-4 mr-2" />
+                                        Stop
+                                    </>
+                                ) : (
+                                    <>
+                                        <Play className="h-4 w-4 mr-2" />
+                                        Start
+                                    </>
+                                )}
+                            </Button>
+
+                            <Button
+                                variant="outline"
+                                onClick={() => onReset(timer.id)}
+                                className="flex-1"
+                            >
+                                <RotateCcw className="h-4 w-4 mr-2" />
+                                Reset
+                            </Button>
+
+                            <Button
+                                variant="destructive"
+                                onClick={() => {
+                                    onDelete(timer.id)
+                                    onClose()
+                                }}
+                            >
+                                <Trash2 className="h-4 w-4" />
+                            </Button>
+                        </div>
+                    </div>
+                </div>
+            </Card>
+        </div>
     )
 }

@@ -22,4 +22,5 @@ func BuildRouter(router fiber.Router) {
 	auth.Delete("/:id", DeleteTimer)
 	auth.Post("/:id/start", StartTimer)
 	auth.Post("/:id/stop", StopTimer)
+	auth.Post("/:id/reset", ResetTimer)
 }

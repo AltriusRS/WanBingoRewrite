@@ -98,3 +98,48 @@ func StopTimer(c *fiber.Ctx) error {
 
 	return c.JSON(updatedTimer)
 }
+
+// ResetTimer stops and restarts a timer
+func ResetTimer(c *fiber.Ctx) error {
+	timerID := c.Params("id")
+	if timerID == "" {
+		return utils.NewApiError("Timer ID is required", 0x0771).AsResponse(c)
+	}
+
+	// Get authenticated player
+	player, ok := c.Locals("player").(*models.Player)
+	if !ok {
+		return utils.NewApiError("Authentication required", 0x0772).AsResponse(c)
+	}
+
+	ctx, cancel := context.WithTimeout(context.Background(), 3*time.Second)
+	defer cancel()
+
+	// Get existing timer to check ownership
+	existingTimer, err := db.GetTimerByID(ctx, timerID)
+	if err != nil {
+		log.Printf("failed to get timer %s: %v", timerID, err)
+		return utils.NewApiError("Timer not found", 0x0773).AsResponse(c)
+	}
+
+	// Check if user owns this timer
+	if existingTimer.CreatedBy == nil || *existingTimer.CreatedBy != player.ID {
+		return utils.NewApiError("Access denied", 0x0774).AsResponse(c)
+	}
+
+	// Reset by starting the timer again (this will recalculate start/expire times)
+	err = db.StartTimer(ctx, timerID)
+	if err != nil {
+		log.Printf("failed to reset timer: %v", err)
+		return utils.NewApiError("Failed to reset timer", 0x0775).AsResponse(c)
+	}
+
+	// Get updated timer
+	updatedTimer, err := db.GetTimerByID(ctx, timerID)
+	if err != nil {
+		log.Printf("failed to get updated timer: %v", err)
+		return utils.NewApiError("Timer reset but failed to retrieve", 0x0776).AsResponse(c)
+	}
+
+	return c.JSON(updatedTimer)
+}
