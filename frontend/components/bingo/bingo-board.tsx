@@ -17,7 +17,9 @@ export function BingoBoard({onWin}: BingoBoardProps) {
      const [hasWon, setHasWon] = useState(false)
      const [regenerationCount, setRegenerationCount] = useState(0)
      const [regenerationDiminisher, setRegenerationDiminisher] = useState(1)
-     const [confirmedTiles, setConfirmedTiles] = useState<Set<string>>(new Set())
+      const [confirmedTiles, setConfirmedTiles] = useState<Set<string>>(new Set())
+
+
 
     const shouldHighlightConfirmedTiles = (): boolean => {
          if (!user?.settings) return true // Default to true if no settings
@@ -86,12 +88,25 @@ export function BingoBoard({onWin}: BingoBoardProps) {
     }, [])
 
      const resetBoard = useCallback(async (e: unknown) => {
-         const boardData = await fetchBoardFromAPI()
-         setTiles(boardData.tiles)
-         setRegenerationCount(getRegenerationCount(boardData.regenerationDiminisher))
-         setRegenerationDiminisher(boardData.regenerationDiminisher)
-         setHasWon(false)
-     }, [])
+          const boardData = await fetchBoardFromAPI()
+          setTiles(boardData.tiles)
+          setRegenerationCount(getRegenerationCount(boardData.regenerationDiminisher))
+          setRegenerationDiminisher(boardData.regenerationDiminisher)
+          setHasWon(false)
+
+          // Apply saved marked tiles
+          if (user?.id) {
+              const saved = localStorage.getItem(`bingo-board-${user.id}`)
+              if (saved) {
+                  try {
+                      const markedIds = JSON.parse(saved)
+                      setTiles(prev => prev.map(tile => ({ ...tile, marked: markedIds.includes(tile.id) })))
+                  } catch (e) {
+                      console.error("Failed to load bingo board state:", e)
+                  }
+              }
+          }
+      }, [user?.id])
 
     const getRegenerationCount = (diminisher: number): number => {
         if (diminisher === 1) return 0
@@ -157,6 +172,12 @@ export function BingoBoard({onWin}: BingoBoardProps) {
             } else if (!hasWin && hasWon) {
                 // If they unmarked tiles and no longer have a win
                 setHasWon(false)
+            }
+
+            // Save marked tiles to localStorage
+            if (user?.id) {
+                const markedIds = newTiles.filter(t => t.marked).map(t => t.id)
+                localStorage.setItem(`bingo-board-${user.id}`, JSON.stringify(markedIds))
             }
 
             return newTiles
