@@ -22,8 +22,8 @@ func Get(c *fiber.Ctx) error {
 		Name:     "oauth_state",
 		Value:    state,
 		Path:     "/",
-		Domain:   "api.bingo.local", // Explicit domain for consistency
-		MaxAge:   600,               // 10 minutes in seconds
+		Domain:   "",  // Use the current domain
+		MaxAge:   600, // 10 minutes in seconds
 		HTTPOnly: true,
 		Secure:   true,   // HTTPS enabled via Caddy proxy
 		SameSite: "None", // Allow cross-site with HTTPS
