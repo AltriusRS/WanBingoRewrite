@@ -9,7 +9,7 @@
 - [x] Add font selection for website
 - [x] Add dyslexia friendly font toggle
 - [x] Limit bingo board height
-- [ ] Persist bingo board state in local storage
+- [x] Persist bingo board state in local storage
 
 Below are some suggestions for improvements to the project.
 
