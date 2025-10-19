@@ -29,6 +29,7 @@ export function AccountSettings() {
     const [showMaxScore, setShowMaxScore] = useState(true)
     const [showMultiplier, setShowMultiplier] = useState(true)
     const [boardTextSize, setBoardTextSize] = useState("medium")
+    const [hostPanelTextSize, setHostPanelTextSize] = useState("medium")
     const [saving, setSaving] = useState(false)
 
     const themeOptions = [
@@ -92,6 +93,9 @@ export function AccountSettings() {
                 if (settings.appearance?.board?.textSize) {
                     setBoardTextSize(settings.appearance.board.textSize)
                 }
+                if (settings.appearance?.hostPanel?.textSize) {
+                    setHostPanelTextSize(settings.appearance.hostPanel.textSize)
+                }
             }
         }
     }, [user])
@@ -129,6 +133,9 @@ export function AccountSettings() {
                           appearance: {
                               board: {
                                   textSize: boardTextSize,
+                              },
+                              hostPanel: {
+                                  textSize: hostPanelTextSize,
                               },
                           },
                     },
@@ -259,6 +266,21 @@ export function AccountSettings() {
                              </SelectContent>
                          </Select>
                          <p className="text-sm text-muted-foreground">Choose the size of text on bingo tiles</p>
+                     </div>
+
+                     <div className="space-y-2">
+                         <Label htmlFor="host-panel-text-size">Host Panel Text Size</Label>
+                         <Select value={hostPanelTextSize} onValueChange={setHostPanelTextSize}>
+                             <SelectTrigger>
+                                 <SelectValue placeholder="Select text size" />
+                             </SelectTrigger>
+                             <SelectContent>
+                                 <SelectItem value="small">Small</SelectItem>
+                                 <SelectItem value="medium">Medium</SelectItem>
+                                 <SelectItem value="large">Large</SelectItem>
+                             </SelectContent>
+                         </Select>
+                         <p className="text-sm text-muted-foreground">Choose the size of text on host panel tiles</p>
                      </div>
                  </Card>
 

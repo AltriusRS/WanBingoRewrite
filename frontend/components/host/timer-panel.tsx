@@ -7,6 +7,7 @@ import {Input} from "@/components/ui/input"
 import {Label} from "@/components/ui/label"
 import {Pause, Play, Plus, RotateCcw, Trash2} from "lucide-react"
 import {getApiRoot} from "@/lib/auth";
+import {useAuth} from "@/components/auth";
 
 interface Timer {
     id: string
@@ -28,6 +29,24 @@ export function TimerPanel() {
     const [newTimerDuration, setNewTimerDuration] = useState("")
     const [currentTime, setCurrentTime] = useState(new Date())
     const [expiredTimers, setExpiredTimers] = useState<Set<string>>(new Set())
+    const {user} = useAuth()
+
+    const getHostPanelTextSize = (): string => {
+        if (!user?.settings) return 'medium'
+        const settings = user.settings as any
+        if (settings.appearance?.hostPanel?.textSize) {
+            return settings.appearance.hostPanel.textSize
+        }
+        return 'medium'
+    }
+
+    const getTextSizeClass = (size?: string) => {
+        switch (size) {
+            case 'small': return 'text-xs'
+            case 'large': return 'text-base'
+            default: return 'text-sm'
+        }
+    }
 
     useEffect(() => {
         fetchTimers()
@@ -209,7 +228,7 @@ export function TimerPanel() {
                         className="justify-start text-left h-auto py-2 relative"
                         onClick={() => toggleTimer(timer.id)}
                     >
-                        <div className="flex-1 truncate text-sm">
+                        <div className={`flex-1 truncate ${getTextSizeClass(getHostPanelTextSize())}`}>
                             <div className="font-medium">{timer.title}</div>
                             <div className="text-xs text-muted-foreground">
                                 {formatTime(timer.expires_at)} / {timer.duration}s
