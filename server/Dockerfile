@@ -4,16 +4,16 @@ FROM golang:1.25-alpine AS builder
 WORKDIR /app
 
 # Copy go mod files
-COPY go.mod go.sum ./
+COPY ./server/go.mod ./server/go.sum ./
 
 # Download dependencies
 RUN go mod download
 
 # Copy source code
-COPY . .
+COPY ./server ./
 
 # Copy migrations
-COPY ../migrations ./migrations
+COPY ./migrations ./migrations
 
 RUN rm -rf .env .env.example
 
