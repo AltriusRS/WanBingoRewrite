@@ -1,14 +1,25 @@
 import type {NextConfig} from "next";
 
 const nextConfig: NextConfig = {
-    /* config options here */
     images: {
         remotePatterns: [
-            new URL('https://i.ytimg.com/vi/**/*'),
-            new URL('https://cataas.com/cat?width=720&height=480'),
-            new URL('https://pbs.floatplane.com/stream_thumbnails/**/*')
-        ]
-    }
+            {
+                protocol: "https",
+                hostname: "i.ytimg.com",
+                pathname: "/vi/**",
+            },
+            {
+                protocol: "https",
+                hostname: "cataas.com",
+                pathname: "/cat",
+            },
+            {
+                protocol: "https",
+                hostname: "pbs.floatplane.com",
+                pathname: "/stream_thumbnails/**",
+            },
+        ],
+    },
 };
 
 export default nextConfig;
