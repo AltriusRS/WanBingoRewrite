@@ -69,11 +69,13 @@ export function TileConfirmationPanel({ showLateButton, columns = 3 }: TileConfi
     const [currentTime, setCurrentTime] = useState(new Date())
     const [selectedTimer, setSelectedTimer] = useState<Timer | null>(null)
     const [lateTile, setLateTile] = useState<BingoTile | null>(null)
+    const [show, setShow] = useState<Show | null>(null)
 
     useEffect(() => {
         fetchTiles()
         fetchShowTiles()
         fetchTimers()
+        fetchShow()
         if (showLateButton) {
             fetchLateTile()
         }
@@ -197,6 +199,19 @@ export function TileConfirmationPanel({ showLateButton, columns = 3 }: TileConfi
             if (late) setLateTile(late)
         } catch (error) {
             console.error("Failed to fetch late tile:", error)
+        }
+    }
+
+    const fetchShow = async () => {
+        try {
+            const response = await fetch(`${getApiRoot()}/shows/latest`)
+            if (!response.ok) {
+                throw new Error(`HTTP ${response.status}`)
+            }
+            const data = await response.json()
+            setShow(data)
+        } catch (error) {
+            console.error("Failed to fetch show:", error)
         }
     }
 
@@ -412,6 +427,8 @@ export function TileConfirmationPanel({ showLateButton, columns = 3 }: TileConfi
 
     const categories = Object.keys(tilesByCategory).sort().filter(cat => cat !== 'Late')
 
+    const shouldHighlightLateButton = show && show.scheduled_time && new Date() > new Date(show.scheduled_time) && !show.actual_start_time
+
     if (loading) {
         return (
             <Card className="flex items-center justify-center p-8">
@@ -427,7 +444,7 @@ export function TileConfirmationPanel({ showLateButton, columns = 3 }: TileConfi
                     {showLateButton && lateTile && (
                         <div className="bg-muted p-4 rounded-lg">
                             <Button
-                                variant="outline"
+                                variant={shouldHighlightLateButton ? "default" : "outline"}
                                 size="sm"
                                 className="w-full gap-2"
                                 onClick={handleConfirmLate}
