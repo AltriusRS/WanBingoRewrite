@@ -3,7 +3,9 @@ package db
 import (
 	"context"
 	"errors"
+	"fmt"
 	"log"
+	"strings"
 	"wanshow-bingo/avatar"
 	"wanshow-bingo/db/models"
 
@@ -119,19 +121,38 @@ func FindOrCreatePlayer(ctx context.Context, discordUser *models.DiscordUser, tx
 		)
 
 		if err == nil {
-			// Player exists, update avatar if needed
+			// Player exists, update avatar and display_name if needed
+			updates := []string{}
+			args := []interface{}{}
+			argCount := 1
+
+			// Check if display_name needs update
+			newDisplayName := discordUser.Username
+			if discordUser.GlobalName != "" {
+				newDisplayName = discordUser.GlobalName
+			}
+			if player.DisplayName != newDisplayName {
+				updates = append(updates, "display_name = $"+fmt.Sprintf("%d", argCount))
+				args = append(args, newDisplayName)
+				argCount++
+			}
+
 			avatarURL, err := avatar.UploadDiscordAvatar(discordUser.ID, discordUser.Avatar, player.ID)
 			if err != nil {
 				log.Printf("database: failed to upload avatar: %v", err)
 				// Continue without updating avatar
 			} else if avatarURL != "" {
-				_, err = tx[0].Exec(ctx, `
-					UPDATE players
-					SET avatar = $1, updated_at = CURRENT_TIMESTAMP
-					WHERE id = $2
-				`, avatarURL, player.ID)
+				updates = append(updates, "avatar = $"+fmt.Sprintf("%d", argCount))
+				args = append(args, avatarURL)
+				argCount++
+			}
+
+			if len(updates) > 0 {
+				query := "UPDATE players SET " + strings.Join(updates, ", ") + ", updated_at = CURRENT_TIMESTAMP WHERE id = $" + fmt.Sprintf("%d", argCount)
+				args = append(args, player.ID)
+				_, err = tx[0].Exec(ctx, query, args...)
 				if err != nil {
-					log.Printf("database: failed to update player avatar: %v", err)
+					log.Printf("database: failed to update player: %v", err)
 				}
 			}
 			return &player, nil
@@ -158,11 +179,16 @@ func FindOrCreatePlayer(ctx context.Context, discordUser *models.DiscordUser, tx
 			log.Printf("PLAYER: Successfully uploaded avatar, URL: %s", avatarURL)
 		}
 
+		displayName := discordUser.Username
+		if discordUser.GlobalName != "" {
+			displayName = discordUser.GlobalName
+		}
+
 		log.Printf("PLAYER: Inserting player with ID: %s, permissions: %d", playerID, uint64(defaultPerms))
 		_, err = tx[0].Exec(ctx, `
 			INSERT INTO players (id, did, display_name, avatar, settings, score, permissions)
 			VALUES ($1, $2, $3, $4, $5, $6, $7)
-		`, playerID, discordUser.ID, discordUser.Username+"#"+discordUser.Discriminator, avatarURL, "{}", 0, uint64(defaultPerms))
+		`, playerID, discordUser.ID, displayName, avatarURL, "{}", 0, uint64(defaultPerms))
 
 		if err != nil {
 			log.Printf("PLAYER: Failed to insert player: %v", err)
@@ -192,19 +218,38 @@ func FindOrCreatePlayer(ctx context.Context, discordUser *models.DiscordUser, tx
 		)
 
 		if err == nil {
-			// Player exists, update avatar if needed
+			// Player exists, update avatar and display_name if needed
+			updates := []string{}
+			args := []interface{}{}
+			argCount := 1
+
+			// Check if display_name needs update
+			newDisplayName := discordUser.Username
+			if discordUser.GlobalName != "" {
+				newDisplayName = discordUser.GlobalName
+			}
+			if player.DisplayName != newDisplayName {
+				updates = append(updates, "display_name = $"+fmt.Sprintf("%d", argCount))
+				args = append(args, newDisplayName)
+				argCount++
+			}
+
 			avatarURL, err := avatar.UploadDiscordAvatar(discordUser.ID, discordUser.Avatar, player.ID)
 			if err != nil {
 				log.Printf("database: failed to upload avatar: %v", err)
 				// Continue without updating avatar
 			} else if avatarURL != "" {
-				_, err = pool.Exec(ctx, `
-					UPDATE players
-					SET avatar = $1, updated_at = CURRENT_TIMESTAMP
-					WHERE id = $2
-				`, avatarURL, player.ID)
+				updates = append(updates, "avatar = $"+fmt.Sprintf("%d", argCount))
+				args = append(args, avatarURL)
+				argCount++
+			}
+
+			if len(updates) > 0 {
+				query := "UPDATE players SET " + strings.Join(updates, ", ") + ", updated_at = CURRENT_TIMESTAMP WHERE id = $" + fmt.Sprintf("%d", argCount)
+				args = append(args, player.ID)
+				_, err = pool.Exec(ctx, query, args...)
 				if err != nil {
-					log.Printf("database: failed to update player avatar: %v", err)
+					log.Printf("database: failed to update player: %v", err)
 				}
 			}
 			return &player, nil
@@ -246,10 +291,15 @@ func FindOrCreatePlayer(ctx context.Context, discordUser *models.DiscordUser, tx
 			avatarURL = "" // Continue without avatar
 		}
 
+		displayName := discordUser.Username
+		if discordUser.GlobalName != "" {
+			displayName = discordUser.GlobalName
+		}
+
 		_, err = pool.Exec(ctx, `
 			INSERT INTO players (id, did, display_name, avatar, settings, score, permissions)
 			VALUES ($1, $2, $3, $4, $5, $6, $7)
-		`, playerID, discordUser.ID, discordUser.Username+"#"+discordUser.Discriminator, avatarURL, "{}", 0, uint64(defaultPerms))
+		`, playerID, discordUser.ID, displayName, avatarURL, "{}", 0, uint64(defaultPerms))
 
 		if err != nil {
 			return nil, err

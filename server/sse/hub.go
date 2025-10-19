@@ -3,6 +3,7 @@ package sse
 import (
 	"encoding/json"
 	"log"
+	"wanshow-bingo/avatar"
 	"wanshow-bingo/utils"
 
 	gonanoid "github.com/matoous/go-nanoid/v2"
@@ -80,11 +81,17 @@ func (h *Hub) Run() {
 			utils.Debugf("[SSE - %s] Registering client", h.name)
 			h.clients[c.Id] = c
 			go h.BroadcastConnectionCount()
+			if h.name == "CHAT" {
+				go h.BroadcastPlayerList()
+			}
 		case c := <-h.unregister:
 			if _, ok := h.clients[c.Id]; ok {
 				utils.Debugf("[SSE - %s] Deregistering client", h.name)
 				delete(h.clients, c.Id)
 				go h.BroadcastConnectionCount()
+				if h.name == "CHAT" {
+					go h.BroadcastPlayerList()
+				}
 			}
 		case msg := <-h.broadcast:
 			utils.Debugf("[SSE - %s] (0x03) Broadcasting message to %d clients: %s", h.name, len(h.clients), msg)
@@ -123,6 +130,10 @@ func (h *Hub) BroadcastConnectionCount() {
 	h.Broadcast(h.BuildConnectionCount())
 }
 
+func (h *Hub) BroadcastPlayerList() {
+	h.Broadcast(h.BuildPlayerList())
+}
+
 func (h *Hub) GetClient(id string) *Client {
 	return h.clients[id]
 }
@@ -149,6 +160,35 @@ func (h *Hub) BuildConnectionCount() string {
 	}
 	countEvent := BuildEvent("chat.members.count", MemberCount{Count: len(playerIDs)})
 	return countEvent.String()
+}
+
+func (h *Hub) BuildPlayerList() string {
+	// Build player list for authenticated players, deduplicated by player ID
+	playerMap := make(map[string]map[string]interface{})
+	for _, client := range h.clients {
+		if client.IsAuthenticated && client.Player != nil {
+			player := client.Player
+			playerMap[player.ID] = map[string]interface{}{
+				"id":           player.ID,
+				"display_name": player.DisplayName,
+				"avatar":       avatar.GetAvatarURL(avatarKey(player.Avatar)),
+				"permissions":  player.Permissions,
+				"settings":     player.Settings,
+				"created_at":   player.CreatedAt,
+			}
+		}
+	}
+
+	playerList := make([]map[string]interface{}, 0, len(playerMap))
+	for _, playerInfo := range playerMap {
+		playerList = append(playerList, playerInfo)
+	}
+
+	playersEvent := BuildEvent("chat.players", map[string]interface{}{
+		"players": playerList,
+		"count":   len(playerList),
+	})
+	return playersEvent.String()
 }
 
 func (h *Hub) BroadcastEvent(eventName string, data any) {
