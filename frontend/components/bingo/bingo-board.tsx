@@ -204,8 +204,8 @@ export function BingoBoard({onWin}: BingoBoardProps) {
                     {/* Header with New Board button and stats */}
                      <BingoStatusBar ctx={ctx} hasWon={hasWon} resetBoard={resetBoard} regenerateBoard={regenerateBoard} regenerationCount={regenerationCount} tiles={tiles} confirmedTiles={confirmedTiles} regenerationDiminisher={regenerationDiminisher} showMaxScore={shouldShowMaxScore()} showMultiplier={shouldShowMultiplier()} showRegenerations={shouldShowRegenerations()}/>
 
-                    {/* Board Area */}
-                    <div className="grid grid-cols-5 aspect-square grid-rows-5 gap-1.5 sm:gap-2 lg:gap-3 w-full">
+                     {/* Board Area */}
+                     <div className="grid grid-cols-5 aspect-square grid-rows-5 gap-1.5 sm:gap-2 lg:gap-3 w-full max-h-[calc(100vh-200px)]">
                           {tiles.map((tile) => (
                               <BingoTile
                                   key={tile.id}
