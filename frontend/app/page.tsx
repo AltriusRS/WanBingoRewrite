@@ -1,18 +1,54 @@
 "use client"
 
 import {useState} from "react"
+import confetti from "canvas-confetti"
+import {Header} from "@/components/header"
 import {BingoBoard} from "@/components/bingo/bingo-board"
 import {ChatPanel} from "@/components/chat/chat-panel"
 import {Button} from "@/components/ui/button"
 import {MessageSquare} from "lucide-react"
-import {Header} from "@/components/header";
+import {useAuth} from "@/components/auth"
 
 export default function Home() {
-    const [isChatOpen, setIsChatOpen] = useState(true)
+     const [isChatOpen, setIsChatOpen] = useState(true)
+     const { user } = useAuth()
 
-    const handleWin = () => {
-        // Handle bingo win
-    }
+     const handleWin = () => {
+         // Handle bingo win with confetti celebration (if enabled)
+         const confettiEnabled = user?.settings?.gameplay?.confetti !== false
+         if (confettiEnabled) {
+             // Burst from left side - firing downwards into center
+             confetti({
+                 particleCount: 150,
+                 angle: 90,
+                 spread: 45,
+                 origin: { x: 0.1, y: 0.2 },
+                 decay: 0.92,
+                 colors: ['#ff0000', '#00ff00', '#0000ff', '#ffff00', '#ff00ff', '#00ffff']
+             })
+
+             // Burst from right side - firing downwards into center
+             confetti({
+                 particleCount: 150,
+                 angle: 90,
+                 spread: 45,
+                 origin: { x: 0.9, y: 0.2 },
+                 decay: 0.92,
+                 colors: ['#ff0000', '#00ff00', '#0000ff', '#ffff00', '#ff00ff', '#00ffff']
+             })
+
+             // Additional center burst for more celebration
+             setTimeout(() => {
+                 confetti({
+                     particleCount: 100,
+                     spread: 90,
+                     origin: { y: 0.4 },
+                     decay: 0.92,
+                     colors: ['#ff0000', '#00ff00', '#0000ff', '#ffff00', '#ff00ff', '#00ffff']
+                 })
+             }, 200)
+         }
+     }
 
     return (
         <div className="flex min-h-screen min-w-screen flex-col bg-background pb-4">

@@ -171,28 +171,31 @@ export interface SSEMessage {
 
 
 export function handleSocketProtocol(protoMessage: SSEMessage, ctx: ChatContextValue, user?: any) {
-    switch (protoMessage.opcode) {
-        case "chat.members.count":
-            ctx.setMemberCount(() => protoMessage.data.count);
-            break;
+     switch (protoMessage.opcode) {
+         case "chat.members.count":
+             ctx.setMemberCount(() => protoMessage.data.count);
+             break;
 
-        case "chat.players":
-            ctx.setMemberList(() => protoMessage.data.players as Player[]);
-            ctx.setMemberListLoading(false);
-            break;
+         case "chat.players":
+             ctx.setMemberList(() => protoMessage.data.players as Player[]);
+             ctx.setMemberListLoading(false);
+             break;
 
-        case 'chat.message':
-            return handleChatMessage(protoMessage.data as ChatMessage, ctx, user);
+         case 'chat.message':
+             return handleChatMessage(protoMessage.data as ChatMessage, ctx, user);
 
-        case 'whenplane.aggregate':
-            const aggregate = protoMessage.data as Show;
-            ctx.setEpisode((_) => aggregate)
-            break;
-        default:
-            // Unknown opcode - silently ignore
-            break;
-    }
-}
+         case 'whenplane.aggregate':
+             const aggregate = protoMessage.data as Show;
+             ctx.setEpisode((_) => aggregate)
+             break;
+
+
+
+         default:
+             // Unknown opcode - silently ignore
+             break;
+     }
+ }
 
 
 async function handleChatMessage(msg: ChatMessage, ctx: ChatContextValue, user?: any) {
@@ -203,17 +206,24 @@ async function handleChatMessage(msg: ChatMessage, ctx: ChatContextValue, user?:
         return;
     }
 
+    // Check for TILE CONFIRMED system messages and dispatch refresh event
+    if (msg.system && msg.contents && msg.contents.includes("TILE CONFIRMED")) {
+        window.dispatchEvent(new CustomEvent('tileConfirmed', {
+            detail: msg
+        }));
+    }
+
     // Check for mentions and play sound if enabled
     if (user && msg.player_id !== user.id) { // Don't notify for own messages
         const userName = user.display_name || user.id;
         const messageText = msg.message || '';
         const isMentioned = messageText.toLowerCase().includes(`@${userName.toLowerCase()}`) ||
-                           messageText.toLowerCase().includes(`@${user.id}`) ||
-                           (userName !== user.id && messageText.toLowerCase().includes(userName.toLowerCase()));
+                            messageText.toLowerCase().includes(`@${user.id}`) ||
+                            (userName !== user.id && messageText.toLowerCase().includes(userName.toLowerCase()));
 
         if (isMentioned) {
             const soundEnabled = user.settings?.chat?.soundOnMention !== false &&
-                               user.settings?.soundOnMention !== false;
+                                user.settings?.soundOnMention !== false;
             if (soundEnabled) {
                 playMentionSound();
             }

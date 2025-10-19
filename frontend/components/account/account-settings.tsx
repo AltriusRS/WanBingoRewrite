@@ -5,7 +5,7 @@ import {Card} from "@/components/ui/card"
 import {Button} from "@/components/ui/button"
 import {Input} from "@/components/ui/input"
 import {Label} from "@/components/ui/label"
-import {Avatar, AvatarFallback, AvatarImage} from "@/components/ui/avatar"
+
 import {ArrowLeft} from "lucide-react"
 import Link from "next/link"
 import {Switch} from "@/components/ui/switch"
@@ -17,12 +17,17 @@ export function AccountSettings() {
     const auth = useAuth()
     const user = auth.user
     const [displayName, setDisplayName] = useState("")
-    const [avatarUrl, setAvatarUrl] = useState("")
     const [chatColor, setChatColor] = useState("#FF6900")
     const [soundOnMention, setSoundOnMention] = useState(true)
     const [backgroundImageEnabled, setBackgroundImageEnabled] = useState(false)
     const [preferredTheme, setPreferredTheme] = useState("dark")
     const [autoYoutubePlayback, setAutoYoutubePlayback] = useState(false)
+    const [highlightConfirmedTiles, setHighlightConfirmedTiles] = useState(true)
+    const [confettiEnabled, setConfettiEnabled] = useState(true)
+    const [disableWinAnnouncements, setDisableWinAnnouncements] = useState(false)
+    const [showTileScores, setShowTileScores] = useState(true)
+    const [showMaxScore, setShowMaxScore] = useState(true)
+    const [showMultiplier, setShowMultiplier] = useState(true)
     const [saving, setSaving] = useState(false)
 
     const themeOptions = [
@@ -38,7 +43,6 @@ export function AccountSettings() {
     useEffect(() => {
         if (user) {
             setDisplayName(user.display_name || "")
-            setAvatarUrl(user.avatar || "")
             // Load settings
             if (user.settings) {
                 const settings = user.settings as any
@@ -69,6 +73,19 @@ export function AccountSettings() {
                     setAutoYoutubePlayback(settings.autoYoutubePlayback || false)
                     setBackgroundImageEnabled(settings.backgroundImageEnabled || false)
                 }
+
+                // Gameplay settings
+                if (settings.gameplay) {
+                    setHighlightConfirmedTiles(settings.gameplay.highlightConfirmedTiles !== false) // Default to true
+                    setConfettiEnabled(settings.gameplay.confetti !== false) // Default to true
+                    setDisableWinAnnouncements(settings.gameplay.disableWinAnnouncements || false) // Default to false
+                    setShowTileScores(settings.gameplay.showTileScores !== false) // Default to true
+                    setShowMaxScore(settings.gameplay.showMaxScore !== false) // Default to true
+                    setShowMultiplier(settings.gameplay.showMultiplier !== false) // Default to true
+                } else {
+                    // Fallback for old flat structure
+                    setHighlightConfirmedTiles(settings.highlightConfirmedTiles !== false)
+                }
             }
         }
     }, [user])
@@ -83,7 +100,6 @@ export function AccountSettings() {
                 headers: {"Content-Type": "application/json"},
                 body: JSON.stringify({
                     display_name: displayName,
-                    avatar: avatarUrl,
                     settings: {
                         chat: {
                             color: chatColor,
@@ -96,6 +112,14 @@ export function AccountSettings() {
                             autoYoutubePlayback,
                             backgroundImageEnabled,
                         },
+                         gameplay: {
+                             highlightConfirmedTiles,
+                             confetti: confettiEnabled,
+                             disableWinAnnouncements,
+                             showTileScores,
+                             showMaxScore,
+                             showMultiplier,
+                         },
                     },
                 }),
             })
@@ -136,28 +160,6 @@ export function AccountSettings() {
                     <h2 className="mb-4 text-lg font-semibold text-foreground">Profile</h2>
 
                     <div className="space-y-6">
-                        <div className="flex items-center gap-4">
-                            <Avatar className="h-20 w-20">
-                                <AvatarImage src={avatarUrl || "/placeholder-user.jpg"} alt={displayName}/>
-                                <AvatarFallback className="bg-primary/10 text-lg">
-                                    {displayName
-                                        .split(" ")
-                                        .map((n) => n[0])
-                                        .join("")
-                                        .toUpperCase()}
-                                </AvatarFallback>
-                            </Avatar>
-                            <div className="flex-1">
-                                <Label htmlFor="avatar-url">Avatar URL</Label>
-                                <Input
-                                    id="avatar-url"
-                                    value={avatarUrl}
-                                    onChange={(e) => setAvatarUrl(e.target.value)}
-                                    placeholder="https://example.com/avatar.jpg"
-                                />
-                            </div>
-                        </div>
-
                         <div className="space-y-2">
                             <Label htmlFor="display-name">Display Name</Label>
                             <Input
@@ -257,10 +259,88 @@ export function AccountSettings() {
                                 onCheckedChange={setBackgroundImageEnabled}
                             />
                         </div>
-                    </div>
-                </Card>
+                     </div>
+                 </Card>
 
-                <div className="flex justify-end gap-2">
+                 <Card className="p-6">
+                     <h2 className="mb-4 text-lg font-semibold text-foreground">Gameplay</h2>
+
+                     <div className="space-y-6">
+                          <div className="flex items-center justify-between">
+                              <div className="space-y-0.5">
+                                  <Label htmlFor="highlight-confirmed">Highlight Confirmed Tiles</Label>
+                                  <p className="text-sm text-muted-foreground">Add a subtle border highlight to tiles that have been confirmed</p>
+                              </div>
+                              <Switch
+                                  id="highlight-confirmed"
+                                  checked={highlightConfirmedTiles}
+                                  onCheckedChange={setHighlightConfirmedTiles}
+                              />
+                          </div>
+
+                          <div className="flex items-center justify-between">
+                              <div className="space-y-0.5">
+                                  <Label htmlFor="confetti-enabled">Confetti on Win</Label>
+                                  <p className="text-sm text-muted-foreground">Show confetti animation when you get a valid bingo</p>
+                              </div>
+                              <Switch
+                                  id="confetti-enabled"
+                                  checked={confettiEnabled}
+                                  onCheckedChange={setConfettiEnabled}
+                              />
+                          </div>
+
+                          <div className="flex items-center justify-between">
+                              <div className="space-y-0.5">
+                                  <Label htmlFor="disable-win-announcements">Disable Win Announcements</Label>
+                                  <p className="text-sm text-muted-foreground">Don&apos;t announce your wins in chat when you get bingo</p>
+                              </div>
+                              <Switch
+                                  id="disable-win-announcements"
+                                  checked={disableWinAnnouncements}
+                                  onCheckedChange={setDisableWinAnnouncements}
+                              />
+                          </div>
+
+                          <div className="flex items-center justify-between">
+                              <div className="space-y-0.5">
+                                  <Label htmlFor="show-tile-scores">Show Tile Scores</Label>
+                                  <p className="text-sm text-muted-foreground">Display point values in the bottom right corner of tiles</p>
+                              </div>
+                              <Switch
+                                  id="show-tile-scores"
+                                  checked={showTileScores}
+                                  onCheckedChange={setShowTileScores}
+                              />
+                          </div>
+
+                          <div className="flex items-center justify-between">
+                              <div className="space-y-0.5">
+                                  <Label htmlFor="show-max-score">Show Max Score</Label>
+                                  <p className="text-sm text-muted-foreground">Display the maximum possible score for the current board</p>
+                              </div>
+                              <Switch
+                                  id="show-max-score"
+                                  checked={showMaxScore}
+                                  onCheckedChange={setShowMaxScore}
+                              />
+                          </div>
+
+                          <div className="flex items-center justify-between">
+                              <div className="space-y-0.5">
+                                  <Label htmlFor="show-multiplier">Show Multiplier</Label>
+                                  <p className="text-sm text-muted-foreground">Display the current score multiplier percentage</p>
+                              </div>
+                              <Switch
+                                  id="show-multiplier"
+                                  checked={showMultiplier}
+                                  onCheckedChange={setShowMultiplier}
+                              />
+                          </div>
+                     </div>
+                 </Card>
+
+                 <div className="flex justify-end gap-2">
                     <Link href="/">
                         <Button variant="outline">Cancel</Button>
                     </Link>

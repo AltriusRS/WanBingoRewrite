@@ -18,7 +18,7 @@ export function HostProvider({ children }: { children: ReactNode }) {
   const refreshConfirmedTiles = async () => {
     try {
       console.log("[HostContext] Fetching confirmed tiles...")
-      const response = await fetch(`${getApiRoot()}/api/host/confirmed-tiles`, {
+      const response = await fetch(`${getApiRoot()}/host/confirmed-tiles`, {
         credentials: "include",
       })
       if (!response.ok) {

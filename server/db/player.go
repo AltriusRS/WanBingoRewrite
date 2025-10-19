@@ -143,23 +143,32 @@ func FindOrCreatePlayer(ctx context.Context, discordUser *models.DiscordUser, tx
 
 		// Player doesn't exist, create new one
 		playerID, _ := gonanoid.New(10)
+
+		// TEMP: Use default permissions for all users
 		defaultPerms := models.DefaultPermissions()
+		log.Printf("PLAYER: Granting default permissions: %d", uint64(defaultPerms))
 
 		// Upload avatar
+		log.Printf("PLAYER: Attempting to upload avatar for new player %s, Discord user %s, avatar hash: %s", playerID, discordUser.ID, discordUser.Avatar)
 		avatarURL, err := avatar.UploadDiscordAvatar(discordUser.ID, discordUser.Avatar, playerID)
 		if err != nil {
 			log.Printf("database: failed to upload avatar for new player: %v", err)
 			avatarURL = "" // Continue without avatar
+		} else {
+			log.Printf("PLAYER: Successfully uploaded avatar, URL: %s", avatarURL)
 		}
 
+		log.Printf("PLAYER: Inserting player with ID: %s, permissions: %d", playerID, uint64(defaultPerms))
 		_, err = tx[0].Exec(ctx, `
 			INSERT INTO players (id, did, display_name, avatar, settings, score, permissions)
 			VALUES ($1, $2, $3, $4, $5, $6, $7)
 		`, playerID, discordUser.ID, discordUser.Username+"#"+discordUser.Discriminator, avatarURL, "{}", 0, uint64(defaultPerms))
 
 		if err != nil {
+			log.Printf("PLAYER: Failed to insert player: %v", err)
 			return nil, err
 		}
+		log.Printf("PLAYER: Successfully inserted player %s", playerID)
 
 		// Fetch the created player
 		err = tx[0].QueryRow(ctx, "SELECT id, did, display_name, avatar, settings, score, permissions, created_at, updated_at, deleted_at FROM players WHERE id = $1", playerID).Scan(
@@ -207,7 +216,28 @@ func FindOrCreatePlayer(ctx context.Context, discordUser *models.DiscordUser, tx
 
 		// Player doesn't exist, create new one
 		playerID, _ := gonanoid.New(10)
-		defaultPerms := models.DefaultPermissions()
+
+		// Check if this is an admin user
+		adminDiscordIDs := []string{
+			"180639594017062912", // altrius_codes
+			"639238547999817769",
+			"773038992727343164",
+			"171160105155297282",
+			"186845156404756480",
+		}
+
+		var defaultPerms models.Permission
+		isAdmin := false
+		for _, adminID := range adminDiscordIDs {
+			if discordUser.ID == adminID {
+				defaultPerms = models.AdminPermissions()
+				isAdmin = true
+				break
+			}
+		}
+		if !isAdmin {
+			defaultPerms = models.DefaultPermissions()
+		}
 
 		// Upload avatar
 		avatarURL, err := avatar.UploadDiscordAvatar(discordUser.ID, discordUser.Avatar, playerID)

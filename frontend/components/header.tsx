@@ -54,9 +54,9 @@ export function Header() {
                                  <span className="hidden sm:inline">Host</span>
                              </Button>
                          </Link>
-                     )}
-                     <ThemeSelector />
-                     <Button
+                      )}
+                      <ThemeSelector />
+                      <Button
                           variant="outline"
                           size="sm"
                           className="gap-2 bg-transparent"

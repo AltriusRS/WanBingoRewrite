@@ -83,7 +83,7 @@ export function TileConfirmationPanel() {
     try {
       console.log(`[TileConfirmationPanel] Attempting to lock tile ${tile.id}`)
       // Call backend to acquire lock
-      const response = await fetch(`${getApiRoot()}/api/host/tile-locks`, {
+      const response = await fetch(`${getApiRoot()}/host/tile-locks`, {
         method: "POST",
         headers: {"Content-Type": "application/json"},
         credentials: "include",
@@ -114,7 +114,7 @@ export function TileConfirmationPanel() {
       if (revokeMode) {
         console.log(`[TileConfirmationPanel] Revoking confirmation for tile ${selectedTile.id}`)
         // Revoke confirmation
-        const response = await fetch(`${getApiRoot()}/api/host/confirmed-tiles/${selectedTile.id}`, {
+        const response = await fetch(`${getApiRoot()}/host/confirmed-tiles/${selectedTile.id}`, {
           method: "DELETE",
           credentials: "include",
         })
@@ -151,7 +151,7 @@ export function TileConfirmationPanel() {
       // Unlock the tile
       console.log(`[TileConfirmationPanel] Unlocking tile ${selectedTile.id}`)
       try {
-        await fetch(`${getApiRoot()}/api/host/tile-unlocks`, {
+        await fetch(`${getApiRoot()}/host/tile-unlocks`, {
           method: "POST",
           headers: {"Content-Type": "application/json"},
           credentials: "include",
@@ -176,7 +176,7 @@ export function TileConfirmationPanel() {
     if (selectedTile) {
       try {
         // Call backend to release lock
-        await fetch(`${getApiRoot()}/api/host/tile-unlocks`, {
+        await fetch(`${getApiRoot()}/host/tile-unlocks`, {
           method: "POST",
           headers: {"Content-Type": "application/json"},
           credentials: "include",

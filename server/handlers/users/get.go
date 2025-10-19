@@ -3,11 +3,20 @@ package users
 import (
 	"context"
 	"time"
+	"wanshow-bingo/avatar"
 	"wanshow-bingo/db"
 	"wanshow-bingo/utils"
 
 	"github.com/gofiber/fiber/v2"
 )
+
+// avatarKey safely extracts string value from *string
+func avatarKey(avatar *string) string {
+	if avatar == nil {
+		return ""
+	}
+	return *avatar
+}
 
 // GetByIdentifier returns partial player profile by ID or display_name
 func GetByIdentifier(c *fiber.Ctx) error {
@@ -30,7 +39,7 @@ func GetByIdentifier(c *fiber.Ctx) error {
 		"player": fiber.Map{
 			"id":           player.ID,
 			"display_name": player.DisplayName,
-			"avatar":       player.Avatar,
+			"avatar":       avatar.GetAvatarURL(avatarKey(player.Avatar)),
 			"score":        player.Score,
 			"created_at":   player.CreatedAt,
 		},
@@ -84,7 +93,7 @@ func GetAll(c *fiber.Ctx) error {
 		playerProfiles = append(playerProfiles, fiber.Map{
 			"id":           player.ID,
 			"display_name": player.DisplayName,
-			"avatar":       player.Avatar,
+			"avatar":       avatar.GetAvatarURL(avatarKey(player.Avatar)),
 			"score":        player.Score,
 			"created_at":   player.CreatedAt,
 		})

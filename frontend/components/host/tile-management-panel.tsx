@@ -51,7 +51,7 @@ export function TileManagementPanel() {
 
   const fetchTiles = async () => {
     try {
-      const response = await fetch(`${getApiRoot()}/api/host/tiles`, {
+      const response = await fetch(`${getApiRoot()}/host/tiles`, {
         credentials: "include",
       })
       if (!response.ok) {
@@ -71,7 +71,7 @@ export function TileManagementPanel() {
 
   const fetchStats = async () => {
     try {
-      const response = await fetch(`${getApiRoot()}/api/host/tile-stats`, {
+      const response = await fetch(`${getApiRoot()}/host/tile-stats`, {
         credentials: "include",
       })
       if (!response.ok) {
@@ -94,7 +94,7 @@ export function TileManagementPanel() {
     if (!confirm("Are you sure you want to delete this tile?")) return
 
     try {
-      await fetch(`${getApiRoot()}/api/host/tiles/${tileId}`, {
+      await fetch(`${getApiRoot()}/host/tiles/${tileId}`, {
         method: "DELETE",
         credentials: "include",
       })

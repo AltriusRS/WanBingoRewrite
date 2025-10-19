@@ -8,8 +8,9 @@ import { TestMessagePanel } from "./test-message-panel"
 import { TileManagementPanel } from "./tile-management-panel"
 import { SuggestionManagementPanel } from "./suggestion-management-panel"
 import { HostProvider } from "./host-context"
-import { LogOut } from "lucide-react"
+import { LogOut, ArrowLeft } from "lucide-react"
 import { useAuth } from "@/components/auth"
+import Link from "next/link"
 
 export function HostDashboard() {
   const { user, logout } = useAuth()
@@ -38,10 +39,18 @@ export function HostDashboard() {
                  <p className="text-sm text-muted-foreground">Logged in as {user.display_name}</p>
               </div>
             </div>
-            <Button variant="outline" size="sm" onClick={handleSignOut} className="gap-2 bg-transparent">
-              <LogOut className="h-4 w-4" />
-              Sign Out
-            </Button>
+            <div className="flex items-center gap-2">
+              <Button variant="outline" size="sm" asChild className="gap-2 bg-transparent">
+                <Link href="/">
+                  <ArrowLeft className="h-4 w-4" />
+                  Back to Player View
+                </Link>
+              </Button>
+              <Button variant="outline" size="sm" onClick={handleSignOut} className="gap-2 bg-transparent">
+                <LogOut className="h-4 w-4" />
+                Sign Out
+              </Button>
+            </div>
           </div>
         </header>
 

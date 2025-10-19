@@ -43,28 +43,79 @@ func GetAnonymousBoard(c *fiber.Ctx) error {
 		}
 	}
 
+	// Get the "Show Is Late" tile
+	showIsLateTile, err := db.GetOrCreateShowIsLateTile(ctx)
+	if err != nil {
+		log.Printf("failed to get or create show is late tile: %v", err)
+		return utils.NewApiError("Failed to get show is late tile", 0x0506).AsResponse(c)
+	}
+
+	// Ensure "Show Is Late" is in show_tiles
+	err = db.EnsureTileInShowTiles(ctx, latestShow.ID, showIsLateTile.ID)
+	if err != nil {
+		log.Printf("failed to ensure show is late tile in show tiles: %v", err)
+		return utils.NewApiError("Failed to ensure show is late tile in show tiles", 0x0507).AsResponse(c)
+	}
+
+	// Re-get showTiles in case EnsureTileInShowTiles added it
+	showTiles, err = db.GetShowTiles(ctx, latestShow.ID)
+	if err != nil {
+		log.Printf("failed to re-get show tiles: %v", err)
+		return utils.NewApiError("Failed to get show tiles", 0x0502).AsResponse(c)
+	}
+
+	// Now proceed with tile selection
 	var availableTileIDs []string
 	availableTileIDs = make([]string, len(showTiles))
 	for i, showTile := range showTiles {
 		availableTileIDs[i] = showTile.TileID
 	}
 
-	if len(availableTileIDs) < 25 {
+	// Ensure "Show Is Late" is in the available tiles
+	showIsLateIncluded := false
+	for _, id := range availableTileIDs {
+		if id == showIsLateTile.ID {
+			showIsLateIncluded = true
+			break
+		}
+	}
+	if !showIsLateIncluded {
+		availableTileIDs = append(availableTileIDs, showIsLateTile.ID)
+	}
+
+	// Remove "Show Is Late" from available for random selection
+	var filteredAvailable []string
+	for _, id := range availableTileIDs {
+		if id != showIsLateTile.ID {
+			filteredAvailable = append(filteredAvailable, id)
+		}
+	}
+
+	if len(filteredAvailable) < 24 {
 		return utils.NewApiError("Insufficient tiles available for board generation", 0x0504).AsResponse(c)
 	}
 
-	// Randomly select 25 tiles using Fisher-Yates shuffle
+	// Randomly select 24 tiles from filtered available
 	selectedTiles := make([]string, 25)
-	availableIndices := make([]int, len(availableTileIDs))
+	availableIndices := make([]int, len(filteredAvailable))
 	for i := range availableIndices {
 		availableIndices[i] = i
 	}
 
-	for i := 0; i < 25; i++ {
+	// Fisher-Yates shuffle to select 24 random tiles
+	for i := 0; i < 24; i++ {
 		j := rand.Intn(len(availableIndices)-i) + i
 		availableIndices[i], availableIndices[j] = availableIndices[j], availableIndices[i]
-		selectedTiles[i] = availableTileIDs[availableIndices[i]]
+		selectedTiles[i] = filteredAvailable[availableIndices[i]]
 	}
+
+	// Shift tiles after index 11 to make room for center
+	for i := 23; i >= 12; i-- {
+		selectedTiles[i+1] = selectedTiles[i]
+	}
+
+	// Place "Show Is Late" in the center (index 12)
+	selectedTiles[12] = showIsLateTile.ID
 
 	// Calculate potential score
 	showTileMap := make(map[string]models.ShowTile)

@@ -31,7 +31,7 @@ type UpdateTileRequest struct {
 }
 
 func init() {
-	utils.RegisterRouter("/api/host", BuildRouter)
+	utils.RegisterRouter("/host", BuildRouter)
 }
 
 func BuildRouter(router fiber.Router) {

@@ -89,6 +89,28 @@ func DefaultPermissions() Permission {
 	return PermCanChat | PermCanSendMessages | PermCanSendWhispers | PermCanDeleteOwnMessages | PermCanSuggestTiles
 }
 
+// AdminPermissions returns full permissions for admin users
+func AdminPermissions() Permission {
+	// Give all permissions except the ones that might not be implemented yet
+	return PermCanChat |
+		PermCanSendMessages |
+		PermCanSendWhispers |
+		PermCanDeleteOwnMessages |
+		PermCanDeleteMessages |
+		PermCanBanUsers |
+		PermCanKickUsers |
+		PermCanMuteUsers |
+		PermCanUnmuteUsers |
+		PermCanHost |
+		PermCanModerate |
+		PermCanManageChat |
+		PermCanManageChatPermissions |
+		PermCanSuggestTiles |
+		PermCanReviewTiles |
+		PermCanApproveTiles |
+		PermCanManageTiles
+}
+
 // HasPermission checks if a permission set contains a specific permission
 func (p Permission) HasPermission(perm Permission) bool {
 	return p&perm != 0

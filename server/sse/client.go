@@ -5,6 +5,7 @@ import (
 	"context"
 	"log"
 	"time"
+	"wanshow-bingo/avatar"
 	"wanshow-bingo/db"
 	"wanshow-bingo/db/models"
 	"wanshow-bingo/whenplane"
@@ -12,6 +13,14 @@ import (
 	"github.com/gofiber/fiber/v2"
 	gonanoid "github.com/matoous/go-nanoid/v2"
 )
+
+// avatarKey safely extracts string value from *string
+func avatarKey(avatar *string) string {
+	if avatar == nil {
+		return ""
+	}
+	return *avatar
+}
 
 type Client struct {
 	Id              string
@@ -200,7 +209,7 @@ func SendChatHistory(c *Client) {
 				playerMap[player.ID] = map[string]interface{}{
 					"id":           player.ID,
 					"display_name": player.DisplayName,
-					"avatar":       player.Avatar,
+					"avatar":       avatar.GetAvatarURL(avatarKey(player.Avatar)),
 					"permissions":  player.Permissions,
 					"settings":     player.Settings,
 					"created_at":   player.CreatedAt,

@@ -1,6 +1,7 @@
 package me
 
 import (
+	"wanshow-bingo/avatar"
 	"wanshow-bingo/middleware"
 	"wanshow-bingo/utils"
 
@@ -38,7 +39,7 @@ func Put(c *fiber.Ctx) error {
 			"id":           player.ID,
 			"did":          player.DID,
 			"display_name": player.DisplayName,
-			"avatar":       player.Avatar,
+			"avatar":       avatar.GetAvatarURL(avatarKey(player.Avatar)),
 			"settings":     player.Settings,
 			"score":        player.Score,
 			"created_at":   player.CreatedAt,

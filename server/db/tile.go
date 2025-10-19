@@ -3,6 +3,7 @@ package db
 import (
 	"context"
 	"errors"
+	"log"
 	"wanshow-bingo/db/models"
 
 	"github.com/jackc/pgx/v5"
@@ -235,16 +236,18 @@ func DeleteTileConfirmation(ctx context.Context, showID, tileID string, tx ...pg
 }
 
 // GetTileConfirmationsForShow retrieves all tile confirmations for a specific show
+// Only returns confirmations for tiles that still exist (not deleted)
 func GetTileConfirmationsForShow(ctx context.Context, showID string, tx ...pgx.Tx) ([]models.TileConfirmation, error) {
 	var rows pgx.Rows
 	var err error
 
 	if len(tx) > 0 {
 		rows, err = tx[0].Query(ctx, `
-			SELECT id, show_id, tile_id, confirmed_by, context, confirmation_time, created_at, updated_at, deleted_at
-			FROM tile_confirmations
-			WHERE show_id = $1 AND deleted_at IS NULL
-			ORDER BY confirmation_time
+			SELECT tc.id, tc.show_id, tc.tile_id, tc.confirmed_by, tc.context, tc.confirmation_time, tc.created_at, tc.updated_at, tc.deleted_at
+			FROM tile_confirmations tc
+			INNER JOIN tiles t ON tc.tile_id = t.id
+			WHERE tc.show_id = $1 AND tc.deleted_at IS NULL AND t.deleted_at IS NULL
+			ORDER BY tc.confirmation_time
 		`, showID)
 	} else {
 		pool := Pool()
@@ -252,10 +255,11 @@ func GetTileConfirmationsForShow(ctx context.Context, showID string, tx ...pgx.T
 			return nil, errors.New("database not available")
 		}
 		rows, err = pool.Query(ctx, `
-			SELECT id, show_id, tile_id, confirmed_by, context, confirmation_time, created_at, updated_at, deleted_at
-			FROM tile_confirmations
-			WHERE show_id = $1 AND deleted_at IS NULL
-			ORDER BY confirmation_time
+			SELECT tc.id, tc.show_id, tc.tile_id, tc.confirmed_by, tc.context, tc.confirmation_time, tc.created_at, tc.updated_at, tc.deleted_at
+			FROM tile_confirmations tc
+			INNER JOIN tiles t ON tc.tile_id = t.id
+			WHERE tc.show_id = $1 AND tc.deleted_at IS NULL AND t.deleted_at IS NULL
+			ORDER BY tc.confirmation_time
 		`, showID)
 	}
 
@@ -264,9 +268,25 @@ func GetTileConfirmationsForShow(ctx context.Context, showID string, tx ...pgx.T
 	}
 	defer rows.Close()
 
-	confirmations, err := pgx.CollectRows(rows, pgx.RowToStructByName[models.TileConfirmation])
-	if err != nil {
-		return nil, err
+	var confirmations []models.TileConfirmation
+	for rows.Next() {
+		var conf models.TileConfirmation
+		err := rows.Scan(
+			&conf.ID,
+			&conf.ShowID,
+			&conf.TileID,
+			&conf.ConfirmedBy,
+			&conf.Context,
+			&conf.ConfirmationTime,
+			&conf.CreatedAt,
+			&conf.UpdatedAt,
+			&conf.DeletedAt,
+		)
+		if err != nil {
+			log.Printf("Error scanning tile confirmation row: %v", err)
+			return nil, err
+		}
+		confirmations = append(confirmations, conf)
 	}
 
 	return confirmations, nil

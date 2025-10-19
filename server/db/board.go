@@ -247,6 +247,29 @@ func GetBoardForPlayer(ctx context.Context, playerID, showID string, tx ...pgx.T
 	return GetBoardByPlayerAndShow(ctx, playerID, showID, tx...)
 }
 
+// UpdateBoardWinner updates the winner status of a player's board
+func UpdateBoardWinner(ctx context.Context, boardID string, winner bool, tx ...pgx.Tx) error {
+	if len(tx) > 0 {
+		_, err := tx[0].Exec(ctx, `
+			UPDATE boards
+			SET winner = $1, updated_at = NOW()
+			WHERE id = $2
+		`, winner, boardID)
+		return err
+	} else {
+		pool := Pool()
+		if pool == nil {
+			return errors.New("database not available")
+		}
+		_, err := pool.Exec(ctx, `
+			UPDATE boards
+			SET winner = $1, updated_at = NOW()
+			WHERE id = $2
+		`, winner, boardID)
+		return err
+	}
+}
+
 // RegenerateBoardForPlayer regenerates a player's board with new tiles and updated diminisher
 func RegenerateBoardForPlayer(ctx context.Context, playerID, showID string, newDiminisher float64, tx ...pgx.Tx) (*models.Board, error) {
 	// Get the "Show Is Late" tile
