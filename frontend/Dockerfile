@@ -21,7 +21,7 @@ ENV NEXT_PUBLIC_API_ROOT=$NEXT_PUBLIC_API_ROOT
 RUN bun run build
 
 # Production stage
-FROM node:24-alpine AS runner
+FROM oven/bun:1.3 AS runner
 
 WORKDIR /app
 
@@ -29,12 +29,13 @@ WORKDIR /app
 COPY --from=builder /app/.next ./.next
 COPY --from=builder /app/public ./public
 COPY --from=builder /app/package.json ./
+COPY --from=builder /app/next.config.mjs ./next.config.mjs
 
 # Install only production dependencies
-RUN npm install --only=production
+RUN bun install --omit=dev
 
 # Expose port
 EXPOSE 3000
 
 # Start the application
-CMD ["npm", "start"]
+CMD ["bun", "run", "start"]
