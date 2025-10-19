@@ -29,9 +29,10 @@ interface Timer {
 
 interface TileConfirmationPanelProps {
   showLateButton?: boolean
+  columns?: number
 }
 
-export function TileConfirmationPanel({ showLateButton }: TileConfirmationPanelProps = {}) {
+export function TileConfirmationPanel({ showLateButton, columns = 3 }: TileConfirmationPanelProps = {}) {
     const {confirmedTiles, locks} = useHost()
     const {user} = useAuth()
 
@@ -453,53 +454,53 @@ export function TileConfirmationPanel({ showLateButton }: TileConfirmationPanelP
                             </div>
                         </div>
                     )}
-                <div className="flex flex-row flex-wrap gap-4">
-                    {categories.map((category) => (
-                        <div key={category} className="max-w-[40dvw] bg-muted p-4 rounded-lg">
-                            <h3 className="mb-3 font-semibold text-foreground text-lg flex items-center gap-2">
-                                {category}
-                                <span className="text-sm text-muted-foreground flex items-center gap-1">
-                                    <Play className="h-4 w-4 text-green-500"/>
-                                    {categoryStats[category].inPlay}
-                                    <span className="mx-1">/</span>
-                                    <Hash className="h-4 w-4"/>
-                                    {categoryStats[category].total}
-                                </span>
-                            </h3>
-                            <div className="flex flex-row flex-wrap gap-2">
-                                {tilesByCategory[category]
-                                    .sort((a, b) => a.title.localeCompare(b.title))
-                                    .map((tile) => {
-                                        const isLocked = locks.has(tile.id)
-                                        const isConfirmed = confirmedTiles.has(tile.id)
-                                        const isInPlay = showTileIds.has(tile.id)
+                 <div className="columns-2 gap-4" style={{columnFill: 'balance'}}>
+                     {categories.map((category) => (
+                         <div key={category} className="bg-muted p-4 rounded-lg mb-4 break-inside-avoid" style={{width: '100%'}}>
+                             <h3 className="mb-3 font-semibold text-foreground text-lg flex items-center gap-2">
+                                 {category}
+                                 <span className="text-sm text-muted-foreground flex items-center gap-1">
+                                     <Play className="h-4 w-4 text-green-500"/>
+                                     {categoryStats[category].inPlay}
+                                     <span className="mx-1">/</span>
+                                     <Hash className="h-4 w-4"/>
+                                     {categoryStats[category].total}
+                                 </span>
+                             </h3>
+                             <div className="grid grid-cols-2 gap-2">
+                                 {tilesByCategory[category]
+                                     .sort((a, b) => a.title.localeCompare(b.title))
+                                     .map((tile) => {
+                                         const isLocked = locks.has(tile.id)
+                                         const isConfirmed = confirmedTiles.has(tile.id)
+                                         const isInPlay = showTileIds.has(tile.id)
 
-                                         const tileSettings = tile.settings as any
-                                         const requiresTimer = tileSettings?.requiresTimer
+                                          const tileSettings = tile.settings as any
+                                          const requiresTimer = tileSettings?.requiresTimer
 
-                                         return (
-                                             <Button
-                                                 key={tile.id}
-                                                 variant="outline"
-                                                 className={`justify-start text-left h-auto py-2 ${isConfirmed ? "border-primary" : ""}`}
-                                                 onClick={() => handleTileClick(tile)}
-                                                 disabled={isLocked && locks.get(tile.id)?.lockedBy !== "You"}
-                                             >
-                                                  <span className={`flex-1 truncate ${getTextSizeClass(getHostPanelTextSize())}`}>{tile.title}</span>
-                                                 {requiresTimer && <Clock
-                                                     className="ml-2 h-4 w-4 text-orange-500 flex-shrink-0"/>}
-                                                 {isInPlay && <Play
-                                                     className="ml-2 h-4 w-4 text-green-500 flex-shrink-0"/>}
-                                                 {isConfirmed && <CheckCircle2
-                                                     className="ml-2 h-4 w-4 text-primary flex-shrink-0"/>}
-                                                 {isLocked && <Lock
-                                                     className="ml-2 h-4 w-4 text-muted-foreground flex-shrink-0"/>}
-                                             </Button>
-                                         )
-                                    })}
-                            </div>
-                        </div>
-                     ))}
+                                          return (
+                                              <Button
+                                                  key={tile.id}
+                                                  variant={isConfirmed ? "default" : "secondary"}
+                                                  className={`justify-start text-left h-auto py-2 w-full ${isConfirmed ? "border-primary bg-primary/10 hover:bg-primary/20" : "bg-background hover:bg-background/80"}`}
+                                                  onClick={() => handleTileClick(tile)}
+                                                  disabled={isLocked && locks.get(tile.id)?.lockedBy !== "You"}
+                                              >
+                                                   <span className={`flex-1 truncate ${getTextSizeClass(getHostPanelTextSize())}`}>{tile.title}</span>
+                                                  {requiresTimer && <Clock
+                                                      className="ml-2 h-4 w-4 text-orange-500 flex-shrink-0"/>}
+                                                  {isInPlay && <Play
+                                                      className="ml-2 h-4 w-4 text-green-500 flex-shrink-0"/>}
+                                                  {isConfirmed && <CheckCircle2
+                                                      className="ml-2 h-4 w-4 text-primary flex-shrink-0"/>}
+                                                  {isLocked && <Lock
+                                                      className="ml-2 h-4 w-4 text-muted-foreground flex-shrink-0"/>}
+                                              </Button>
+                                          )
+                                     })}
+                             </div>
+                         </div>
+                      ))}
                  </div>
                 </div>
              </ScrollArea>
