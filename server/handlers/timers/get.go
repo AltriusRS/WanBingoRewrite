@@ -3,6 +3,7 @@ package timers
 import (
 	"context"
 	"log"
+	"strconv"
 	"strings"
 	"time"
 	"wanshow-bingo/db"
@@ -68,16 +69,16 @@ func GetTimers(c *fiber.Ctx) error {
 	countConditions := []string{}
 
 	if showID != "" {
-		conditions = append(conditions, "show_id = $"+string(rune(len(args)+1)))
-		countConditions = append(countConditions, "show_id = $"+string(rune(len(countArgs)+1)))
+		conditions = append(conditions, "show_id = $"+strconv.Itoa(len(args)+1))
+		countConditions = append(countConditions, "show_id = $"+strconv.Itoa(len(countArgs)+1))
 		args = append(args, showID)
 		countArgs = append(countArgs, showID)
 	}
 
 	if isActive != "" {
 		active := isActive == "true"
-		conditions = append(conditions, "is_active = $"+string(rune(len(args)+1)))
-		countConditions = append(countConditions, "is_active = $"+string(rune(len(countArgs)+1)))
+		conditions = append(conditions, "is_active = $"+strconv.Itoa(len(args)+1))
+		countConditions = append(countConditions, "is_active = $"+strconv.Itoa(len(countArgs)+1))
 		args = append(args, active)
 		countArgs = append(countArgs, active)
 	}
@@ -89,7 +90,7 @@ func GetTimers(c *fiber.Ctx) error {
 		baseCountQuery += " AND " + strings.Join(countConditions, " AND ")
 	}
 
-	query = baseQuery + " ORDER BY " + orderBy + " " + orderDir + " LIMIT $" + string(rune(len(args)+1)) + " OFFSET $" + string(rune(len(args)+2))
+	query = baseQuery + " ORDER BY " + orderBy + " " + orderDir + " LIMIT $" + strconv.Itoa(len(args)+1) + " OFFSET $" + strconv.Itoa(len(args)+2)
 	args = append(args, limit, offset)
 
 	countQuery = baseCountQuery
