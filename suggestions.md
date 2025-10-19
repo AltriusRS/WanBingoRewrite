@@ -4,7 +4,7 @@
 
 - [x] Add hide/show chat toggle on host panel
 - [x] Add pop out chat to separate window
-- [ ] Add text size setting for bingo board
+- [x] Add text size setting for bingo board
 - [ ] Add text size setting for host panel
 - [ ] Add font selection for website
 - [ ] Add dyslexia friendly font toggle
