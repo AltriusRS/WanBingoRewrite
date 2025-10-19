@@ -1,4 +1,5 @@
 "use client"
+import { useState } from "react"
 import { Button } from "@/components/ui/button"
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
 import { TileConfirmationPanel } from "./tile-confirmation-panel"
@@ -14,6 +15,7 @@ import Link from "next/link"
 
 export function HostDashboard() {
   const { user, logout } = useAuth()
+  const [showChat, setShowChat] = useState(true)
 
   const handleSignOut = async () => {
     await logout()
@@ -40,6 +42,9 @@ export function HostDashboard() {
               </div>
             </div>
             <div className="flex items-center gap-2">
+              <Button variant="outline" size="sm" onClick={() => setShowChat(!showChat)} className="gap-2 bg-transparent">
+                {showChat ? "Hide Chat" : "Show Chat"}
+              </Button>
               <Button variant="outline" size="sm" asChild className="gap-2 bg-transparent">
                 <Link href="/">
                   <ArrowLeft className="h-4 w-4" />
@@ -55,7 +60,7 @@ export function HostDashboard() {
         </header>
 
         {/* Main Content */}
-        <div className="container mx-auto flex flex-1 gap-4 overflow-hidden p-4">
+        <div className="w-full flex flex-1 gap-4 overflow-hidden px-24 py-4">
           <Tabs defaultValue="tiles" className="flex flex-1 flex-col">
             <TabsList className="w-full justify-start">
               <TabsTrigger value="tiles">Tile Confirmation</TabsTrigger>
@@ -66,11 +71,15 @@ export function HostDashboard() {
             </TabsList>
 
              <TabsContent value="tiles" className="flex-1 overflow-hidden">
-               <div className="grid h-full gap-4 lg:grid-cols-[1fr_600px]">
-                 <TileConfirmationPanel />
-                 <HostChatPanel />
-               </div>
-             </TabsContent>
+              {showChat ? (
+                <div className="grid h-full gap-4 lg:grid-cols-[1fr_600px]">
+                  <TileConfirmationPanel />
+                  <HostChatPanel />
+                </div>
+              ) : (
+                <TileConfirmationPanel showLateButton={true} />
+              )}
+            </TabsContent>
 
             <TabsContent value="timers" className="flex-1">
               <TimerPanel />

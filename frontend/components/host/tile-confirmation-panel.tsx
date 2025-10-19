@@ -10,6 +10,7 @@ import {CheckCircle2, Clock, Hash, Lock, Pause, Play, RotateCcw, Trash2} from "l
 import {getApiRoot} from "@/lib/auth";
 import {toast} from "sonner"
 import {useHost} from "./host-context"
+import {useAuth} from "@/components/auth"
 
 
 interface Timer {
@@ -26,8 +27,13 @@ interface Timer {
     updated_at: string
 }
 
-export function TileConfirmationPanel() {
+interface TileConfirmationPanelProps {
+  showLateButton?: boolean
+}
+
+export function TileConfirmationPanel({ showLateButton }: TileConfirmationPanelProps = {}) {
     const {confirmedTiles, locks} = useHost()
+    const {user} = useAuth()
     const [tiles, setTiles] = useState<BingoTile[]>([])
     // const [stats, setStats] = useState<Map<string, TileStats>>(new Map())
     const [loading, setLoading] = useState(true)
@@ -37,17 +43,21 @@ export function TileConfirmationPanel() {
     const [timers, setTimers] = useState<Timer[]>([])
     const [currentTime, setCurrentTime] = useState(new Date())
     const [selectedTimer, setSelectedTimer] = useState<Timer | null>(null)
+    const [lateTile, setLateTile] = useState<BingoTile | null>(null)
 
     useEffect(() => {
         fetchTiles()
         fetchShowTiles()
         fetchTimers()
+        if (showLateButton) {
+            fetchLateTile()
+        }
         // Update current time every second for countdown
         const interval = setInterval(() => {
             setCurrentTime(new Date())
         }, 1000)
         return () => clearInterval(interval)
-    }, [])
+    }, [showLateButton])
 
     const formatTime = (expiresAt?: string) => {
         if (!expiresAt) return "00:00"
@@ -150,6 +160,48 @@ export function TileConfirmationPanel() {
             setTimers(data.timers)
         } catch (error) {
             console.error("Failed to fetch timers:", error)
+        }
+    }
+
+    const fetchLateTile = async () => {
+        try {
+            const response = await fetch(`${getApiRoot()}/tiles?category=Late`)
+            const data = await response.json()
+            const tiles: BingoTile[] = data.tiles
+            const late = tiles.find(t => t.title === "Show Is Late")
+            if (late) setLateTile(late)
+        } catch (error) {
+            console.error("Failed to fetch late tile:", error)
+        }
+    }
+
+    const handleConfirmLate = async () => {
+        if (!lateTile) return
+
+        console.log(`[TileConfirmationPanel] Confirming late tile ${lateTile.id}`)
+        console.log(`[TileConfirmationPanel] Current confirmed tiles:`, Array.from(confirmedTiles))
+
+        try {
+            const response = await fetch(`${getApiRoot()}/tiles/confirmations`, {
+                method: "POST",
+                headers: { "Content-Type": "application/json" },
+                credentials: "include",
+                body: JSON.stringify({
+                    tile_id: lateTile.id,
+                    context: "",
+                }),
+            })
+
+            if (!response.ok) {
+                const errorText = await response.text()
+                throw new Error(`Failed to confirm tile: ${response.status} ${errorText}`)
+            }
+
+            console.log(`[TileConfirmationPanel] Late tile confirmation successful`)
+            toast.success("Show Is Late has been confirmed successfully.")
+        } catch (error) {
+            console.error("Failed to confirm late tile:", error)
+            toast.error(error instanceof Error ? error.message : "An error occurred")
         }
     }
 
@@ -347,6 +399,20 @@ export function TileConfirmationPanel() {
         <>
             <ScrollArea className="h-[calc(100vh-12rem)]">
                 <div className="space-y-4">
+                    {showLateButton && lateTile && (
+                        <div className="bg-muted p-4 rounded-lg">
+                            <Button
+                                variant="outline"
+                                size="sm"
+                                className="w-full gap-2"
+                                onClick={handleConfirmLate}
+                                disabled={confirmedTiles.has(lateTile.id)}
+                            >
+                                <Clock className="h-4 w-4" />
+                                {confirmedTiles.has(lateTile.id) ? "Show Is Late Confirmed" : "Confirm Show Is Late"}
+                            </Button>
+                        </div>
+                    )}
                     {timers.length > 0 && (
                         <div className="mb-4">
                             <h3 className="font-semibold text-foreground mb-2">Ongoing Timers</h3>
@@ -370,8 +436,9 @@ export function TileConfirmationPanel() {
                             </div>
                         </div>
                     )}
+                <div className="flex flex-row flex-wrap gap-4">
                     {categories.map((category) => (
-                        <div key={category} className="bg-muted p-4 rounded-lg">
+                        <div key={category} className="max-w-[40dvw] bg-muted p-4 rounded-lg">
                             <h3 className="mb-3 font-semibold text-foreground text-lg flex items-center gap-2">
                                 {category}
                                 <span className="text-sm text-muted-foreground flex items-center gap-1">
@@ -382,7 +449,7 @@ export function TileConfirmationPanel() {
                                     {categoryStats[category].total}
                                 </span>
                             </h3>
-                            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-2">
+                            <div className="flex flex-row flex-wrap gap-2">
                                 {tilesByCategory[category]
                                     .sort((a, b) => a.title.localeCompare(b.title))
                                     .map((tile) => {

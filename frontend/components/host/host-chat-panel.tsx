@@ -144,18 +144,7 @@ export function HostChatPanel({onClose}: {onClose?: () => void}) {
                                 {chatContext.episode.actual_start_time ? `Live for ${chatContext.liveTime}` : `Starts ${chatContext.liveTime}`}
                             </div>
                         </div>
-                        {lateTile && (
-                            <Button
-                                variant="outline"
-                                size="sm"
-                                className="mt-2 w-full gap-2"
-                                onClick={handleConfirmLate}
-                                disabled={confirmedTiles.has(lateTile.id)}
-                            >
-                                <Clock className="h-4 w-4" />
-                                {confirmedTiles.has(lateTile.id) ? "Show Is Late Confirmed" : "Confirm Show Is Late"}
-                            </Button>
-                        )}
+
                     </div>
                 </div>
             </div>
