@@ -499,9 +499,10 @@ export function TileConfirmationPanel({ showLateButton }: TileConfirmationPanelP
                                     })}
                             </div>
                         </div>
-                    ))}
+                     ))}
+                 </div>
                 </div>
-            </ScrollArea>
+             </ScrollArea>
 
             <TileConfirmationDialog
                 tile={selectedTile}

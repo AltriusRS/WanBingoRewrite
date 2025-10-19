@@ -4,13 +4,14 @@ import {HostDashboard} from "@/components/host/host-dashboard"
 import {HostChatPanel} from "@/components/host/host-chat-panel"
 import {getApiRoot} from "@/lib/auth";
 
-export default async function HostPage({ searchParams }: { searchParams: { [key: string]: string | string[] | undefined } }) {
+export default async function HostPage({ searchParams }: { searchParams: Promise<{ [key: string]: string | string[] | undefined }> }) {
     const user = await getCurrentUserServer()
 
     if (!user) {
         redirect(`${getApiRoot()}/auth/discord/login`)
     }
 
+    const params = await searchParams
     const isUserHost = (user.permissions & 512) !== 0
 
     if (!isUserHost) {
@@ -25,7 +26,7 @@ export default async function HostPage({ searchParams }: { searchParams: { [key:
         )
     }
 
-    if (searchParams.chat) {
+    if (params.chat) {
         return (
             <div className="h-screen bg-background">
                 <HostChatPanel onClose={() => window.close()} />
