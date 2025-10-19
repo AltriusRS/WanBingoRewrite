@@ -1,6 +1,7 @@
 package timers
 
 import (
+	"wanshow-bingo/middleware"
 	"wanshow-bingo/utils"
 
 	"github.com/gofiber/fiber/v2"
@@ -13,9 +14,12 @@ func init() {
 func BuildRouter(router fiber.Router) {
 	router.Get("/", GetTimers)
 	router.Get("/:id", GetTimerByID)
-	router.Post("/", CreateTimer)
-	router.Put("/:id", UpdateTimer)
-	router.Delete("/:id", DeleteTimer)
-	router.Post("/:id/start", StartTimer)
-	router.Post("/:id/stop", StopTimer)
+
+	// Protected routes that require authentication
+	auth := router.Group("", middleware.AuthMiddleware)
+	auth.Post("/", CreateTimer)
+	auth.Put("/:id", UpdateTimer)
+	auth.Delete("/:id", DeleteTimer)
+	auth.Post("/:id/start", StartTimer)
+	auth.Post("/:id/stop", StopTimer)
 }

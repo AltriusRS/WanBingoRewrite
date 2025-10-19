@@ -114,16 +114,22 @@ func UpdateTile(c *fiber.Ctx) error {
 
 	var req UpdateTileRequest
 	if err := c.BodyParser(&req); err != nil {
+		log.Printf("Failed to parse request body: %v", err)
 		return c.Status(fiber.StatusBadRequest).JSON(utils.NewApiError("Invalid request body", 400))
 	}
+
+	log.Printf("UpdateTile request: %+v", req)
 
 	ctx := context.Background()
 
 	// Get existing tile
 	tile, err := db.GetTileByID(ctx, tileID)
 	if err != nil {
+		log.Printf("Failed to get tile %s: %v", tileID, err)
 		return c.Status(fiber.StatusNotFound).JSON(utils.NewApiError("Tile not found", 404))
 	}
+
+	log.Printf("Existing tile settings: %+v", tile.Settings)
 
 	// Update fields
 	if req.Text != nil {
@@ -139,15 +145,28 @@ func UpdateTile(c *fiber.Ctx) error {
 		tile.Score = *req.Score
 	}
 	if req.Settings != nil {
+		log.Printf("Updating settings to: %+v", req.Settings)
 		tile.Settings = req.Settings
 	}
 
 	tile.UpdatedAt = time.Now()
 
+	log.Printf("Tile before persist: %+v", tile)
+
 	err = db.PersistTile(ctx, tile)
 	if err != nil {
 		log.Printf("Failed to update tile: %v", err)
 		return c.Status(fiber.StatusInternalServerError).JSON(utils.NewApiError("Failed to update tile", 500))
+	}
+
+	log.Printf("Tile updated successfully")
+
+	// Fetch the updated tile to verify
+	updatedTile, err := db.GetTileByID(ctx, tileID)
+	if err != nil {
+		log.Printf("Failed to fetch updated tile: %v", err)
+	} else {
+		log.Printf("Updated tile settings: %+v", updatedTile.Settings)
 	}
 
 	return c.JSON(tile)

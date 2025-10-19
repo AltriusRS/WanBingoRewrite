@@ -151,7 +151,7 @@ func StartTimer(ctx context.Context, timerID string, tx ...pgx.Tx) error {
 	if len(tx) > 0 {
 		_, err := tx[0].Exec(ctx, `
 			UPDATE timers
-			SET is_active = true, starts_at = $1, expires_at = $1 + (duration || ' seconds')::interval, updated_at = CURRENT_TIMESTAMP
+			SET is_active = true, starts_at = $1, expires_at = $1 + make_interval(secs => duration), updated_at = CURRENT_TIMESTAMP
 			WHERE id = $2 AND deleted_at IS NULL
 		`, now, timerID)
 		return err
@@ -162,7 +162,7 @@ func StartTimer(ctx context.Context, timerID string, tx ...pgx.Tx) error {
 		}
 		_, err := pool.Exec(ctx, `
 			UPDATE timers
-			SET is_active = true, starts_at = $1, expires_at = $1 + (duration || ' seconds')::interval, updated_at = CURRENT_TIMESTAMP
+			SET is_active = true, starts_at = $1, expires_at = $1 + make_interval(secs => duration), updated_at = CURRENT_TIMESTAMP
 			WHERE id = $2 AND deleted_at IS NULL
 		`, now, timerID)
 		return err

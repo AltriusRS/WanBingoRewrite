@@ -35,6 +35,13 @@ func CreateTimer(c *fiber.Ctx) error {
 	// Set created_by to current player
 	timer.CreatedBy = &player.ID
 
+	// Automatically activate the timer when created
+	timer.IsActive = true
+	now := time.Now()
+	timer.StartsAt = &now
+	expiresAt := now.Add(time.Duration(timer.Duration) * time.Second)
+	timer.ExpiresAt = &expiresAt
+
 	// If no show_id provided, use latest show
 	if timer.ShowID == nil {
 		ctx, cancel := context.WithTimeout(context.Background(), 3*time.Second)

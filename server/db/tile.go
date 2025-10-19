@@ -164,8 +164,9 @@ func GetOrCreateShowIsLateTile(ctx context.Context, tx ...pgx.Tx) (*models.Tile,
 
 // PersistTile saves or updates a Tile in the database
 func PersistTile(ctx context.Context, tile *models.Tile, tx ...pgx.Tx) error {
+	log.Printf("PersistTile called for tile %s with settings: %+v", tile.ID, tile.Settings)
 	if len(tx) > 0 {
-		_, err := tx[0].Exec(ctx, `
+		result, err := tx[0].Exec(ctx, `
 			INSERT INTO tiles (id, title, category, weight, score, created_by, settings, created_at, updated_at)
 			VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9)
 			ON CONFLICT (id) DO UPDATE SET
@@ -173,15 +174,17 @@ func PersistTile(ctx context.Context, tile *models.Tile, tx ...pgx.Tx) error {
 				category = EXCLUDED.category,
 				weight = EXCLUDED.weight,
 				score = EXCLUDED.score,
+				settings = EXCLUDED.settings,
 				updated_at = EXCLUDED.updated_at
 		`, tile.ID, tile.Title, tile.Category, tile.Weight, tile.Score, tile.CreatedBy, tile.Settings, tile.CreatedAt, tile.UpdatedAt)
+		log.Printf("PersistTile result: %v, err: %v", result, err)
 		return err
 	} else {
 		pool := Pool()
 		if pool == nil {
 			return errors.New("database not available")
 		}
-		_, err := pool.Exec(ctx, `
+		result, err := pool.Exec(ctx, `
 			INSERT INTO tiles (id, title, category, weight, score, created_by, settings, created_at, updated_at)
 			VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9)
 			ON CONFLICT (id) DO UPDATE SET
@@ -189,8 +192,10 @@ func PersistTile(ctx context.Context, tile *models.Tile, tx ...pgx.Tx) error {
 				category = EXCLUDED.category,
 				weight = EXCLUDED.weight,
 				score = EXCLUDED.score,
+				settings = EXCLUDED.settings,
 				updated_at = EXCLUDED.updated_at
 		`, tile.ID, tile.Title, tile.Category, tile.Weight, tile.Score, tile.CreatedBy, tile.Settings, tile.CreatedAt, tile.UpdatedAt)
+		log.Printf("PersistTile result: %v, err: %v", result, err)
 		return err
 	}
 }

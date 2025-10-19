@@ -13,6 +13,7 @@ import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@
 import { Edit2, Trash2, Plus } from "lucide-react"
 import type { BingoTile } from "@/lib/bingoUtils"
 import { getApiRoot } from "@/lib/auth"
+import { toast } from "sonner"
 
 interface TileStats {
   tileId: string
@@ -263,25 +264,33 @@ function TileFormDialog({
     }
 
     try {
+      let response;
       if (tile) {
-        await fetch(`${getApiRoot()}/host/tiles/${tile.id}`, {
+        response = await fetch(`${getApiRoot()}/host/tiles/${tile.id}`, {
           method: "PATCH",
           headers: { "Content-Type": "application/json" },
           credentials: "include",
           body: JSON.stringify(data),
         })
       } else {
-        await fetch(`${getApiRoot()}/host/tiles`, {
+        response = await fetch(`${getApiRoot()}/host/tiles`, {
           method: "POST",
           headers: { "Content-Type": "application/json" },
           credentials: "include",
           body: JSON.stringify(data),
         })
       }
+
+      if (!response.ok) {
+        const errorText = await response.text()
+        throw new Error(`Failed to save tile: ${response.status} ${errorText}`)
+      }
+
       onSave()
       onClose()
     } catch (error) {
       console.error("Failed to save tile:", error)
+      toast.error(error instanceof Error ? error.message : "Failed to save tile")
     }
   }
 

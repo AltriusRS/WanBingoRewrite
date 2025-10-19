@@ -26,9 +26,15 @@ export function TimerPanel() {
     const [timers, setTimers] = useState<Timer[]>([])
     const [newTimerTitle, setNewTimerTitle] = useState("")
     const [newTimerDuration, setNewTimerDuration] = useState("")
+    const [currentTime, setCurrentTime] = useState(new Date())
 
     useEffect(() => {
         fetchTimers()
+        // Update current time every second for countdown
+        const interval = setInterval(() => {
+            setCurrentTime(new Date())
+        }, 1000)
+        return () => clearInterval(interval)
     }, [])
 
     const fetchTimers = async () => {
@@ -44,7 +50,7 @@ export function TimerPanel() {
     const addTimer = async () => {
         if (!newTimerTitle || !newTimerDuration) return
 
-        const duration = Number.parseInt(newTimerDuration)
+        const duration = Number.parseInt(newTimerDuration) * 60
         try {
             const response = await fetch(`${getApiRoot()}/timers`, {
                 method: "POST",
@@ -97,9 +103,8 @@ export function TimerPanel() {
 
     const formatTime = (expiresAt?: string) => {
         if (!expiresAt) return "00:00"
-        const now = new Date()
         const expires = new Date(expiresAt)
-        const diff = Math.max(0, Math.floor((expires.getTime() - now.getTime()) / 1000))
+        const diff = Math.max(0, Math.floor((expires.getTime() - currentTime.getTime()) / 1000))
         const mins = Math.floor(diff / 60)
         const secs = diff % 60
         return `${mins}:${secs.toString().padStart(2, "0")}`
@@ -138,43 +143,49 @@ export function TimerPanel() {
                 </div>
             </Card>
 
-            <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
+            {timers.length > 0 && (
+                <div>
+                    <h3 className="mb-2 font-semibold text-foreground">Active Timers</h3>
+                    <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-2">
                 {timers.map((timer) => (
-                    <Card key={timer.id} className="p-4">
-                        <div className="mb-3 flex items-start justify-between">
-                            <h4 className="font-medium text-foreground">{timer.title}</h4>
-                            <Button variant="ghost" size="icon" onClick={() => deleteTimer(timer.id)}>
-                                <Trash2 className="h-4 w-4"/>
-                            </Button>
+                    <Button
+                        key={timer.id}
+                        variant="outline"
+                        className="justify-start text-left h-auto py-2 relative"
+                        onClick={() => toggleTimer(timer.id)}
+                    >
+                        <div className="flex-1 truncate text-sm">
+                            <div className="font-medium">{timer.title}</div>
+                            <div className="text-xs text-muted-foreground">
+                                {formatTime(timer.expires_at)} / {timer.duration}s
+                            </div>
                         </div>
-
-                        <div className="mb-4 text-center">
-                            <p className="text-3xl font-bold text-foreground">{formatTime(timer.expires_at)}</p>
-                            <p className="text-sm text-muted-foreground">Duration: {timer.duration}s</p>
-                        </div>
-
-                        <Button variant="outline" className="w-full gap-2 bg-transparent"
-                                onClick={() => toggleTimer(timer.id)}>
-                            {timer.is_active ? (
-                                <>
-                                    <Pause className="h-4 w-4"/>
-                                    Stop
-                                </>
-                            ) : (
-                                <>
-                                    <Play className="h-4 w-4"/>
-                                    Start
-                                </>
-                            )}
+                        <Button
+                            variant="ghost"
+                            size="icon"
+                            className="h-6 w-6 absolute top-1 right-1"
+                            onClick={(e) => {
+                                e.stopPropagation()
+                                deleteTimer(timer.id)
+                            }}
+                        >
+                            <Trash2 className="h-3 w-3"/>
                         </Button>
-                    </Card>
+                        {timer.is_active ? (
+                            <Pause className="ml-2 h-4 w-4 text-green-500 flex-shrink-0"/>
+                        ) : (
+                            <Play className="ml-2 h-4 w-4 text-muted-foreground flex-shrink-0"/>
+                        )}
+                    </Button>
                 ))}
-            </div>
+                    </div>
+                </div>
+            )}
 
             {timers.length === 0 && (
-                <Card className="p-8 text-center">
+                <div className="text-center py-8">
                     <p className="text-muted-foreground">No timers created yet</p>
-                </Card>
+                </div>
             )}
         </div>
     )

@@ -6,51 +6,65 @@ import {Button} from "@/components/ui/button"
 import {ScrollArea} from "@/components/ui/scroll-area"
 import {TileConfirmationDialog} from "./tile-confirmation-dialog"
 import type {BingoTile} from "@/lib/bingoUtils"
-import {CheckCircle2, Hash, Lock, Play} from "lucide-react"
+import {CheckCircle2, Clock, Hash, Lock, Play} from "lucide-react"
 import {getApiRoot} from "@/lib/auth";
-import { toast } from "sonner"
-import { useHost } from "./host-context"
-
+import {toast} from "sonner"
+import {useHost} from "./host-context"
 
 
 interface Timer {
-  id: string
-  title: string
-  duration: number
-  created_by?: string
-  show_id?: string
-  starts_at?: string
-  expires_at?: string
-  is_active: boolean
-  settings: any
-  created_at: string
-  updated_at: string
+    id: string
+    title: string
+    duration: number
+    created_by?: string
+    show_id?: string
+    starts_at?: string
+    expires_at?: string
+    is_active: boolean
+    settings: any
+    created_at: string
+    updated_at: string
 }
 
 export function TileConfirmationPanel() {
-  const { confirmedTiles, locks } = useHost()
-  const [tiles, setTiles] = useState<BingoTile[]>([])
-  // const [stats, setStats] = useState<Map<string, TileStats>>(new Map())
-  const [loading, setLoading] = useState(true)
-  const [selectedTile, setSelectedTile] = useState<BingoTile | null>(null)
-  const [showTileIds, setShowTileIds] = useState<Set<string>>(new Set())
-  const [revokeMode, setRevokeMode] = useState(false)
-  const [timers, setTimers] = useState<Timer[]>([])
+    const {confirmedTiles, locks} = useHost()
+    const [tiles, setTiles] = useState<BingoTile[]>([])
+    // const [stats, setStats] = useState<Map<string, TileStats>>(new Map())
+    const [loading, setLoading] = useState(true)
+    const [selectedTile, setSelectedTile] = useState<BingoTile | null>(null)
+    const [showTileIds, setShowTileIds] = useState<Set<string>>(new Set())
+    const [revokeMode, setRevokeMode] = useState(false)
+    const [timers, setTimers] = useState<Timer[]>([])
+    const [currentTime, setCurrentTime] = useState(new Date())
 
-  useEffect(() => {
-    fetchTiles()
-    fetchShowTiles()
-    fetchTimers()
-  }, [])
+    useEffect(() => {
+        fetchTiles()
+        fetchShowTiles()
+        fetchTimers()
+        // Update current time every second for countdown
+        const interval = setInterval(() => {
+            setCurrentTime(new Date())
+        }, 1000)
+        return () => clearInterval(interval)
+    }, [])
 
-  // Debug logging for state changes
-  useEffect(() => {
-    console.log("[TileConfirmationPanel] Locks updated:", Array.from(locks.entries()))
-  }, [locks])
+    const formatTime = (expiresAt?: string) => {
+        if (!expiresAt) return "00:00"
+        const expires = new Date(expiresAt)
+        const diff = Math.max(0, Math.floor((expires.getTime() - currentTime.getTime()) / 1000))
+        const mins = Math.floor(diff / 60)
+        const secs = diff % 60
+        return `${mins}:${secs.toString().padStart(2, "0")}`
+    }
 
-  useEffect(() => {
-    console.log("[TileConfirmationPanel] Confirmed tiles updated:", Array.from(confirmedTiles))
-  }, [confirmedTiles])
+    // Debug logging for state changes
+    useEffect(() => {
+        console.log("[TileConfirmationPanel] Locks updated:", Array.from(locks.entries()))
+    }, [locks])
+
+    useEffect(() => {
+        console.log("[TileConfirmationPanel] Confirmed tiles updated:", Array.from(confirmedTiles))
+    }, [confirmedTiles])
 
     const fetchTiles = async () => {
         try {
@@ -74,149 +88,184 @@ export function TileConfirmationPanel() {
         }
     }
 
-  const fetchShowTiles = async () => {
-    try {
-      const response = await fetch(`${getApiRoot()}/tiles/show`)
-      const data = await response.json()
-      setShowTileIds(new Set(data.tile_ids))
-    } catch (error) {
-      console.error("Failed to fetch show tiles:", error)
-    }
-  }
-
-  const fetchTimers = async () => {
-    try {
-      const response = await fetch(`${getApiRoot()}/timers?is_active=true`)
-      const data = await response.json()
-      setTimers(data.timers)
-    } catch (error) {
-      console.error("Failed to fetch timers:", error)
-    }
-  }
-
-  const handleTileClick = async (tile: BingoTile) => {
-    console.log(`[TileConfirmationPanel] handleTileClick called for tile: ${tile.id} (${tile.title})`)
-    const lock = locks.get(tile.id)
-    console.log(`[TileConfirmationPanel] Current lock state for ${tile.id}:`, lock)
-    console.log(`[TileConfirmationPanel] All locks:`, Array.from(locks.entries()))
-
-    if (lock) {
-      console.log(`[TileConfirmationPanel] Tile ${tile.id} is locked by ${lock.lockedBy}`)
-      alert(`This tile is currently locked by ${lock.lockedBy}`)
-      return
+    const fetchShowTiles = async () => {
+        try {
+            const response = await fetch(`${getApiRoot()}/tiles/show`)
+            const data = await response.json()
+            setShowTileIds(new Set(data.tile_ids))
+        } catch (error) {
+            console.error("Failed to fetch show tiles:", error)
+        }
     }
 
-    try {
-      console.log(`[TileConfirmationPanel] Attempting to lock tile ${tile.id}`)
-      // Call backend to acquire lock
-      const response = await fetch(`${getApiRoot()}/host/tile-locks`, {
-        method: "POST",
-        headers: {"Content-Type": "application/json"},
-        credentials: "include",
-        body: JSON.stringify({ tile_id: tile.id }),
-      })
-
-      if (!response.ok) {
-        const errorText = await response.text()
-        throw new Error(`Failed to lock tile: ${response.status} ${errorText}`)
-      }
-
-      console.log(`[TileConfirmationPanel] Lock request successful for tile ${tile.id}`)
-      // The lock will be updated via SSE event from the host context
-      setSelectedTile(tile)
-      setRevokeMode(confirmedTiles.has(tile.id))
-    } catch (error) {
-      console.error("Failed to lock tile:", error)
-      toast.error(error instanceof Error ? error.message : "Failed to lock tile")
+    const fetchTimers = async () => {
+        try {
+            const response = await fetch(`${getApiRoot()}/timers?is_active=true`)
+            const data = await response.json()
+            setTimers(data.timers)
+        } catch (error) {
+            console.error("Failed to fetch timers:", error)
+        }
     }
-  }
 
-  const handleConfirm = async (context: string) => {
-    if (!selectedTile) return
+    const handleTileClick = async (tile: BingoTile) => {
+        console.log(`[TileConfirmationPanel] handleTileClick called for tile: ${tile.id} (${tile.title})`)
+        const lock = locks.get(tile.id)
+        console.log(`[TileConfirmationPanel] Current lock state for ${tile.id}:`, lock)
+        console.log(`[TileConfirmationPanel] All locks:`, Array.from(locks.entries()))
 
-    console.log(`[TileConfirmationPanel] handleConfirm called for tile ${selectedTile.id}, revokeMode: ${revokeMode}`)
-
-    try {
-      if (revokeMode) {
-        console.log(`[TileConfirmationPanel] Revoking confirmation for tile ${selectedTile.id}`)
-        // Revoke confirmation
-        const response = await fetch(`${getApiRoot()}/host/confirmed-tiles/${selectedTile.id}`, {
-          method: "DELETE",
-          credentials: "include",
-        })
-
-        if (!response.ok) {
-          const errorText = await response.text()
-          throw new Error(`Failed to revoke confirmation: ${response.status} ${errorText}`)
+        if (lock) {
+            console.log(`[TileConfirmationPanel] Tile ${tile.id} is locked by ${lock.lockedBy}`)
+            alert(`This tile is currently locked by ${lock.lockedBy}`)
+            return
         }
 
-        console.log(`[TileConfirmationPanel] Revocation successful for tile ${selectedTile.id}`)
-        toast.success(`${selectedTile.title} confirmation has been revoked.`)
-      } else {
-        console.log(`[TileConfirmationPanel] Confirming tile ${selectedTile.id} with context: "${context}"`)
-        // Confirm tile
-        const response = await fetch(`${getApiRoot()}/tiles/confirmations`, {
-          method: "POST",
-          headers: { "Content-Type": "application/json" },
-          credentials: "include",
-          body: JSON.stringify({
-            tile_id: selectedTile.id,
-            context,
-          }),
-        })
+        try {
+            console.log(`[TileConfirmationPanel] Attempting to lock tile ${tile.id}`)
+            // Call backend to acquire lock
+            const response = await fetch(`${getApiRoot()}/host/tile-locks`, {
+                method: "POST",
+                headers: {"Content-Type": "application/json"},
+                credentials: "include",
+                body: JSON.stringify({tile_id: tile.id}),
+            })
 
-        if (!response.ok) {
-          const errorText = await response.text()
-          throw new Error(`Failed to confirm tile: ${response.status} ${errorText}`)
+            if (!response.ok) {
+                const errorText = await response.text()
+                throw new Error(`Failed to lock tile: ${response.status} ${errorText}`)
+            }
+
+            console.log(`[TileConfirmationPanel] Lock request successful for tile ${tile.id}`)
+            // The lock will be updated via SSE event from the host context
+            setSelectedTile(tile)
+            setRevokeMode(confirmedTiles.has(tile.id))
+        } catch (error) {
+            console.error("Failed to lock tile:", error)
+            toast.error(error instanceof Error ? error.message : "Failed to lock tile")
         }
-
-        console.log(`[TileConfirmationPanel] Confirmation successful for tile ${selectedTile.id}`)
-        toast.success(`${selectedTile.title} has been confirmed successfully.`)
-      }
-
-      // Unlock the tile
-      console.log(`[TileConfirmationPanel] Unlocking tile ${selectedTile.id}`)
-      try {
-        await fetch(`${getApiRoot()}/host/tile-unlocks`, {
-          method: "POST",
-          headers: {"Content-Type": "application/json"},
-          credentials: "include",
-          body: JSON.stringify({ tile_id: selectedTile.id }),
-        })
-        console.log(`[TileConfirmationPanel] Unlock request sent for tile ${selectedTile.id}`)
-      } catch (error) {
-        console.error("Failed to unlock tile:", error)
-      }
-
-      // The unlock will be updated via SSE event from the host context
-    } catch (error) {
-      console.error("Failed to confirm/revoke tile:", error)
-      toast.error(error instanceof Error ? error.message : "An error occurred")
     }
 
-    setSelectedTile(null)
-    setRevokeMode(false)
-  }
+    const handleConfirm = async (context: string) => {
+        if (!selectedTile) return
 
-  const handleCancel = async () => {
-    if (selectedTile) {
-      try {
-        // Call backend to release lock
-        await fetch(`${getApiRoot()}/host/tile-unlocks`, {
-          method: "POST",
-          headers: {"Content-Type": "application/json"},
-          credentials: "include",
-          body: JSON.stringify({ tile_id: selectedTile.id }),
-        })
-      } catch (error) {
-        console.error("Failed to unlock tile:", error)
-      }
+        try {
+            if (revokeMode) {
+                console.log(`[TileConfirmationPanel] Revoking tile ${selectedTile.id}`)
+                // Revoke tile confirmation
+                const response = await fetch(`${getApiRoot()}/host/confirmed-tiles/${selectedTile.id}`, {
+                    method: "DELETE",
+                    credentials: "include",
+                })
 
-      // The unlock will be updated via SSE event from the host context
+                if (!response.ok) {
+                    const errorText = await response.text()
+                    throw new Error(`Failed to revoke tile: ${response.status} ${errorText}`)
+                }
+
+                console.log(`[TileConfirmationPanel] Revocation successful for tile ${selectedTile.id}`)
+                toast.success(`${selectedTile.title} confirmation has been revoked.`)
+            } else {
+                console.log(`[TileConfirmationPanel] Confirming tile ${selectedTile.id} with context: "${context}"`)
+                // Confirm tile
+                const response = await fetch(`${getApiRoot()}/host/show-tiles`, {
+                    method: "POST",
+                    headers: {"Content-Type": "application/json"},
+                    credentials: "include",
+                    body: JSON.stringify({
+                        tile_id: selectedTile.id,
+                        context: context || undefined,
+                    }),
+                })
+
+                if (!response.ok) {
+                    const errorText = await response.text()
+                    throw new Error(`Failed to confirm tile: ${response.status} ${errorText}`)
+                }
+
+                console.log(`[TileConfirmationPanel] Confirmation successful for tile ${selectedTile.id}`)
+                toast.success(`${selectedTile.title} has been confirmed successfully.`)
+            }
+
+            // Unlock the tile
+            console.log(`[TileConfirmationPanel] Unlocking tile ${selectedTile.id}`)
+            try {
+                await fetch(`${getApiRoot()}/host/tile-unlocks`, {
+                    method: "POST",
+                    headers: {"Content-Type": "application/json"},
+                    credentials: "include",
+                    body: JSON.stringify({tile_id: selectedTile.id}),
+                })
+            } catch (unlockError) {
+                console.warn("Failed to unlock tile after confirmation:", unlockError)
+            }
+
+            setSelectedTile(null)
+        } catch (error) {
+            console.error("Failed to process tile:", error)
+            toast.error(error instanceof Error ? error.message : "Failed to process tile")
+        }
     }
-    setSelectedTile(null)
-    setRevokeMode(false)
-  }
+
+    const handleStartTimer = async () => {
+        if (!selectedTile) return
+
+        const tileSettings = selectedTile.settings as any
+        const timerInfo = tileSettings?.timer
+        if (!timerInfo) return
+
+        try {
+            // First, try to delete any existing timer with the same name
+            const existingTimer = timers.find(t => t.title === timerInfo.name)
+            if (existingTimer) {
+                await fetch(`${getApiRoot()}/timers/${existingTimer.id}`, {
+                    method: "DELETE",
+                    credentials: "include",
+                })
+            }
+
+            // Create new timer
+            const response = await fetch(`${getApiRoot()}/timers`, {
+                method: "POST",
+                headers: {"Content-Type": "application/json"},
+                credentials: "include",
+                body: JSON.stringify({
+                    title: timerInfo.name,
+                    duration: timerInfo.duration,
+                }),
+            })
+
+            if (!response.ok) {
+                const errorText = await response.text()
+                throw new Error(`Failed to create timer: ${response.status} ${errorText}`)
+            }
+
+            // Refresh timers list
+            fetchTimers()
+        } catch (error) {
+            console.error("Failed to start timer:", error)
+            throw error
+        }
+    }
+
+    const handleCancel = async () => {
+        if (selectedTile) {
+            try {
+                // Call backend to release lock
+                await fetch(`${getApiRoot()}/host/tile-unlocks`, {
+                    method: "POST",
+                    headers: {"Content-Type": "application/json"},
+                    credentials: "include",
+                    body: JSON.stringify({tile_id: selectedTile.id}),
+                })
+            } catch (error) {
+                console.error("Failed to unlock tile:", error)
+            }
+
+            // The unlock will be updated via SSE event from the host context
+        }
+        setSelectedTile(null)
+        setRevokeMode(false)
+    }
 
     // Group tiles by category
     const tilesByCategory = tiles.reduce(
@@ -251,81 +300,87 @@ export function TileConfirmationPanel() {
 
     return (
         <>
-            {timers.length > 0 && (
-                <Card className="p-4 mb-4">
-                    <h3 className="font-semibold text-foreground mb-2">Ongoing Timers</h3>
-                    <div className="space-y-2">
-                        {timers.map((timer) => (
-                            <div key={timer.id} className="flex items-center justify-between p-2 bg-muted rounded">
-                                <div>
-                                    <span className="font-medium">{timer.title}</span>
-                                    {timer.expires_at && (
-                                        <span className="text-sm text-muted-foreground ml-2">
-                                            Expires: {new Date(timer.expires_at).toLocaleTimeString()}
-                                        </span>
-                                    )}
-                                </div>
-                                <div className="text-sm text-muted-foreground">
-                                    {timer.created_by || "System"}
-                                </div>
-                            </div>
-                        ))}
-                    </div>
-                </Card>
-            )}
             <ScrollArea className="h-[calc(100vh-12rem)]">
                 <div className="space-y-4">
+                    {timers.length > 0 && (
+                        <div className="mb-4">
+                            <h3 className="font-semibold text-foreground mb-2">Ongoing Timers</h3>
+                            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-2">
+                                 {timers.map((timer) => (
+                                     <div key={timer.id}
+                                          className="flex items-center justify-between p-2 bg-muted rounded border">
+                                         <div className="flex-1">
+                                             <span className="font-medium text-sm">{timer.title}</span>
+                                             <div className="text-xs text-muted-foreground">
+                                                 <span className="font-mono">{formatTime(timer.expires_at)}</span>
+                                                 <span className="ml-1">/ {timer.duration}s</span>
+                                             </div>
+                                         </div>
+                                         {timer.is_active && (
+                                             <div className="w-2 h-2 bg-green-500 rounded-full flex-shrink-0"></div>
+                                         )}
+                                     </div>
+                                 ))}
+                            </div>
+                        </div>
+                    )}
                     {categories.map((category) => (
                         <div key={category} className="bg-muted p-4 rounded-lg">
-                                    <h3 className="mb-3 font-semibold text-foreground text-lg flex items-center gap-2">
-                                        {category}
-                                        <span className="text-sm text-muted-foreground flex items-center gap-1">
+                            <h3 className="mb-3 font-semibold text-foreground text-lg flex items-center gap-2">
+                                {category}
+                                <span className="text-sm text-muted-foreground flex items-center gap-1">
                                     <Play className="h-4 w-4 text-green-500"/>
-                                            {categoryStats[category].inPlay}
-                                            <span className="mx-1">/</span>
+                                    {categoryStats[category].inPlay}
+                                    <span className="mx-1">/</span>
                                     <Hash className="h-4 w-4"/>
-                                            {categoryStats[category].total}
+                                    {categoryStats[category].total}
                                 </span>
-                                    </h3>
-                                    <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-2">
-                                        {tilesByCategory[category]
-                                            .sort((a, b) => a.title.localeCompare(b.title))
-                                             .map((tile) => {
-                                                 const isLocked = locks.has(tile.id)
-                                                 const isConfirmed = confirmedTiles.has(tile.id)
-                                                 const isInPlay = showTileIds.has(tile.id)
+                            </h3>
+                            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-2">
+                                {tilesByCategory[category]
+                                    .sort((a, b) => a.title.localeCompare(b.title))
+                                    .map((tile) => {
+                                        const isLocked = locks.has(tile.id)
+                                        const isConfirmed = confirmedTiles.has(tile.id)
+                                        const isInPlay = showTileIds.has(tile.id)
 
-                                                 return (
-                                  <Button
-                                    key={tile.id}
-                                    variant="outline"
-                                    className={`justify-start text-left h-auto py-2 ${isConfirmed ? "border-primary" : ""}`}
-                                    onClick={() => handleTileClick(tile)}
-                                    disabled={isLocked && locks.get(tile.id)?.lockedBy !== "You"}
-                                  >
-                                                         <span className="flex-1 truncate text-sm">{tile.title}</span>
-                                                         {isInPlay && <Play
-                                                             className="ml-2 h-4 w-4 text-green-500 flex-shrink-0"/>}
-                                                         {isConfirmed && <CheckCircle2
-                                                             className="ml-2 h-4 w-4 text-primary flex-shrink-0"/>}
-                                                         {isLocked && <Lock
-                                                             className="ml-2 h-4 w-4 text-muted-foreground flex-shrink-0"/>}
-                                                      </Button>
-                                                 )
-                                             })}
-                                     </div>
-                                 </div>
-                     ))}
+                                         const tileSettings = tile.settings as any
+                                         const requiresTimer = tileSettings?.requiresTimer
+
+                                         return (
+                                             <Button
+                                                 key={tile.id}
+                                                 variant="outline"
+                                                 className={`justify-start text-left h-auto py-2 ${isConfirmed ? "border-primary" : ""}`}
+                                                 onClick={() => handleTileClick(tile)}
+                                                 disabled={isLocked && locks.get(tile.id)?.lockedBy !== "You"}
+                                             >
+                                                 <span className="flex-1 truncate text-sm">{tile.title}</span>
+                                                 {requiresTimer && <Clock
+                                                     className="ml-2 h-4 w-4 text-orange-500 flex-shrink-0"/>}
+                                                 {isInPlay && <Play
+                                                     className="ml-2 h-4 w-4 text-green-500 flex-shrink-0"/>}
+                                                 {isConfirmed && <CheckCircle2
+                                                     className="ml-2 h-4 w-4 text-primary flex-shrink-0"/>}
+                                                 {isLocked && <Lock
+                                                     className="ml-2 h-4 w-4 text-muted-foreground flex-shrink-0"/>}
+                                             </Button>
+                                         )
+                                    })}
+                            </div>
+                        </div>
+                    ))}
                 </div>
             </ScrollArea>
 
-      <TileConfirmationDialog
-        tile={selectedTile}
-        open={!!selectedTile}
-        revokeMode={revokeMode}
-        onConfirm={handleConfirm}
-        onCancel={handleCancel}
-      />
+            <TileConfirmationDialog
+                tile={selectedTile}
+                open={!!selectedTile}
+                revokeMode={revokeMode}
+                onConfirm={handleConfirm}
+                onCancel={handleCancel}
+                onStartTimer={handleStartTimer}
+            />
         </>
     )
 }
