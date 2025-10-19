@@ -11,6 +11,10 @@ RUN go mod download
 
 # Copy source code
 COPY . .
+
+# Copy migrations
+COPY ../migrations ./migrations
+
 RUN rm -rf .env .env.example
 
 # Build the binary
