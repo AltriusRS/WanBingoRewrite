@@ -17,6 +17,11 @@ export function HostDashboard() {
   const { user, logout } = useAuth()
   const [showChat, setShowChat] = useState(true)
 
+  useEffect(() => {
+    const isMobile = window.innerWidth < 768
+    setShowChat(!isMobile)
+  }, [])
+
   const handleSignOut = async () => {
     await logout()
     window.location.href = "/"
