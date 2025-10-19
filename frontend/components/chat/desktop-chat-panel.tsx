@@ -41,7 +41,7 @@ export function DesktopChatPanel({onClose}: ChatPanelProps) {
             <div className="shrink-0 border-b border-border bg-card p-4">
                 <div className="flex items-start justify-between gap-3">
                     <div className="min-w-0 flex-1">
-                        {chatContext.episode.youtube_id && chatContext.episode.actual_start_time ? (
+                        {chatContext.episode.youtube_id && chatContext.episode.state === "live" ? (
                             <div className="relative -mt-6 w-full overflow-hidden rounded-md pb-[56.25%]">
                                 <iframe
                                     className="absolute left-0 top-0 h-full w-full rounded-md"
@@ -63,7 +63,7 @@ export function DesktopChatPanel({onClose}: ChatPanelProps) {
                         <h3 className="truncate text-sm font-semibold text-foreground">{chatContext.episode.metadata?.title}</h3>
                         <div className="mt-2 flex items-center gap-3 text-xs text-muted-foreground">
                             <div className="flex items-center gap-2">
-                                {chatContext.episode.actual_start_time ? (
+                                {chatContext.episode.state === "live" ? (
                                     <>
                                         <div className="relative flex h-2 w-2">
                                             <span
@@ -82,7 +82,7 @@ export function DesktopChatPanel({onClose}: ChatPanelProps) {
                             </div>
                             <div className="h-4 w-px bg-border"/>
                             <div className="truncate">
-                                {chatContext.episode.actual_start_time ? `Live for ${chatContext.liveTime}` : `Starts ${chatContext.liveTime}`}
+                                {chatContext.episode.state === "live" ? `Live for ${chatContext.liveTime}` : `Starts ${chatContext.liveTime}`}
                             </div>
                         </div>
                     </div>

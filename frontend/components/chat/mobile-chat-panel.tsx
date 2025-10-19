@@ -60,7 +60,7 @@ export function MobileChatPanel({onClose}: ChatPanelProps) {
                         </div>
                         <div className="mt-1.5 flex items-center gap-2 text-xs text-muted-foreground">
                             <div className="flex items-center gap-2">
-                                {chatContext.episode.actual_start_time ? (
+                                {chatContext.episode.state === "live" ? (
                                     <>
                                         <div className="relative flex h-2 w-2">
                                             <span
@@ -79,7 +79,7 @@ export function MobileChatPanel({onClose}: ChatPanelProps) {
                             </div>
                             <div className="h-4 w-px bg-border"/>
                             <div className="truncate">
-                                {chatContext.episode.actual_start_time ? `Live for ${chatContext.liveTime}` : `Starts ${chatContext.liveTime}`}
+                                {chatContext.episode.state === "live" ? `Live for ${chatContext.liveTime}` : `Starts ${chatContext.liveTime}`}
                             </div>
                         </div>
                     </div>

@@ -127,21 +127,22 @@ export interface MessageRequest {
 export function updateLiveTime(episodeInfo: Show, chatContext: ChatContextValue) {
     const now = new Date()
 
-    const diff = Math.abs(now.getTime() - new Date(episodeInfo.actual_start_time ?? episodeInfo.scheduled_time ?? episodeInfo.created_at).getTime())
-    const minutes = Math.floor(diff / 60000)
-    const hours = Math.floor(minutes / 60)
-    const days = Math.floor(hours / 24)
-    const mins = minutes % 60
-    const hrs = hours % 24
-
-    if (episodeInfo.actual_start_time) {
+    if (episodeInfo.state === "live") {
+        const diff = now.getTime() - new Date(episodeInfo.actual_start_time ?? episodeInfo.created_at).getTime()
+        const minutes = Math.floor(diff / 60000)
+        const hours = Math.floor(minutes / 60)
+        const mins = minutes % 60
         chatContext.setLiveTime(hours > 0 ? `${hours}h ${mins}m` : `${mins}m`)
+    } else if (episodeInfo.state === "upcoming" || episodeInfo.state === "scheduled") {
+        const diff = new Date(episodeInfo.scheduled_time ?? episodeInfo.created_at).getTime() - now.getTime()
+        const minutes = Math.floor(diff / 60000)
+        const hours = Math.floor(minutes / 60)
+        const days = Math.floor(hours / 24)
+        const mins = minutes % 60
+        const hrs = hours % 24
+        chatContext.setLiveTime(days > 0 ? `in ${days}d ${hrs}h ${mins}m` : hours > 0 ? `in ${hours}h ${mins}m` : `in ${mins}m`)
     } else {
-        if (episodeInfo.id) {
-            chatContext.setLiveTime("imminently")
-        } else if (new Date(episodeInfo.actual_start_time ?? episodeInfo.scheduled_time ?? episodeInfo.created_at) > now) {
-            chatContext.setLiveTime(days > 0 ? `in ${days}d ${hrs}h ${mins}m` : hours > 0 ? `in ${hours}h ${mins}m` : `in ${mins}m`)
-        }
+        chatContext.setLiveTime("")
     }
 }
 
