@@ -65,11 +65,20 @@ export function BingoBoard({onWin}: BingoBoardProps) {
          return true // Default to true for new setting
      }
 
-     const shouldShowRegenerations = (): boolean => {
-         // Hide regeneration counter for anonymous users
-         if (!user || user.id === 'anonymous') return false
-         return true
-     }
+      const shouldShowRegenerations = (): boolean => {
+          // Hide regeneration counter for anonymous users
+          if (!user || user.id === 'anonymous') return false
+          return true
+      }
+
+      const getBoardTextSize = (): string => {
+          if (!user?.settings) return 'medium' // Default
+          const settings = user.settings as any
+          if (settings.appearance?.board?.textSize) {
+              return settings.appearance.board.textSize
+          }
+          return 'medium'
+      }
 
     const fetchConfirmed = useCallback(async () => {
         const confirmed = await fetchConfirmedTiles()
@@ -197,15 +206,16 @@ export function BingoBoard({onWin}: BingoBoardProps) {
 
                     {/* Board Area */}
                     <div className="grid grid-cols-5 aspect-square grid-rows-5 gap-1.5 sm:gap-2 lg:gap-3 w-full">
-                         {tiles.map((tile) => (
-                             <BingoTile
-                                 key={tile.id}
-                                 tile={tile}
-                                 toggle={() => toggleTile(tile.id)}
-                                 highlighted={shouldHighlightConfirmedTiles() && confirmedTiles.has(tile.id)}
-                                 showScore={shouldShowTileScores()}
-                             />
-                         ))}
+                          {tiles.map((tile) => (
+                              <BingoTile
+                                  key={tile.id}
+                                  tile={tile}
+                                  toggle={() => toggleTile(tile.id)}
+                                  highlighted={shouldHighlightConfirmedTiles() && confirmedTiles.has(tile.id)}
+                                  showScore={shouldShowTileScores()}
+                                  textSize={getBoardTextSize()}
+                              />
+                          ))}
                     </div>
                 </Card>
         </div>
