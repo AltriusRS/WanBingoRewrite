@@ -13,6 +13,20 @@ import { useHost } from "./host-context"
 
 
 
+interface Timer {
+  id: string
+  title: string
+  duration: number
+  created_by?: string
+  show_id?: string
+  starts_at?: string
+  expires_at?: string
+  is_active: boolean
+  settings: any
+  created_at: string
+  updated_at: string
+}
+
 export function TileConfirmationPanel() {
   const { confirmedTiles, locks } = useHost()
   const [tiles, setTiles] = useState<BingoTile[]>([])
@@ -21,10 +35,12 @@ export function TileConfirmationPanel() {
   const [selectedTile, setSelectedTile] = useState<BingoTile | null>(null)
   const [showTileIds, setShowTileIds] = useState<Set<string>>(new Set())
   const [revokeMode, setRevokeMode] = useState(false)
+  const [timers, setTimers] = useState<Timer[]>([])
 
   useEffect(() => {
     fetchTiles()
     fetchShowTiles()
+    fetchTimers()
   }, [])
 
   // Debug logging for state changes
@@ -65,6 +81,16 @@ export function TileConfirmationPanel() {
       setShowTileIds(new Set(data.tile_ids))
     } catch (error) {
       console.error("Failed to fetch show tiles:", error)
+    }
+  }
+
+  const fetchTimers = async () => {
+    try {
+      const response = await fetch(`${getApiRoot()}/timers?is_active=true`)
+      const data = await response.json()
+      setTimers(data.timers)
+    } catch (error) {
+      console.error("Failed to fetch timers:", error)
     }
   }
 
@@ -225,6 +251,28 @@ export function TileConfirmationPanel() {
 
     return (
         <>
+            {timers.length > 0 && (
+                <Card className="p-4 mb-4">
+                    <h3 className="font-semibold text-foreground mb-2">Ongoing Timers</h3>
+                    <div className="space-y-2">
+                        {timers.map((timer) => (
+                            <div key={timer.id} className="flex items-center justify-between p-2 bg-muted rounded">
+                                <div>
+                                    <span className="font-medium">{timer.title}</span>
+                                    {timer.expires_at && (
+                                        <span className="text-sm text-muted-foreground ml-2">
+                                            Expires: {new Date(timer.expires_at).toLocaleTimeString()}
+                                        </span>
+                                    )}
+                                </div>
+                                <div className="text-sm text-muted-foreground">
+                                    {timer.created_by || "System"}
+                                </div>
+                            </div>
+                        ))}
+                    </div>
+                </Card>
+            )}
             <ScrollArea className="h-[calc(100vh-12rem)]">
                 <div className="space-y-4">
                     {categories.map((category) => (

@@ -430,6 +430,41 @@ func UpdateShowState(ctx context.Context, aggregate *whenplane.Aggregate) error 
 		if err != nil {
 			return err
 		}
+
+		// Handle WAN timer based on state change
+		if newState == models.ShowStateLive && latestShow.State != models.ShowStateLive {
+			// Show went live, create 4-hour timer
+			timerID, _ := gonanoid.New(10)
+			now := time.Now()
+			expiresAt := now.Add(4 * time.Hour)
+			timer := &models.Timer{
+				ID:        timerID,
+				Title:     "WAN Show Timer",
+				Duration:  14400, // 4 hours in seconds
+				CreatedBy: nil,   // System timer
+				ShowID:    &latestShow.ID,
+				StartsAt:  &now,
+				ExpiresAt: &expiresAt,
+				IsActive:  true,
+				Settings:  map[string]interface{}{},
+				CreatedAt: now,
+				UpdatedAt: now,
+			}
+			err = db.PersistTimer(context.Background(), timer)
+			if err != nil {
+				log.Printf("[AGGREGATE] Failed to create WAN timer: %v", err)
+			} else {
+				log.Printf("[AGGREGATE] Created WAN timer for show %s", latestShow.ID)
+			}
+		} else if newState != models.ShowStateLive && latestShow.State == models.ShowStateLive {
+			// Show went offline, cancel WAN timer
+			err = db.StopActiveTimersByTitle(context.Background(), "WAN Show Timer", latestShow.ID)
+			if err != nil {
+				log.Printf("[AGGREGATE] Failed to stop WAN timer: %v", err)
+			} else {
+				log.Printf("[AGGREGATE] Stopped WAN timer for show %s", latestShow.ID)
+			}
+		}
 	}
 
 	return nil

@@ -192,6 +192,20 @@ func StopTimer(ctx context.Context, timerID string, tx ...pgx.Tx) error {
 	}
 }
 
+// StopActiveTimersByTitle deactivates all active timers with the given title for a show
+func StopActiveTimersByTitle(ctx context.Context, title string, showID string) error {
+	pool := Pool()
+	if pool == nil {
+		return errors.New("database not available")
+	}
+	_, err := pool.Exec(ctx, `
+		UPDATE timers
+		SET is_active = false, updated_at = CURRENT_TIMESTAMP
+		WHERE title = $1 AND show_id = $2 AND is_active = true AND deleted_at IS NULL
+	`, title, showID)
+	return err
+}
+
 // GetExpiredTimers retrieves timers that have expired
 func GetExpiredTimers(ctx context.Context, tx ...pgx.Tx) ([]models.Timer, error) {
 	var rows pgx.Rows
