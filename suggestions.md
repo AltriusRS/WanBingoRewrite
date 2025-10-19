@@ -6,8 +6,8 @@
 - [x] Add pop out chat to separate window
 - [x] Add text size setting for bingo board
 - [x] Add text size setting for host panel
-- [ ] Add font selection for website
-- [ ] Add dyslexia friendly font toggle
+- [x] Add font selection for website
+- [x] Add dyslexia friendly font toggle
 - [ ] Limit bingo board height
 - [ ] Persist bingo board state in local storage
 
