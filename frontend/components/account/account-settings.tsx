@@ -28,6 +28,7 @@ export function AccountSettings() {
     const [showTileScores, setShowTileScores] = useState(true)
     const [showMaxScore, setShowMaxScore] = useState(true)
     const [showMultiplier, setShowMultiplier] = useState(true)
+    const [boardTextSize, setBoardTextSize] = useState("medium")
     const [saving, setSaving] = useState(false)
 
     const themeOptions = [
@@ -86,6 +87,11 @@ export function AccountSettings() {
                     // Fallback for old flat structure
                     setHighlightConfirmedTiles(settings.highlightConfirmedTiles !== false)
                 }
+
+                // Appearance settings
+                if (settings.appearance?.board?.textSize) {
+                    setBoardTextSize(settings.appearance.board.textSize)
+                }
             }
         }
     }, [user])
@@ -112,14 +118,19 @@ export function AccountSettings() {
                             autoYoutubePlayback,
                             backgroundImageEnabled,
                         },
-                         gameplay: {
-                             highlightConfirmedTiles,
-                             confetti: confettiEnabled,
-                             disableWinAnnouncements,
-                             showTileScores,
-                             showMaxScore,
-                             showMultiplier,
-                         },
+                          gameplay: {
+                              highlightConfirmedTiles,
+                              confetti: confettiEnabled,
+                              disableWinAnnouncements,
+                              showTileScores,
+                              showMaxScore,
+                              showMultiplier,
+                          },
+                          appearance: {
+                              board: {
+                                  textSize: boardTextSize,
+                              },
+                          },
                     },
                 }),
             })
@@ -230,10 +241,29 @@ export function AccountSettings() {
                         </Select>
                         <p className="text-sm text-muted-foreground">Choose your preferred theme for the application</p>
                     </div>
-                </Card>
+                 </Card>
 
-                <Card className="p-6">
-                    <h2 className="mb-4 text-lg font-semibold text-foreground">Video</h2>
+                 <Card className="p-6">
+                     <h2 className="mb-4 text-lg font-semibold text-foreground">Appearance</h2>
+
+                     <div className="space-y-2">
+                         <Label htmlFor="board-text-size">Bingo Board Text Size</Label>
+                         <Select value={boardTextSize} onValueChange={setBoardTextSize}>
+                             <SelectTrigger>
+                                 <SelectValue placeholder="Select text size" />
+                             </SelectTrigger>
+                             <SelectContent>
+                                 <SelectItem value="small">Small</SelectItem>
+                                 <SelectItem value="medium">Medium</SelectItem>
+                                 <SelectItem value="large">Large</SelectItem>
+                             </SelectContent>
+                         </Select>
+                         <p className="text-sm text-muted-foreground">Choose the size of text on bingo tiles</p>
+                     </div>
+                 </Card>
+
+                 <Card className="p-6">
+                     <h2 className="mb-4 text-lg font-semibold text-foreground">Video</h2>
 
                     <div className="space-y-6">
                         <div className="flex items-center justify-between">

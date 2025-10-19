@@ -4,12 +4,21 @@ interface BingoTileProps {
      tile: IBingoTile,
      toggle: () => void,
      highlighted?: boolean,
-     showScore?: boolean
+     showScore?: boolean,
+     textSize?: string
  }
 
 export function BingoTile(props: BingoTileProps) {
 
-    let baseClass = "relative w-full h-full aspect-square rounded-lg border-2 p-1.5 text-center text-[10px] font-medium transition-all\n                hover:scale-105 active:scale-95 sm:p-2 sm:text-xs lg:text-sm";
+    const getTextSizeClass = (size?: string) => {
+        switch (size) {
+            case 'small': return 'text-[8px] sm:text-[10px] lg:text-xs'
+            case 'large': return 'text-xs sm:text-sm lg:text-base'
+            default: return 'text-[10px] sm:text-xs lg:text-sm'
+        }
+    }
+
+    let baseClass = `relative w-full h-full aspect-square rounded-lg border-2 p-1.5 text-center font-medium transition-all hover:scale-105 active:scale-95 sm:p-2 ${getTextSizeClass(props.textSize)}`;
 
     if (props.tile.marked) {
         baseClass += "cursor-default border-primary bg-primary/20 text-primary-foreground"
