@@ -5,6 +5,7 @@ import {ChatProvider} from "@/components/chat/chat-context";
 import {AuthProvider} from "@/components/auth";
 import {ThemeProvider} from "@/components/theme-provider";
 import {UserThemeProvider} from "@/components/user-theme-provider";
+import {PostHogProvider} from "@/components/posthog-provider";
 
 const geistSans = Geist({
     variable: "--font-geist-sans",
@@ -31,20 +32,22 @@ export default function RootLayout({
         <body
             className={`${geistSans.variable} ${geistMono.variable} antialiased`}
         >
-        <ThemeProvider
-            attribute="class"
-            defaultTheme="dark"
-            enableSystem
-            disableTransitionOnChange
-        >
-            <AuthProvider>
-                <UserThemeProvider>
-                    <ChatProvider>
-                        {children}
-                    </ChatProvider>
-                </UserThemeProvider>
-            </AuthProvider>
-        </ThemeProvider>
+        <PostHogProvider>
+            <ThemeProvider
+                attribute="class"
+                defaultTheme="dark"
+                enableSystem
+                disableTransitionOnChange
+            >
+                <AuthProvider>
+                    <UserThemeProvider>
+                        <ChatProvider>
+                            {children}
+                        </ChatProvider>
+                    </UserThemeProvider>
+                </AuthProvider>
+            </ThemeProvider>
+        </PostHogProvider>
         </body>
         </html>
     );

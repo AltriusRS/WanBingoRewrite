@@ -13,9 +13,15 @@ RUN bun install --frozen-lockfile
 COPY . .
 RUN rm -rf .env .env.example
 
-# Set build arg for API root
+# Set build args
 ARG NEXT_PUBLIC_API_ROOT
 ENV NEXT_PUBLIC_API_ROOT=$NEXT_PUBLIC_API_ROOT
+
+ARG NEXT_PUBLIC_POSTHOG_KEY
+ENV NEXT_PUBLIC_POSTHOG_KEY=$NEXT_PUBLIC_POSTHOG_KEY
+
+ARG NEXT_PUBLIC_POSTHOG_HOST
+ENV NEXT_PUBLIC_POSTHOG_HOST=$NEXT_PUBLIC_POSTHOG_HOST
 
 # Build the application
 RUN bun run build
