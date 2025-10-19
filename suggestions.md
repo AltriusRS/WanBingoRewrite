@@ -1,5 +1,16 @@
 # Suggestions
 
+## Checklist
+
+- [x] Add hide/show chat toggle on host panel
+- [x] Add pop out chat to separate window
+- [ ] Add text size setting for bingo board
+- [ ] Add text size setting for host panel
+- [ ] Add font selection for website
+- [ ] Add dyslexia friendly font toggle
+- [ ] Limit bingo board height
+- [ ] Persist bingo board state in local storage
+
 Below are some suggestions for improvements to the project.
 
 - Add a way to resize the video player / chat window on the host panel.
