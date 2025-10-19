@@ -34,6 +34,23 @@ interface TileConfirmationPanelProps {
 export function TileConfirmationPanel({ showLateButton }: TileConfirmationPanelProps = {}) {
     const {confirmedTiles, locks} = useHost()
     const {user} = useAuth()
+
+    const getHostPanelTextSize = (): string => {
+        if (!user?.settings) return 'medium'
+        const settings = user.settings as any
+        if (settings.appearance?.hostPanel?.textSize) {
+            return settings.appearance.hostPanel.textSize
+        }
+        return 'medium'
+    }
+
+    const getTextSizeClass = (size?: string) => {
+        switch (size) {
+            case 'small': return 'text-xs'
+            case 'large': return 'text-base'
+            default: return 'text-sm'
+        }
+    }
     const [tiles, setTiles] = useState<BingoTile[]>([])
     // const [stats, setStats] = useState<Map<string, TileStats>>(new Map())
     const [loading, setLoading] = useState(true)
@@ -468,7 +485,7 @@ export function TileConfirmationPanel({ showLateButton }: TileConfirmationPanelP
                                                  onClick={() => handleTileClick(tile)}
                                                  disabled={isLocked && locks.get(tile.id)?.lockedBy !== "You"}
                                              >
-                                                 <span className="flex-1 truncate text-sm">{tile.title}</span>
+                                                  <span className={`flex-1 truncate ${getTextSizeClass(getHostPanelTextSize())}`}>{tile.title}</span>
                                                  {requiresTimer && <Clock
                                                      className="ml-2 h-4 w-4 text-orange-500 flex-shrink-0"/>}
                                                  {isInPlay && <Play
