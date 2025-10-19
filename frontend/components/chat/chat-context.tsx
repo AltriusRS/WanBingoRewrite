@@ -39,6 +39,7 @@ export function ChatProvider({ children }: { children: React.ReactNode }) {
   const [sending, setSending] = useState<boolean>(false)
   const [episode, setEpisode] = useState<Show>({
     "id": "Y2kz75uBC8",
+    "state": "live",
     "youtube_id": "YVHXYqMPyzc",
     "scheduled_time": "2025-10-11T00:30:00Z",
     "actual_start_time": "2025-10-11T00:05:06Z",
@@ -65,11 +66,7 @@ export function ChatProvider({ children }: { children: React.ReactNode }) {
 
   useEffect(() => {
     const apiRoot = process.env.NEXT_PUBLIC_API_ROOT || "http://localhost:8000"
-    const es = new EventSource(`${apiRoot}/chat/stream`, {
-      credentials: "include", // Include cookies for authentication
-      withCredentials: true,
-      headers: { "Accept": "text/event-stream" },
-    })
+    const es = new EventSource(`${apiRoot}/chat/stream`)
 
     es.onmessage = (ev) => {
       try {

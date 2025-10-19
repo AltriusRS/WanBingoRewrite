@@ -19,7 +19,7 @@ export function BingoBoard({onWin}: BingoBoardProps) {
      const [regenerationDiminisher, setRegenerationDiminisher] = useState(1)
      const [confirmedTiles, setConfirmedTiles] = useState<Set<string>>(new Set())
 
-    const shouldHighlightConfirmedTiles = () => {
+    const shouldHighlightConfirmedTiles = (): boolean => {
          if (!user?.settings) return true // Default to true if no settings
          const settings = user.settings as any
          if (settings.gameplay) {
@@ -29,7 +29,7 @@ export function BingoBoard({onWin}: BingoBoardProps) {
          return settings.highlightConfirmedTiles !== false
      }
 
-     const shouldShowTileScores = () => {
+     const shouldShowTileScores = (): boolean => {
          // Hide scores for anonymous users
          if (!user || user.id === 'anonymous') return false
 
@@ -41,7 +41,7 @@ export function BingoBoard({onWin}: BingoBoardProps) {
          return true // Default to true for new setting
      }
 
-     const shouldShowMaxScore = () => {
+     const shouldShowMaxScore = (): boolean => {
          // Hide max score for anonymous users
          if (!user || user.id === 'anonymous') return false
 
@@ -53,7 +53,7 @@ export function BingoBoard({onWin}: BingoBoardProps) {
          return true // Default to true for new setting
      }
 
-     const shouldShowMultiplier = () => {
+     const shouldShowMultiplier = (): boolean => {
          // Hide multiplier for anonymous users
          if (!user || user.id === 'anonymous') return false
 
@@ -65,9 +65,10 @@ export function BingoBoard({onWin}: BingoBoardProps) {
          return true // Default to true for new setting
      }
 
-     const shouldShowRegenerations = () => {
+     const shouldShowRegenerations = (): boolean => {
          // Hide regeneration counter for anonymous users
-         return user && user.id !== 'anonymous'
+         if (!user || user.id === 'anonymous') return false
+         return true
      }
 
     const fetchConfirmed = useCallback(async () => {

@@ -216,7 +216,7 @@ async function handleChatMessage(msg: ChatMessage, ctx: ChatContextValue, user?:
     // Check for mentions and play sound if enabled
     if (user && msg.player_id !== user.id) { // Don't notify for own messages
         const userName = user.display_name || user.id;
-        const messageText = msg.message || '';
+        const messageText = msg.contents || '';
         const isMentioned = messageText.toLowerCase().includes(`@${userName.toLowerCase()}`) ||
                             messageText.toLowerCase().includes(`@${user.id}`) ||
                             (userName !== user.id && messageText.toLowerCase().includes(userName.toLowerCase()));
