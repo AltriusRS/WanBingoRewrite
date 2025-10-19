@@ -26,6 +26,7 @@ export function SuggestTileModal({ open, onOpenChange, onSubmit }: SuggestTileMo
     e.preventDefault()
     if (name.trim() && tileName.trim() && reason.trim()) {
       setSubmitting(true)
+      const startTime = Date.now()
 
       try {
         await fetch(`${getApiRoot()}/suggestions`, {
@@ -44,8 +45,13 @@ export function SuggestTileModal({ open, onOpenChange, onSubmit }: SuggestTileMo
       setName("")
       setTileName("")
       setReason("")
-      setSubmitting(false)
-      onOpenChange(false)
+      // Ensure minimum loading time of 200ms
+      const elapsed = Date.now() - startTime
+      const remaining = Math.max(0, 200 - elapsed)
+      setTimeout(() => {
+        setSubmitting(false)
+        onOpenChange(false)
+      }, remaining)
     }
   }
 

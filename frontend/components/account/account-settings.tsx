@@ -110,6 +110,7 @@ export function AccountSettings() {
 
     const handleSave = async () => {
         setSaving(true)
+        const startTime = Date.now()
 
         try {
             const response = await fetch(`${getApiRoot()}/users/me`, {
@@ -159,7 +160,12 @@ export function AccountSettings() {
         } catch (error) {
             console.error("Failed to save settings:", error)
         } finally {
-            setSaving(false)
+            // Ensure minimum loading time of 200ms
+            const elapsed = Date.now() - startTime
+            const remaining = Math.max(0, 200 - elapsed)
+            setTimeout(() => {
+                setSaving(false)
+            }, remaining)
         }
     }
 
@@ -299,11 +305,18 @@ export function AccountSettings() {
                              <SelectTrigger>
                                  <SelectValue placeholder="Select font" />
                              </SelectTrigger>
-                             <SelectContent>
-                                 <SelectItem value="default">Default</SelectItem>
-                                 <SelectItem value="serif">Serif</SelectItem>
-                                 <SelectItem value="sans-serif">Sans Serif</SelectItem>
-                             </SelectContent>
+                              <SelectContent>
+                                  <SelectItem value="default">Default (Geist)</SelectItem>
+                                  <SelectItem value="sans-serif">Sans Serif</SelectItem>
+                                  <SelectItem value="serif">Serif</SelectItem>
+                                  <SelectItem value="roboto">Roboto</SelectItem>
+                                  <SelectItem value="lato">Lato</SelectItem>
+                                  <SelectItem value="open-sans">Open Sans</SelectItem>
+                                  <SelectItem value="montserrat">Montserrat</SelectItem>
+                                  <SelectItem value="atkinson-hyperlegible">Atkinson Hyperlegible (Dyslexia-friendly)</SelectItem>
+                                  <SelectItem value="lexend">Lexend (Dyslexia-friendly)</SelectItem>
+                                  <SelectItem value="open-dyslexic">Open Dyslexic (Dyslexia-friendly)</SelectItem>
+                              </SelectContent>
                          </Select>
                          <p className="text-sm text-muted-foreground">Choose the font for the website</p>
                      </div>

@@ -57,10 +57,13 @@ export function MemberList() {
                     {memberList.map((player) => (
                         <HoverCard key={player.id}>
                             <HoverCardTrigger asChild>
-                                <div className="flex items-center gap-3 rounded-lg p-2 hover:bg-muted/50 cursor-pointer">
+                                <div
+                                    className="flex items-center gap-3 rounded-lg p-2 hover:bg-muted/50 cursor-pointer">
                                     <Avatar className="h-8 w-8">
-                                        <AvatarImage src={player.avatar || "/placeholder.svg"} alt={player.display_name}/>
-                                        <AvatarFallback className="bg-primary/10 text-xs">{getInitials(player.display_name)}</AvatarFallback>
+                                        <AvatarImage src={player.avatar || "/placeholder.svg"}
+                                                     alt={player.display_name}/>
+                                        <AvatarFallback
+                                            className="bg-primary/10 text-xs">{getInitials(player.display_name)}</AvatarFallback>
                                     </Avatar>
                                     <div className="flex-1 truncate">
                                         <div className="flex items-center gap-2">
@@ -78,8 +81,10 @@ export function MemberList() {
                             <HoverCardContent className="w-64">
                                 <div className="flex gap-3">
                                     <Avatar className="h-12 w-12">
-                                        <AvatarImage src={player.avatar || "/placeholder.svg"} alt={player.display_name}/>
-                                        <AvatarFallback className="bg-primary/10">{getInitials(player.display_name)}</AvatarFallback>
+                                        <AvatarImage src={player.avatar || "/placeholder.svg"}
+                                                     alt={player.display_name}/>
+                                        <AvatarFallback
+                                            className="bg-primary/10">{getInitials(player.display_name)}</AvatarFallback>
                                     </Avatar>
                                     <div className="flex-1 space-y-1">
                                         <div className="flex items-center gap-2">
@@ -92,12 +97,14 @@ export function MemberList() {
                                             )}
                                         </div>
                                         <p className="text-xs text-muted-foreground">
-                                            Chat Color: <span style={{color: player.settings?.chat_color || "#3b82f6"}}>{player.settings?.chat_color || "#3b82f6"}</span>
+                                            Chat Color: <span
+                                            style={{color: player.settings?.chat_color || "#3b82f6"}}>{player.settings?.chat_color || "#3b82f6"}</span>
                                         </p>
                                         {player.settings?.bio && (
                                             <p className="text-xs text-muted-foreground">{player.settings.bio}</p>
                                         )}
-                                        <p className="text-xs text-muted-foreground">Account Created {getAccountCreated(player.created_at)}</p>
+                                        <p className="text-xs text-muted-foreground">Account
+                                            Created {getAccountCreated(player.created_at)}</p>
                                     </div>
                                 </div>
                             </HoverCardContent>

@@ -62,6 +62,7 @@ export function SuggestionAcceptanceModal({ suggestion, onClose, onAccept }: Sug
 
   const handleSave = async () => {
     setSaving(true)
+    const startTime = Date.now()
     const newSettings: TileSettings = {
       description: description || undefined,
       confirmationRules: confirmationRules || undefined,
@@ -102,7 +103,12 @@ export function SuggestionAcceptanceModal({ suggestion, onClose, onAccept }: Sug
     } catch (error) {
       console.error("Failed to accept suggestion:", error)
     } finally {
-      setSaving(false)
+      // Ensure minimum loading time of 200ms
+      const elapsed = Date.now() - startTime
+      const remaining = Math.max(0, 200 - elapsed)
+      setTimeout(() => {
+        setSaving(false)
+      }, remaining)
     }
   }
 

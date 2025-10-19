@@ -35,6 +35,7 @@ export function ChatSettings() {
         if (!user) return
 
         setSaving(true)
+        const startTime = Date.now()
 
         try {
             // Get current settings and merge chat settings
@@ -68,7 +69,12 @@ export function ChatSettings() {
         } catch (error) {
             console.error("Failed to save chat settings:", error)
         } finally {
-            setSaving(false)
+            // Ensure minimum loading time of 200ms
+            const elapsed = Date.now() - startTime
+            const remaining = Math.max(0, 200 - elapsed)
+            setTimeout(() => {
+                setSaving(false)
+            }, remaining)
         }
     }
 

@@ -43,6 +43,8 @@ services:
       - "7999:7999"
     volumes:
       - ./frontend:/app
+    tmpfs:
+      - /app/.next
     env_file:
       - ./frontend/.env
 
@@ -61,4 +63,3 @@ services:
 volumes:
   caddy_data:
   postgres_data:
-

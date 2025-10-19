@@ -5,6 +5,7 @@ import {Button} from "@/components/ui/button"
 import {Popover, PopoverContent, PopoverTrigger} from "@/components/ui/popover"
 import {Label} from "@/components/ui/label"
 import {Switch} from "@/components/ui/switch"
+import {Select, SelectContent, SelectItem, SelectTrigger, SelectValue} from "@/components/ui/select"
 import {Settings} from "lucide-react"
 import {useAuth} from "@/components/auth"
 import {getApiRoot} from "@/lib/auth"
@@ -18,6 +19,7 @@ export function GameplaySettingsPopover() {
     const [showTileScores, setShowTileScores] = useState(true)
     const [showMaxScore, setShowMaxScore] = useState(true)
     const [showMultiplier, setShowMultiplier] = useState(true)
+    const [boardTextSize, setBoardTextSize] = useState("medium")
     const [saving, setSaving] = useState(false)
     const [open, setOpen] = useState(false)
 
@@ -31,12 +33,16 @@ export function GameplaySettingsPopover() {
             setShowMaxScore(gameplay.showMaxScore !== false)
             setShowMultiplier(gameplay.showMultiplier !== false)
         }
+        if (user?.settings?.appearance?.board?.textSize) {
+            setBoardTextSize(user.settings.appearance.board.textSize)
+        }
     }, [user])
 
     const handleSave = async () => {
         if (!user) return
 
         setSaving(true)
+        const startTime = Date.now()
         try {
             const response = await fetch(`${getApiRoot()}/users/me`, {
                 method: "PUT",
@@ -53,6 +59,13 @@ export function GameplaySettingsPopover() {
                             showMaxScore,
                             showMultiplier,
                         },
+                        appearance: {
+                            ...user.settings?.appearance,
+                            board: {
+                                ...user.settings?.appearance?.board,
+                                textSize: boardTextSize,
+                            },
+                        },
                     },
                 }),
             })
@@ -64,7 +77,12 @@ export function GameplaySettingsPopover() {
         } catch (error) {
             console.error("Failed to save settings:", error)
         } finally {
-            setSaving(false)
+            // Ensure minimum loading time of 200ms
+            const elapsed = Date.now() - startTime
+            const remaining = Math.max(0, 200 - elapsed)
+            setTimeout(() => {
+                setSaving(false)
+            }, remaining)
         }
     }
 
@@ -153,10 +171,25 @@ export function GameplaySettingsPopover() {
                                 checked={showMultiplier}
                                 onCheckedChange={setShowMultiplier}
                             />
-                        </div>
-                    </div>
+                         </div>
 
-                    <div className="flex justify-end gap-2 pt-2 border-t">
+                         <div className="space-y-2">
+                             <Label htmlFor="popover-board-text-size" className="text-sm">Board Text Size</Label>
+                             <Select value={boardTextSize} onValueChange={setBoardTextSize}>
+                                 <SelectTrigger>
+                                     <SelectValue placeholder="Select size" />
+                                 </SelectTrigger>
+                                 <SelectContent>
+                                     <SelectItem value="small">Small</SelectItem>
+                                     <SelectItem value="medium">Medium</SelectItem>
+                                     <SelectItem value="large">Large</SelectItem>
+                                 </SelectContent>
+                             </Select>
+                             <p className="text-xs text-muted-foreground">Choose the size of text on bingo tiles</p>
+                         </div>
+                     </div>
+
+                     <div className="flex justify-end gap-2 pt-2 border-t">
                         <Button variant="outline" size="sm" onClick={() => setOpen(false)}>
                             Cancel
                         </Button>

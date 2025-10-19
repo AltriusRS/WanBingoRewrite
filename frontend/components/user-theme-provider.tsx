@@ -30,13 +30,27 @@ export function UserThemeProvider({ children }: { children: React.ReactNode }) {
             }
 
             // Apply font
-            let fontFamily = 'inherit'
+            let fontFamily = 'var(--font-geist-sans), sans-serif' // default
             if (settings.appearance?.dyslexicFriendlyFont) {
-                fontFamily = 'Arial, sans-serif' // Simple dyslexia friendly font
+                fontFamily = 'OpenDyslexic, Arial, sans-serif'
             } else if (font === 'serif') {
                 fontFamily = 'serif'
             } else if (font === 'sans-serif') {
                 fontFamily = 'sans-serif'
+            } else if (font === 'roboto') {
+                fontFamily = 'var(--font-roboto), sans-serif'
+            } else if (font === 'lato') {
+                fontFamily = 'var(--font-lato), sans-serif'
+            } else if (font === 'open-sans') {
+                fontFamily = 'var(--font-open-sans), sans-serif'
+            } else if (font === 'montserrat') {
+                fontFamily = 'var(--font-montserrat), sans-serif'
+            } else if (font === 'atkinson-hyperlegible') {
+                fontFamily = 'var(--font-atkinson-hyperlegible), sans-serif'
+            } else if (font === 'lexend') {
+                fontFamily = 'var(--font-lexend), sans-serif'
+            } else if (font === 'open-dyslexic') {
+                fontFamily = 'OpenDyslexic, Arial, sans-serif'
             }
             document.body.style.fontFamily = fontFamily
         }

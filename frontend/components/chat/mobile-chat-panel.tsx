@@ -1,7 +1,7 @@
 "use client"
 
 import {Card} from "@/components/ui/card"
-import {ChevronDown, Radio, X, Settings} from "lucide-react"
+import {ChevronDown, Settings, X} from "lucide-react"
 import {Button} from "@/components/ui/button"
 import Link from "next/link"
 import {ScrollArea} from "@/components/ui/scroll-area"
@@ -50,38 +50,9 @@ export function MobileChatPanel({onClose}: ChatPanelProps) {
                             <X className="h-4 w-4"/>
                         </Button>
                     </div>
-                </div>
-            </div>
-            <div className="shrink-0 border-b border-border bg-card p-3">
-                <div className="flex items-start justify-between gap-3">
-                    <div className="min-w-0 flex-1">
-                        <div className="flex flex-col">
-                            <h3 className="truncate text-md font-semibold text-foreground">{chatContext.episode.metadata?.title}</h3>
-                        </div>
-                        <div className="mt-1.5 flex items-center gap-2 text-xs text-muted-foreground">
-                            <div className="flex items-center gap-2">
-                                {chatContext.episode.state === "live" ? (
-                                    <>
-                                        <div className="relative flex h-2 w-2">
-                                            <span
-                                                className="absolute inline-flex h-full w-full animate-ping rounded-full bg-primary/75 opacity-75"></span>
-                                            <span
-                                                className="relative inline-flex h-2 w-2 rounded-full bg-primary"></span>
-                                        </div>
-                                        <span className="font-medium text-primary">LIVE</span>
-                                    </>
-                                ) : (
-                                    <>
-                                        <Radio className="h-4 w-4"/>
-                                        <span>Scheduled</span>
-                                    </>
-                                )}
-                            </div>
-                            <div className="h-4 w-px bg-border"/>
-                            <div className="truncate">
-                                {chatContext.episode.state === "live" ? `Live for ${chatContext.liveTime}` : `Starts ${chatContext.liveTime}`}
-                            </div>
-                        </div>
+                    <div className="h-4 w-px bg-border"/>
+                    <div className="truncate">
+                        {chatContext.episode.state === "live" ? `Live for ${chatContext.liveTime}` : `Starts ${chatContext.liveTime}`}
                     </div>
                 </div>
             </div>
@@ -105,35 +76,38 @@ export function MobileChatPanel({onClose}: ChatPanelProps) {
                 </div>
             </ScrollArea>
 
-            {!user ? (
-                <div
-                    className="border-t border-border bg-background/60 p-3 backdrop-blur supports-[backdrop-filter]:bg-background/40">
-                    <Button
-                        variant="outline"
-                        className="w-full bg-transparent"
-                        onClick={login}
-                    >
-                        Sign in with Discord to chat
-                    </Button>
-                </div>
-            ) : (
-                <form
-                    onSubmit={handleSubmit}
-                    className="border-t border-border bg-background/60 p-3 backdrop-blur supports-[backdrop-filter]:bg-background/40"
-                >
-                    <div className="flex items-center gap-2">
-                        <Input
-                            value={chatContext.text}
-                            onChange={(e) => chatContext.setText(e.target.value)}
-                            placeholder="Type a message"
-                            disabled={chatContext.sending}
-                        />
-                        <Button type="submit" disabled={chatContext.sending || chatContext.text.trim().length === 0}>
-                            Send
+            {
+                !user ? (
+                    <div
+                        className="border-t border-border bg-background/60 p-3 backdrop-blur supports-[backdrop-filter]:bg-background/40">
+                        <Button
+                            variant="outline"
+                            className="w-full bg-transparent"
+                            onClick={login}
+                        >
+                            Sign in with Discord to chat
                         </Button>
                     </div>
-                </form>
-            )}
+                ) : (
+                    <form
+                        onSubmit={handleSubmit}
+                        className="border-t border-border bg-background/60 p-3 backdrop-blur supports-[backdrop-filter]:bg-background/40"
+                    >
+                        <div className="flex items-center gap-2">
+                            <Input
+                                value={chatContext.text}
+                                onChange={(e) => chatContext.setText(e.target.value)}
+                                placeholder="Type a message"
+                                disabled={chatContext.sending}
+                            />
+                            <Button type="submit"
+                                    disabled={chatContext.sending || chatContext.text.trim().length === 0}>
+                                Send
+                            </Button>
+                        </div>
+                    </form>
+                )
+            }
         </Card>
     )
 }

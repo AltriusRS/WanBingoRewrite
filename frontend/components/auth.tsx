@@ -27,10 +27,11 @@ export function AuthProvider({children}: { children: ReactNode }) {
     const [error, setError] = useState<string | null>(null)
 
     const fetchUser = async () => {
-        try {
-            setLoading(true)
-            setError(null)
+        setLoading(true)
+        setError(null)
+        const startTime = Date.now()
 
+        try {
             const response = await fetch(`${getApiRoot()}/users/me`, {
                 credentials: "include", // Include cookies
             })
@@ -47,7 +48,12 @@ export function AuthProvider({children}: { children: ReactNode }) {
             setError(err instanceof Error ? err.message : "Unknown error")
             setUser(null)
         } finally {
-            setLoading(false)
+            // Ensure minimum loading time of 200ms
+            const elapsed = Date.now() - startTime
+            const remaining = Math.max(0, 200 - elapsed)
+            setTimeout(() => {
+                setLoading(false)
+            }, remaining)
         }
     }
 

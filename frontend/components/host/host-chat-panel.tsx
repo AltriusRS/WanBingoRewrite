@@ -2,29 +2,24 @@
 
 import {Card} from "@/components/ui/card"
 import Image from "next/image"
-import {MessagesSquare, Radio, Users, X, Clock} from "lucide-react"
+import {MessagesSquare, Radio, Settings, Users, X} from "lucide-react"
 import {Button} from "@/components/ui/button"
 import {ScrollArea} from "@/components/ui/scroll-area"
 import {StandardMessage} from "@/components/chat/messages/standard-message"
 import {SystemMessage} from "@/components/chat/messages/system-message"
 import {Input} from "@/components/ui/input"
-import {useEffect, useRef, useState} from "react"
+import {useEffect, useRef} from "react"
 import {useChat} from "@/components/chat/chat-context"
-import {buildSubmitHandler, updateLiveTime} from "@/lib/chatUtils"
+import {buildSubmitHandler, type ChatPanelProps, updateLiveTime} from "@/lib/chatUtils"
 import {useAuth} from "@/components/auth"
 import {MemberList} from "../chat/member-list"
+import {ChatSettings} from "../chat/chat-settings"
 import {Tabs, TabsContent, TabsList, TabsTrigger} from "@/components/ui/tabs"
-import { useHost } from "./host-context"
-import {getApiRoot} from "@/lib/auth"
-import {toast} from "sonner"
-import type {BingoTile} from "@/lib/bingoUtils"
 
 export function HostChatPanel({onClose}: {onClose?: () => void}) {
     const scrollRef = useRef<HTMLDivElement>(null)
     const chatContext = useChat()
     const {user, login} = useAuth()
-    const { confirmedTiles } = useHost()
-    const [lateTile, setLateTile] = useState<BingoTile | null>(null)
 
     const handleSubmit = buildSubmitHandler(chatContext)
 
@@ -41,70 +36,16 @@ export function HostChatPanel({onClose}: {onClose?: () => void}) {
         return () => clearInterval(interval)
     }, [chatContext.episode, chatContext])
 
-    useEffect(() => {
-        fetchLateTile()
-    }, [])
-
-    // Debug logging for confirmed tiles changes
-    useEffect(() => {
-        console.log("[HostChatPanel] Confirmed tiles updated:", Array.from(confirmedTiles))
-        if (lateTile) {
-            console.log(`[HostChatPanel] Late tile ${lateTile.id} confirmed status: ${confirmedTiles.has(lateTile.id)}`)
-        }
-    }, [confirmedTiles, lateTile])
-
-    const fetchLateTile = async () => {
-        try {
-            const response = await fetch(`${getApiRoot()}/tiles?category=Late`)
-            const data = await response.json()
-            const tiles: BingoTile[] = data.tiles
-            const late = tiles.find(t => t.title === "Show Is Late")
-            if (late) setLateTile(late)
-        } catch (error) {
-            console.error("Failed to fetch late tile:", error)
-        }
-    }
-
-    const handleConfirmLate = async () => {
-        if (!lateTile) return
-
-        console.log(`[HostChatPanel] Confirming late tile ${lateTile.id}`)
-        console.log(`[HostChatPanel] Current confirmed tiles:`, Array.from(confirmedTiles))
-
-        try {
-            const response = await fetch(`${getApiRoot()}/tiles/confirmations`, {
-                method: "POST",
-                headers: { "Content-Type": "application/json" },
-                credentials: "include",
-                body: JSON.stringify({
-                    tile_id: lateTile.id,
-                    context: "",
-                }),
-            })
-
-            if (!response.ok) {
-                const errorText = await response.text()
-                throw new Error(`Failed to confirm tile: ${response.status} ${errorText}`)
-            }
-
-            console.log(`[HostChatPanel] Late tile confirmation successful`)
-            toast.success("Show Is Late has been confirmed successfully.")
-        } catch (error) {
-            console.error("Failed to confirm late tile:", error)
-            toast.error(error instanceof Error ? error.message : "An error occurred")
-        }
-    }
-
     return (
         <Card className="flex h-full max-h-full flex-col overflow-hidden">
             <div className="shrink-0 border-b border-border bg-card p-4">
                 <div className="flex items-start justify-between gap-3">
                     <div className="min-w-0 flex-1">
-                        {chatContext.episode.youtube_id && chatContext.episode.actual_start_time ? (
+                        {chatContext.episode.youtube_id && chatContext.episode.state === "live" ? (
                             <div className="relative -mt-6 w-full overflow-hidden rounded-md pb-[56.25%]">
                                 <iframe
                                     className="absolute left-0 top-0 h-full w-full rounded-md"
-                                    src={`https://www.youtube.com/embed/${chatContext.episode.youtube_id}?autoplay=1&mute=0&modestbranding=1&rel=0`}
+                                    src={`https://www.youtube.com/embed/${chatContext.episode.youtube_id}?autoplay=${user?.settings?.video?.autoYoutubePlayback || user?.settings?.autoYoutubePlayback ? '1' : '0'}&mute=0&modestbranding=1&rel=0`}
                                     title={`WAN Show Stream - ${chatContext.episode.metadata?.title}`}
                                     allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share"
                                     allowFullScreen
@@ -122,7 +63,7 @@ export function HostChatPanel({onClose}: {onClose?: () => void}) {
                         <h3 className="truncate text-sm font-semibold text-foreground">{chatContext.episode.metadata?.title}</h3>
                         <div className="mt-2 flex items-center gap-3 text-xs text-muted-foreground">
                             <div className="flex items-center gap-2">
-                                {chatContext.episode.actual_start_time ? (
+                                {chatContext.episode.state === "live" ? (
                                     <>
                                         <div className="relative flex h-2 w-2">
                                             <span
@@ -141,10 +82,9 @@ export function HostChatPanel({onClose}: {onClose?: () => void}) {
                             </div>
                             <div className="h-4 w-px bg-border"/>
                             <div className="truncate">
-                                {chatContext.episode.actual_start_time ? `Live for ${chatContext.liveTime}` : `Starts ${chatContext.liveTime}`}
+                                {chatContext.episode.state === "live" ? `Live for ${chatContext.liveTime}` : `Starts ${chatContext.liveTime}`}
                             </div>
                         </div>
-
                     </div>
                 </div>
             </div>
@@ -159,6 +99,10 @@ export function HostChatPanel({onClose}: {onClose?: () => void}) {
                         <TabsTrigger value="members" className="text-xs">
                             <Users className="mr-1 h-3 w-3"/>
                             Members
+                        </TabsTrigger>
+                        <TabsTrigger value="settings" className="text-xs">
+                            <Settings className="mr-1 h-3 w-3"/>
+                            Settings
                         </TabsTrigger>
                     </TabsList>
                     {onClose && (
@@ -179,7 +123,7 @@ export function HostChatPanel({onClose}: {onClose?: () => void}) {
                                         <StandardMessage
                                             msg={msg}
                                             currentUserId={user?.id}
-                                            isCurrentUserHost={true}
+                                            isCurrentUserHost={false}
                                         />
                                     )}
                                 </div>
@@ -218,6 +162,10 @@ export function HostChatPanel({onClose}: {onClose?: () => void}) {
 
                 <TabsContent value="members" className="mt-0 flex-1 overflow-hidden">
                     <MemberList/>
+                </TabsContent>
+
+                <TabsContent value="settings" className="mt-0 flex-1 overflow-hidden">
+                    <ChatSettings/>
                 </TabsContent>
             </Tabs>
         </Card>

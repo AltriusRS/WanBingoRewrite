@@ -16,7 +16,7 @@ import {MemberList} from "./member-list"
 import {ChatSettings} from "./chat-settings"
 import {Tabs, TabsContent, TabsList, TabsTrigger} from "@/components/ui/tabs"
 
-export function DesktopChatPanel({onClose}: ChatPanelProps) {
+export function DesktopChatPanel({onClose}: {onClose?: () => void; isMobile?: boolean}) {
     const scrollRef = useRef<HTMLDivElement>(null)
     const chatContext = useChat()
     const {user, login} = useAuth()
@@ -105,9 +105,11 @@ export function DesktopChatPanel({onClose}: ChatPanelProps) {
                             Settings
                         </TabsTrigger>
                     </TabsList>
-                    <Button variant="ghost" size="icon" onClick={onClose} className="h-8 w-8 md:hidden">
-                        <X className="h-4 w-4"/>
-                    </Button>
+                    {onClose && (
+                        <Button variant="ghost" size="icon" onClick={onClose} className="h-8 w-8 md:hidden">
+                            <X className="h-4 w-4"/>
+                        </Button>
+                    )}
                 </div>
 
                 <TabsContent value="chat" className="mt-0 flex flex-1 flex-col overflow-hidden">
@@ -152,7 +154,7 @@ export function DesktopChatPanel({onClose}: ChatPanelProps) {
                                 <Button type="submit"
                                         disabled={chatContext.sending || chatContext.text.trim().length === 0}>
                                     Send
-                                </Button>
+                        </Button>
                             </div>
                         </form>
                     )}
