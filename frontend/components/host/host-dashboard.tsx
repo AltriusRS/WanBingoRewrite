@@ -9,7 +9,7 @@ import { TestMessagePanel } from "./test-message-panel"
 import { TileManagementPanel } from "./tile-management-panel"
 import { SuggestionManagementPanel } from "./suggestion-management-panel"
 import { HostProvider } from "./host-context"
-import { LogOut, ArrowLeft } from "lucide-react"
+import { LogOut, ArrowLeft, ExternalLink } from "lucide-react"
 import { useAuth } from "@/components/auth"
 import Link from "next/link"
 
@@ -42,9 +42,13 @@ export function HostDashboard() {
               </div>
             </div>
             <div className="flex items-center gap-2">
-              <Button variant="outline" size="sm" onClick={() => setShowChat(!showChat)} className="gap-2 bg-transparent">
-                {showChat ? "Hide Chat" : "Show Chat"}
-              </Button>
+               <Button variant="outline" size="sm" onClick={() => setShowChat(!showChat)} className="gap-2 bg-transparent">
+                 {showChat ? "Hide Chat" : "Show Chat"}
+               </Button>
+               <Button variant="outline" size="sm" onClick={() => { window.open('/host?chat', '_blank', 'width=800,height=600'); setShowChat(false); }} className="gap-2 bg-transparent">
+                 <ExternalLink className="h-4 w-4" />
+                 Pop Out Chat
+               </Button>
               <Button variant="outline" size="sm" asChild className="gap-2 bg-transparent">
                 <Link href="/">
                   <ArrowLeft className="h-4 w-4" />
