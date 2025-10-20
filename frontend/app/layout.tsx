@@ -83,7 +83,9 @@ export default function RootLayout({
                 <AuthProvider>
                     <UserThemeProvider>
                         <ChatProvider>
-                            {children}
+                            <div id="app-container">
+                                {children}
+                            </div>
                         </ChatProvider>
                     </UserThemeProvider>
                 </AuthProvider>
