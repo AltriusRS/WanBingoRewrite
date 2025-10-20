@@ -9,7 +9,7 @@ import {TestMessagePanel} from "./test-message-panel"
 import {TileManagementPanel} from "./tile-management-panel"
 import {SuggestionManagementPanel} from "./suggestion-management-panel"
 import {HostProvider} from "./host-context"
-import {ArrowLeft, ExternalLink, LogOut, Clock} from "lucide-react"
+import {ArrowLeft, ExternalLink, LogOut, Clock, Eye, EyeOff} from "lucide-react"
 import {useAuth} from "@/components/auth"
 import Link from "next/link"
 import {Card} from "@/components/ui/card"
@@ -22,10 +22,21 @@ export function HostDashboard() {
     const [showLateModal, setShowLateModal] = useState(false)
     const [lateReason, setLateReason] = useState("")
     const [confirmingLate, setConfirmingLate] = useState(false)
+    const [hideTabs, setHideTabs] = useState(false)
 
     useEffect(() => {
         const isMobile = window.innerWidth < 768
         setShowChat(!isMobile)
+    }, [])
+
+    useEffect(() => {
+        const handleKeyDown = (e: KeyboardEvent) => {
+            if (e.ctrlKey && e.key === '\\') {
+                setHideTabs(prev => !prev)
+            }
+        }
+        window.addEventListener('keydown', handleKeyDown)
+        return () => window.removeEventListener('keydown', handleKeyDown)
     }, [])
 
     const handleSignOut = async () => {
@@ -113,25 +124,32 @@ export function HostDashboard() {
                                     Back to Player View
                                 </Link>
                             </Button>
-                            <Button variant="outline" size="sm" onClick={handleSignOut}
-                                    className="gap-2 bg-transparent">
-                                <LogOut className="h-4 w-4"/>
-                                Sign Out
-                            </Button>
+                             <Button variant="outline" size="sm" onClick={() => setHideTabs(prev => !prev)}
+                                     className="gap-2 bg-transparent">
+                                 {hideTabs ? <Eye className="h-4 w-4"/> : <EyeOff className="h-4 w-4"/>}
+                                 {hideTabs ? "Show Tabs" : "Hide Tabs"}
+                             </Button>
+                             <Button variant="outline" size="sm" onClick={handleSignOut}
+                                     className="gap-2 bg-transparent">
+                                 <LogOut className="h-4 w-4"/>
+                                 Sign Out
+                             </Button>
                         </div>
                     </div>
                 </header>
 
                 {/* Main Content */}
                 <div className="w-full flex flex-1 gap-4 overflow-hidden px-24 py-4">
-                    <Tabs defaultValue="tiles" className="flex flex-1 flex-col">
-                        <TabsList className="w-full justify-start">
-                            <TabsTrigger value="tiles">Tile Confirmation</TabsTrigger>
-                            <TabsTrigger value="timers">Timers</TabsTrigger>
-                            <TabsTrigger value="manage-tiles">Manage Tiles</TabsTrigger>
-                            <TabsTrigger value="suggestions">Suggestions</TabsTrigger>
-                            <TabsTrigger value="test">Test Messages</TabsTrigger>
-                        </TabsList>
+                     <Tabs defaultValue="tiles" className="flex flex-1 flex-col">
+                         {!hideTabs && (
+                             <TabsList className="w-full justify-start">
+                                 <TabsTrigger value="tiles">Tile Confirmation</TabsTrigger>
+                                 <TabsTrigger value="timers">Timers</TabsTrigger>
+                                 <TabsTrigger value="manage-tiles">Manage Tiles</TabsTrigger>
+                                 <TabsTrigger value="suggestions">Suggestions</TabsTrigger>
+                                 <TabsTrigger value="test">Test Messages</TabsTrigger>
+                             </TabsList>
+                         )}
 
                         <TabsContent value="tiles" className="flex-1 overflow-hidden">
                             {showChat ? (
