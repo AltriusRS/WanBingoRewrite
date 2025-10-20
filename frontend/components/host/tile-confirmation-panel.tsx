@@ -5,6 +5,8 @@ import {Card} from "@/components/ui/card"
 import {Button} from "@/components/ui/button"
 import {ScrollArea} from "@/components/ui/scroll-area"
 import {TileConfirmationDialog} from "./tile-confirmation-dialog"
+import {Dialog, DialogContent, DialogHeader, DialogTitle} from "@/components/ui/dialog"
+import {Input} from "@/components/ui/input"
 import type {BingoTile} from "@/lib/bingoUtils"
 import {CheckCircle2, Clock, Hash, Lock, Pause, Play, RotateCcw, Trash2} from "lucide-react"
 import {getApiRoot} from "@/lib/auth";
@@ -70,6 +72,9 @@ export function TileConfirmationPanel({ showLateButton, columns = 3 }: TileConfi
     const [selectedTimer, setSelectedTimer] = useState<Timer | null>(null)
     const [lateTile, setLateTile] = useState<BingoTile | null>(null)
     const [show, setShow] = useState<Show | null>(null)
+    const [searchOpen, setSearchOpen] = useState(false)
+    const [searchTerm, setSearchTerm] = useState("")
+    const [selectedIndex, setSelectedIndex] = useState(0)
 
     useEffect(() => {
         fetchTiles()
@@ -85,6 +90,17 @@ export function TileConfirmationPanel({ showLateButton, columns = 3 }: TileConfi
         }, 1000)
         return () => clearInterval(interval)
     }, [showLateButton])
+
+    useEffect(() => {
+        const handleKeyDown = (e: KeyboardEvent) => {
+            if (e.ctrlKey && e.key === 'f') {
+                e.preventDefault()
+                setSearchOpen(true)
+            }
+        }
+        window.addEventListener('keydown', handleKeyDown)
+        return () => window.removeEventListener('keydown', handleKeyDown)
+    }, [])
 
     const formatTime = (expiresAt?: string) => {
         if (!expiresAt) return "00:00"
@@ -303,16 +319,16 @@ export function TileConfirmationPanel({ showLateButton, columns = 3 }: TileConfi
                 toast.success(`${selectedTile.title} confirmation has been revoked.`)
             } else {
                 console.log(`[TileConfirmationPanel] Confirming tile ${selectedTile.id} with context: "${context}"`)
-                // Confirm tile
-                const response = await fetch(`${getApiRoot()}/host/show-tiles`, {
-                    method: "POST",
-                    headers: {"Content-Type": "application/json"},
-                    credentials: "include",
-                    body: JSON.stringify({
-                        tile_id: selectedTile.id,
-                        context: context || undefined,
-                    }),
-                })
+                 // Confirm tile
+                 const response = await fetch(`${getApiRoot()}/tiles/confirmations`, {
+                     method: "POST",
+                     headers: {"Content-Type": "application/json"},
+                     credentials: "include",
+                     body: JSON.stringify({
+                         tile_id: selectedTile.id,
+                         context: context,
+                     }),
+                 })
 
                 if (!response.ok) {
                     const errorText = await response.text()
@@ -429,6 +445,14 @@ export function TileConfirmationPanel({ showLateButton, columns = 3 }: TileConfi
 
     const shouldHighlightLateButton = show && show.scheduled_time && new Date() > new Date(show.scheduled_time) && !show.actual_start_time
 
+    const filteredTiles = tiles.filter(tile =>
+        tile.title.toLowerCase().includes(searchTerm.toLowerCase())
+    ).sort((a, b) => a.title.localeCompare(b.title))
+
+    useEffect(() => {
+        setSelectedIndex(0)
+    }, [searchTerm])
+
     if (loading) {
         return (
             <Card className="flex items-center justify-center p-8">
@@ -529,27 +553,83 @@ export function TileConfirmationPanel({ showLateButton, columns = 3 }: TileConfi
                 </div>
              </ScrollArea>
 
-            <TileConfirmationDialog
-                tile={selectedTile}
-                open={!!selectedTile}
-                revokeMode={revokeMode}
-                onConfirm={handleConfirm}
-                onCancel={handleCancel}
-                onStartTimer={handleStartTimer}
-            />
+             <TileConfirmationDialog
+                 tile={selectedTile}
+                 open={!!selectedTile}
+                 revokeMode={revokeMode}
+                 onConfirm={handleConfirm}
+                 onCancel={handleCancel}
+                 onStartTimer={handleStartTimer}
+             />
 
-            {/* Timer Control Dialog */}
-            {selectedTimer && (
-                <TimerControlDialog
-                    timer={selectedTimer}
-                    open={!!selectedTimer}
-                    onClose={() => setSelectedTimer(null)}
-                    onToggle={toggleTimer}
-                    onReset={resetTimer}
-                    onDelete={deleteTimer}
-                    currentTime={currentTime}
-                />
-            )}
+             {/* Timer Control Dialog */}
+             {selectedTimer && (
+                 <TimerControlDialog
+                     timer={selectedTimer}
+                     open={!!selectedTimer}
+                     onClose={() => setSelectedTimer(null)}
+                     onToggle={toggleTimer}
+                     onReset={resetTimer}
+                     onDelete={deleteTimer}
+                     currentTime={currentTime}
+                 />
+             )}
+
+             {/* Tile Search Dialog */}
+             <Dialog open={searchOpen} onOpenChange={setSearchOpen}>
+                 <DialogContent className="max-w-md">
+                     <DialogHeader>
+                         <DialogTitle>Search Tiles</DialogTitle>
+                     </DialogHeader>
+                     <Input
+                         placeholder="Search tiles..."
+                         value={searchTerm}
+                         onChange={(e) => setSearchTerm(e.target.value)}
+                         onKeyDown={(e) => {
+                             if (e.key === 'ArrowDown' || e.key === 'j') {
+                                 e.preventDefault()
+                                 setSelectedIndex(prev => Math.min(prev + 1, filteredTiles.length - 1))
+                             } else if (e.key === 'ArrowUp' || e.key === 'k') {
+                                 e.preventDefault()
+                                 setSelectedIndex(prev => Math.max(prev - 1, 0))
+                             } else if (e.key === 'Enter') {
+                                 e.preventDefault()
+                                 if (filteredTiles[selectedIndex]) {
+                                     handleTileClick(filteredTiles[selectedIndex])
+                                     setSearchOpen(false)
+                                     setSearchTerm("")
+                                     setSelectedIndex(0)
+                                 }
+                             } else if (e.key === 'Escape') {
+                                 e.preventDefault()
+                                 setSearchOpen(false)
+                                 setSearchTerm("")
+                                 setSelectedIndex(0)
+                             }
+                         }}
+                         autoFocus
+                     />
+                     <ScrollArea className="max-h-64">
+                         <div className="space-y-1">
+                             {filteredTiles.map((tile, index) => (
+                                 <Button
+                                     key={tile.id}
+                                     variant="ghost"
+                                     className={`w-full justify-start text-left ${selectedIndex === index ? "bg-accent" : ""}`}
+                                     onClick={() => {
+                                         handleTileClick(tile)
+                                         setSearchOpen(false)
+                                         setSearchTerm("")
+                                         setSelectedIndex(0)
+                                     }}
+                                 >
+                                     {tile.title}
+                                 </Button>
+                             ))}
+                         </div>
+                     </ScrollArea>
+                 </DialogContent>
+             </Dialog>
         </>
     )
 }
