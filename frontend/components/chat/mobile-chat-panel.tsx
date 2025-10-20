@@ -27,11 +27,24 @@ export function MobileChatPanel({onClose}: ChatPanelProps) {
     }, [chatContext.messages])
 
     useEffect(() => {
-        updateLiveTime(chatContext.episode, chatContext)
-        const interval = setInterval(updateLiveTime, 60_000, chatContext.episode, chatContext)
-
-        return () => clearInterval(interval)
+        if (chatContext.episode) {
+            updateLiveTime(chatContext.episode, chatContext)
+            const interval = setInterval(updateLiveTime, 60_000, chatContext.episode, chatContext)
+            return () => clearInterval(interval)
+        }
     }, [chatContext.episode, chatContext])
+
+    if (!chatContext.episode) {
+        return (
+            <Card className="flex h-[60vh] max-h-[60vh] flex-col rounded-b-none border-b-0">
+                <div className="flex flex-col shrink-0 border-b border-border p-3">
+                    <div className="flex items-center justify-center p-4">
+                        <p className="text-muted-foreground">Loading episode...</p>
+                    </div>
+                </div>
+            </Card>
+        )
+    }
 
     return (
         <Card className="flex h-[60vh] max-h-[60vh] flex-col rounded-b-none border-b-0">
@@ -52,7 +65,7 @@ export function MobileChatPanel({onClose}: ChatPanelProps) {
                     </div>
                     <div className="h-4 w-px bg-border"/>
                     <div className="truncate">
-                        {chatContext.episode.state === "live" ? `Live for ${chatContext.liveTime}` : `Starts ${chatContext.liveTime}`}
+                        {chatContext.episode ? (chatContext.episode.state === "live" ? `Live for ${chatContext.liveTime}` : `Starts ${chatContext.liveTime}`) : "Loading..."}
                     </div>
                 </div>
             </div>

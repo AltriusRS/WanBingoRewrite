@@ -30,18 +30,31 @@ export function DesktopChatPanel({onClose}: {onClose?: () => void; isMobile?: bo
     }, [chatContext.messages])
 
     useEffect(() => {
-        updateLiveTime(chatContext.episode, chatContext)
-        const interval = setInterval(updateLiveTime, 60_000, chatContext.episode, chatContext)
-
-        return () => clearInterval(interval)
+        if (chatContext.episode) {
+            updateLiveTime(chatContext.episode, chatContext)
+            const interval = setInterval(updateLiveTime, 60_000, chatContext.episode, chatContext)
+            return () => clearInterval(interval)
+        }
     }, [chatContext.episode, chatContext])
+
+    if (!chatContext.episode) {
+        return (
+            <Card className="flex h-full max-h-full flex-col overflow-hidden">
+                <div className="shrink-0 border-b border-border bg-card p-4">
+                    <div className="flex items-center justify-center p-8">
+                        <p className="text-muted-foreground">Loading episode...</p>
+                    </div>
+                </div>
+            </Card>
+        )
+    }
 
     return (
         <Card className="flex h-full max-h-full flex-col overflow-hidden">
             <div className="shrink-0 border-b border-border bg-card p-4">
                 <div className="flex items-start justify-between gap-3">
                     <div className="min-w-0 flex-1">
-                        {chatContext.episode.youtube_id && chatContext.episode.state === "live" ? (
+                        {chatContext.episode && chatContext.episode.youtube_id && (chatContext.episode.state === "live" || chatContext.episode.state === "finished") ? (
                             <div className="relative -mt-6 w-full overflow-hidden rounded-md pb-[56.25%]">
                                 <iframe
                                     className="absolute left-0 top-0 h-full w-full rounded-md"
@@ -82,7 +95,7 @@ export function DesktopChatPanel({onClose}: {onClose?: () => void; isMobile?: bo
                             </div>
                             <div className="h-4 w-px bg-border"/>
                             <div className="truncate">
-                                {chatContext.episode.state === "live" ? `Live for ${chatContext.liveTime}` : `Starts ${chatContext.liveTime}`}
+                                {chatContext.episode ? (chatContext.episode.state === "live" ? `Live for ${chatContext.liveTime}` : `Starts ${chatContext.liveTime}`) : "Loading..."}
                             </div>
                         </div>
                     </div>

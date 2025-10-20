@@ -37,20 +37,7 @@ export function ChatProvider({children}: { children: React.ReactNode }) {
     const [liveTime, setLiveTime] = useState<string>("")
     const [text, setText] = useState<string>("")
     const [sending, setSending] = useState<boolean>(false)
-    const [episode, setEpisode] = useState<Show>({
-        "id": "Y2kz75uBC8",
-        "state": "live",
-        "youtube_id": "YVHXYqMPyzc",
-        "scheduled_time": "2025-10-11T00:30:00Z",
-        "actual_start_time": "2025-10-11T00:05:06Z",
-        "thumbnail": "https://pbs.floatplane.com/stream_thumbnails/5c13f3c006f1be15e08e05c0/733054221374526_1760139634263.jpeg",
-        "metadata": {
-            "fp_vod": "w3A5fKcfTi",
-            "title": "Piracy Is Dangerous And Harmful"
-        },
-        "created_at": "2025-10-10T23:46:40Z",
-        "updated_at": "2025-10-16T19:12:58.692094Z",
-    })
+    const [episode, setEpisode] = useState<Show | null>(null)
 
     const value = useMemo(() => ({
         messages, setMessages,
@@ -65,6 +52,21 @@ export function ChatProvider({children}: { children: React.ReactNode }) {
     }), [messages, memberCount, memberList, memberListLoading, memberListError, liveTime, text, sending, episode]) as ChatContextValue;
 
     useEffect(() => {
+        const fetchEpisode = async () => {
+            try {
+                const apiRoot = process.env.NEXT_PUBLIC_API_ROOT || "http://localhost:8000"
+                const response = await fetch(`${apiRoot}/shows/latest`)
+                if (response.ok) {
+                    const data = await response.json()
+                    setEpisode(data)
+                }
+            } catch (error) {
+                console.error("Failed to fetch episode:", error)
+            }
+        }
+
+        fetchEpisode()
+
         const apiRoot = process.env.NEXT_PUBLIC_API_ROOT || "http://localhost:8000"
         const es = new EventSource(`${apiRoot}/chat/stream`, {
             withCredentials: true,
