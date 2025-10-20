@@ -160,11 +160,13 @@ export function buildSubmitHandler(chatContext: ChatContextValue): (e: React.For
         if (message.toLowerCase() === "do a barrel roll") {
             // Easter egg: barrel roll animation
             console.log('Triggering barrel roll')
-            const container = document.getElementById('app-container')
+            const container = document.getElementById('app-container') as HTMLElement
             if (container) {
-                container.classList.add('barrel-roll')
+                container.style.transform = 'rotate(360deg)'
+                container.style.transition = 'transform 5s ease-in-out'
                 setTimeout(() => {
-                    container.classList.remove('barrel-roll')
+                    container.style.transform = ''
+                    container.style.transition = ''
                     console.log('Barrel roll ended')
                 }, 5000)
             }
