@@ -162,11 +162,13 @@ export function buildSubmitHandler(chatContext: ChatContextValue): (e: React.For
             console.log('Triggering barrel roll')
             const container = document.getElementById('app-container') as HTMLElement
             if (container) {
+                container.style.overflow = 'hidden'
                 container.style.transform = 'rotate(360deg)'
                 container.style.transition = 'transform 5s ease-in-out'
                 setTimeout(() => {
                     container.style.transform = ''
                     container.style.transition = ''
+                    container.style.overflow = ''
                     console.log('Barrel roll ended')
                 }, 5000)
             }
