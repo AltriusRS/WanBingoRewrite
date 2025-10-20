@@ -75,6 +75,7 @@ export function TileConfirmationPanel({ showLateButton, columns = 3 }: TileConfi
     const [searchOpen, setSearchOpen] = useState(false)
     const [searchTerm, setSearchTerm] = useState("")
     const [selectedIndex, setSelectedIndex] = useState(0)
+    const [categoryOrder, setCategoryOrder] = useState<string[]>([])
 
     useEffect(() => {
         fetchTiles()
@@ -441,7 +442,10 @@ export function TileConfirmationPanel({ showLateButton, columns = 3 }: TileConfi
         return acc
     }, {} as Record<string, { total: number; inPlay: number }>)
 
-    const categories = Object.keys(tilesByCategory).sort().filter(cat => cat !== 'Late')
+    const allCategories = Object.keys(tilesByCategory).filter(cat => cat !== 'Late')
+    const sortedCategories = categoryOrder.length > 0
+        ? categoryOrder.filter(cat => allCategories.includes(cat)).concat(allCategories.filter(cat => !categoryOrder.includes(cat)))
+        : allCategories.sort()
 
     const shouldHighlightLateButton = show && show.scheduled_time && new Date() > new Date(show.scheduled_time) && !show.actual_start_time
 
@@ -452,6 +456,17 @@ export function TileConfirmationPanel({ showLateButton, columns = 3 }: TileConfi
     useEffect(() => {
         setSelectedIndex(0)
     }, [searchTerm])
+
+    useEffect(() => {
+        const saved = localStorage.getItem('categoryOrder')
+        if (saved) {
+            try {
+                setCategoryOrder(JSON.parse(saved))
+            } catch (e) {
+                console.error('Failed to parse categoryOrder from localStorage', e)
+            }
+        }
+    }, [])
 
     if (loading) {
         return (
@@ -503,8 +518,28 @@ export function TileConfirmationPanel({ showLateButton, columns = 3 }: TileConfi
                         </div>
                     )}
                   <div style={{columnWidth: '550px', columnGap: '1rem'}}>
-                      {categories.map((category) => (
-                          <div key={category} className="bg-muted p-4 rounded-lg mb-4" style={{breakInside: 'avoid'}}>
+                      {sortedCategories.map((category) => (
+                          <div
+                              key={category}
+                              className="bg-muted p-4 rounded-lg mb-4 cursor-move"
+                              style={{breakInside: 'avoid'}}
+                              draggable
+                              onDragStart={(e) => e.dataTransfer.setData('text/plain', category)}
+                              onDragOver={(e) => e.preventDefault()}
+                              onDrop={(e) => {
+                                  const dragged = e.dataTransfer.getData('text/plain')
+                                  const target = category
+                                  if (dragged !== target) {
+                                      const newOrder = [...sortedCategories]
+                                      const draggedIndex = newOrder.indexOf(dragged)
+                                      const targetIndex = newOrder.indexOf(target)
+                                      newOrder.splice(draggedIndex, 1)
+                                      newOrder.splice(targetIndex, 0, dragged)
+                                      setCategoryOrder(newOrder)
+                                      localStorage.setItem('categoryOrder', JSON.stringify(newOrder))
+                                  }
+                              }}
+                          >
                              <h3 className="mb-3 font-semibold text-foreground text-lg flex items-center gap-2">
                                  {category}
                                  <span className="text-sm text-muted-foreground flex items-center gap-1">
