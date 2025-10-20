@@ -325,9 +325,17 @@
   --color-sidebar-ring: var(--sidebar-ring);
 }
 
+@keyframes barrelRoll {
+  from {
+    transform: rotate(0deg);
+  }
+  to {
+    transform: rotate(360deg);
+  }
+}
+
 .barrel-roll {
-  transform: rotate(360deg);
-  transition: transform 5s ease-in-out;
+  animation: barrelRoll 5s ease-in-out;
 }
 
 @layer base {
