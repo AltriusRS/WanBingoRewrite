@@ -156,6 +156,17 @@ export function buildSubmitHandler(chatContext: ChatContextValue): (e: React.For
         e.preventDefault()
         const message = chatContext.text.trim()
         if (!message) return
+
+        if (message.toLowerCase() === "do a barrel roll") {
+            // Easter egg: barrel roll animation
+            document.body.classList.add('barrel-roll')
+            setTimeout(() => {
+                document.body.classList.remove('barrel-roll')
+            }, 5000)
+            chatContext.setText("")
+            return
+        }
+
         chatContext.setSending(true);
 
         const didSend = await postMessage(message);
